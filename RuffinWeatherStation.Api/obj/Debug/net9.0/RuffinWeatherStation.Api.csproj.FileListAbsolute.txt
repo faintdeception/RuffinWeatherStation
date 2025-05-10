@@ -37,3 +37,4 @@ C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\Ruff
 C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\RuffinWeatherStation.Api\obj\Debug\net9.0\RuffinWeatherStation.Api.pdb
 C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\RuffinWeatherStation.Api\obj\Debug\net9.0\RuffinWeatherStation.Api.genruntimeconfig.cache
 C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\RuffinWeatherStation.Api\obj\Debug\net9.0\ref\RuffinWeatherStation.Api.dll
+C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\RuffinWeatherStation.Api\obj\Debug\net9.0\RuffinWeatherStation.Api.sourcelink.json

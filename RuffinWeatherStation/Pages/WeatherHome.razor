@@ -10,26 +10,347 @@
 }
 else
 {
-    <div class="card" style="max-width: 400px;">
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">Temperature</h3>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card" style="max-width: 400px;">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Temperature</h3>
+                </div>
+                <div class="card-body">
+                    <div class="display-1 text-center">@FormatDouble(measurement.Fields?.Temperature)°C</div>
+                    <div class="h4 text-center">@FormatTemperatureF(measurement.Fields?.Temperature)°F</div>
+                    <p class="text-center text-muted">Last updated: @measurement.TimestampStr</p>
+                    <p class="text-center text-muted">Auto-refreshing every @(refreshIntervalSeconds) seconds</p>
+                    <hr />
+                    <table class="table table-sm">
+                        <tr><th>Humidity</th><td>@FormatDouble(measurement.Fields?.Humidity)%</td></tr>
+                        <tr><th>Dewpoint</th><td>@FormatDouble(measurement.Fields?.Dewpoint)°C</td></tr>
+                        <tr><th>Pressure</th><td>@FormatDouble(measurement.Fields?.Pressure) hPa</td></tr>
+                        <tr><th>Light</th><td>@FormatDouble(measurement.Fields?.Lux) lux</td></tr>
+                        <tr><th>Wind</th><td>@FormatDouble(measurement.Fields?.WindSpeed) m/s (@measurement.Fields?.WindDirectionCardinal)</td></tr>
+                        <tr><th>Rain</th><td>@FormatDouble(measurement.Fields?.Rain) mm</td></tr>
+                        <tr><th>Location</th><td>@measurement.Tags?.Location</td></tr>
+                        <tr><th>Sensor</th><td>@measurement.Tags?.SensorType</td></tr>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="display-1 text-center">@FormatDouble(measurement.Fields?.Temperature)°C</div>
-            <div class="h4 text-center">@FormatTemperatureF(measurement.Fields?.Temperature)°F</div>
-            <p class="text-center text-muted">Last updated: @measurement.TimestampStr</p>
-            <p class="text-center text-muted">Auto-refreshing every @(refreshIntervalSeconds) seconds</p>
-            <hr />
-            <table class="table table-sm">
-                <tr><th>Humidity</th><td>@FormatDouble(measurement.Fields?.Humidity)%</td></tr>
-                <tr><th>Dewpoint</th><td>@FormatDouble(measurement.Fields?.Dewpoint)°C</td></tr>
-                <tr><th>Pressure</th><td>@FormatDouble(measurement.Fields?.Pressure) hPa</td></tr>
-                <tr><th>Light</th><td>@FormatDouble(measurement.Fields?.Lux) lux</td></tr>
-                <tr><th>Wind</th><td>@FormatDouble(measurement.Fields?.WindSpeed) m/s (@measurement.Fields?.WindDirectionCardinal)</td></tr>
-                <tr><th>Rain</th><td>@FormatDouble(measurement.Fields?.Rain) mm</td></tr>
-                <tr><th>Location</th><td>@measurement.Tags?.Location</td></tr>
-                <tr><th>Sensor</th><td>@measurement.Tags?.SensorType</td></tr>
-            </table>
+        
+        <div class="col-md-8">
+            @if (showShortTermAnalysis)
+            {
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">Recent Weather Analysis</h3>
+                            <div>
+                                <button @onclick="() => AnalyzeRecentPeriod(1)" class="btn btn-outline-light @(analysisHours == 1 ? "active" : "")">1 Hour</button>
+                                <button @onclick="() => AnalyzeRecentPeriod(6)" class="btn btn-outline-light @(analysisHours == 6 ? "active" : "")">6 Hours</button>
+                                <button @onclick="() => AnalyzeRecentPeriod(12)" class="btn btn-outline-light @(analysisHours == 12 ? "active" : "")">12 Hours</button>
+                                <button @onclick="() => AnalyzeRecentPeriod(24)" class="btn btn-outline-light @(analysisHours == 24 ? "active" : "")">24 Hours</button>
+                                <button @onclick="SwitchToLongTermAnalysis" class="btn btn-outline-light ms-2">Long-term</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if (recentAnalysisResult == null || !recentAnalysisResult.Success)
+                        {
+                            <p><em>Loading analysis data...</em></p>
+                            @if (recentAnalysisResult?.ErrorMessage != null)
+                            {
+                                <div class="alert alert-warning">@recentAnalysisResult.ErrorMessage</div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <strong>Analysis Period:</strong> @recentAnalysisResult.StartDate.ToString("g") to @recentAnalysisResult.EndDate.ToString("g")
+                                        <br/>
+                                        <strong>Measurements:</strong> @recentAnalysisResult.MeasurementCount data points (avg. @recentAnalysisResult.SampleRate min between samples)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>Temperature</h5>
+                                            <div class="display-6">@FormatDouble(recentAnalysisResult.AverageTemperature)°C</div>
+                                            <div>High: @FormatDouble(recentAnalysisResult.HighestTemperature)°C</div>
+                                            <div>Low: @FormatDouble(recentAnalysisResult.LowestTemperature)°C</div>
+                                            <div class="mt-2">
+                                                @if (recentAnalysisResult.TemperatureTrend > 0.1)
+                                                {
+                                                    <span class="badge bg-danger">Rising (@FormatDouble(recentAnalysisResult.TemperatureTrend)°C)</span>
+                                                }
+                                                else if (recentAnalysisResult.TemperatureTrend < -0.1)
+                                                {
+                                                    <span class="badge bg-info">Falling (@FormatDouble(Math.Abs(recentAnalysisResult.TemperatureTrend))°C)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Stable</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>Pressure</h5>
+                                            <div class="display-6">@FormatDouble(recentAnalysisResult.AveragePressure) hPa</div>
+                                            <div>High: @FormatDouble(recentAnalysisResult.HighestPressure) hPa</div>
+                                            <div>Low: @FormatDouble(recentAnalysisResult.LowestPressure) hPa</div>
+                                            <div class="mt-2">
+                                                @if (recentAnalysisResult.PressureTrend > 0.5)
+                                                {
+                                                    <span class="badge bg-warning">Rising (@FormatDouble(recentAnalysisResult.PressureTrend) hPa)</span>
+                                                }
+                                                else if (recentAnalysisResult.PressureTrend < -0.5)
+                                                {
+                                                    <span class="badge bg-primary">Falling (@FormatDouble(Math.Abs(recentAnalysisResult.PressureTrend)) hPa)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Stable</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>Rainfall</h5>
+                                            <div class="display-6">@FormatDouble(recentAnalysisResult.TotalRainfall) mm</div>
+                                            <div>Over the last @analysisHours hour(s)</div>
+                                            @if (recentAnalysisResult.TotalRainfall > 0)
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="badge bg-primary">Precipitation detected</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="badge bg-secondary">No rain</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4>Temperature Trend (Last @analysisHours hour@(analysisHours == 1 ? "" : "s"))</h4>
+                            <div class="mb-4">
+                                @if (recentAnalysisResult.HourlyTemperatures != null && recentAnalysisResult.HourlyTemperatures.Any())
+                                {
+                                    <RadzenChart>
+                                        <RadzenLineSeries Smooth="true" Data="@recentAnalysisResult.HourlyTemperatures" 
+                                                        CategoryProperty="Timestamp" 
+                                                        ValueProperty="Temperature" 
+                                                        Title="Temperature (°C)" 
+                                                        LineType="LineType.Solid"
+                                                        StrokeWidth="3">
+                                            <RadzenMarkers MarkerType="MarkerType.Circle" Size="4" />
+                                        </RadzenLineSeries>
+                                        <RadzenCategoryAxis Formatter="@FormatTimestamp"></RadzenCategoryAxis>
+                                        <RadzenValueAxis>
+                                            <RadzenGridLines Visible="true" />
+                                            <RadzenAxisTitle Text="Temperature (°C)" />
+                                        </RadzenValueAxis>
+                                        <RadzenLegend Position="LegendPosition.Top" />
+                                    </RadzenChart>
+                                }
+                                else
+                                {
+                                    <p>No temperature data available for this period.</p>
+                                }
+                            </div>
+                            
+                            <h4>Pressure Trend (Last @analysisHours hour@(analysisHours == 1 ? "" : "s"))</h4>
+                            <div class="mb-4">
+                                @if (recentAnalysisResult.HourlyPressures != null && recentAnalysisResult.HourlyPressures.Any())
+                                {
+                                    <RadzenChart>
+                                        <RadzenLineSeries Smooth="true" Data="@recentAnalysisResult.HourlyPressures" 
+                                                        CategoryProperty="Timestamp" 
+                                                        ValueProperty="Value" 
+                                                        Title="Pressure (hPa)" 
+                                                        StrokeWidth="3">
+                                            <RadzenMarkers MarkerType="MarkerType.Circle" Size="4" />
+                                        </RadzenLineSeries>
+                                        <RadzenCategoryAxis Formatter="@FormatTimestamp"></RadzenCategoryAxis>
+                                        <RadzenValueAxis>
+                                            <RadzenGridLines Visible="true" />
+                                            <RadzenAxisTitle Text="Pressure (hPa)" />
+                                        </RadzenValueAxis>
+                                    </RadzenChart>
+                                }
+                                else
+                                {
+                                    <p>No pressure data available for this period.</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">Long-term Weather Analysis</h3>
+                            <div>
+                                <button @onclick="() => AnalyzePeriod(7)" class="btn btn-outline-light @(analysisPeriod == 7 ? "active" : "")">7 Days</button>
+                                <button @onclick="() => AnalyzePeriod(14)" class="btn btn-outline-light @(analysisPeriod == 14 ? "active" : "")">14 Days</button>
+                                <button @onclick="() => AnalyzePeriod(30)" class="btn btn-outline-light @(analysisPeriod == 30 ? "active" : "")">30 Days</button>
+                                <button @onclick="SwitchToShortTermAnalysis" class="btn btn-outline-light ms-2">Recent</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if (analysisResult == null || !analysisResult.Success)
+                        {
+                            <p><em>Loading analysis data...</em></p>
+                            @if (analysisResult?.ErrorMessage != null)
+                            {
+                                <div class="alert alert-warning">@analysisResult.ErrorMessage</div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>Temperature</h5>
+                                            <div class="display-6">@FormatDouble(analysisResult.AverageTemperature)°C</div>
+                                            <div>High: @FormatDouble(analysisResult.HighestTemperature)°C</div>
+                                            <div>Low: @FormatDouble(analysisResult.LowestTemperature)°C</div>
+                                            <div class="mt-2">
+                                                @if (analysisResult.TemperatureTrend > 0.2)
+                                                {
+                                                    <span class="badge bg-danger">Warming trend</span>
+                                                }
+                                                else if (analysisResult.TemperatureTrend < -0.2)
+                                                {
+                                                    <span class="badge bg-info">Cooling trend</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Stable</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>Pressure</h5>
+                                            <div class="display-6">@FormatDouble(analysisResult.AveragePressure) hPa</div>
+                                            <div>High: @FormatDouble(analysisResult.HighestPressure) hPa</div>
+                                            <div>Low: @FormatDouble(analysisResult.LowestPressure) hPa</div>
+                                            <div class="mt-2">
+                                                @if (analysisResult.PressureTrend > 1)
+                                                {
+                                                    <span class="badge bg-warning">Rising pressure</span>
+                                                }
+                                                else if (analysisResult.PressureTrend < -1)
+                                                {
+                                                    <span class="badge bg-primary">Falling pressure</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Stable</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>Rainfall</h5>
+                                            <div class="display-6">@FormatDouble(analysisResult.TotalRainfall) mm</div>
+                                            <div>Rainy Days: @analysisResult.RainyDaysCount</div>
+                                            <div>Analysis Period: @analysisResult.StartDate.ToString("MMM d") - @analysisResult.EndDate.ToString("MMM d")</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4>Temperature Trends</h4>
+                            <div class="mb-4">
+                                @if (analysisResult.HourlyTemperatures != null && analysisResult.HourlyTemperatures.Any())
+                                {
+                                    <RadzenChart>
+                                        <RadzenAreaSeries Smooth="true" Data="@analysisResult.HourlyTemperatures" 
+                                                        CategoryProperty="Timestamp" 
+                                                        ValueProperty="Temperature" 
+                                                        Title="Temperature (°C)" 
+                                                        Fill="rgba(54, 162, 235, 0.2)">
+                                    </RadzenAreaSeries>
+                                    <RadzenLineSeries Smooth="true" Data="@analysisResult.HourlyTemperatures" 
+                                                        CategoryProperty="Timestamp" 
+                                                        ValueProperty="Max" 
+                                                        Title="Maximum (°C)" 
+                                                        LineType="LineType.Dashed">
+                                    </RadzenLineSeries>
+                                    <RadzenLineSeries Smooth="true" Data="@analysisResult.HourlyTemperatures" 
+                                                        CategoryProperty="Timestamp" 
+                                                        ValueProperty="Min" 
+                                                        Title="Minimum (°C)" 
+                                                        LineType="LineType.Dashed">
+                                    </RadzenLineSeries>
+                                    <RadzenCategoryAxis Formatter="@FormatTimestamp"></RadzenCategoryAxis>
+                                    <RadzenValueAxis>
+                                        <RadzenGridLines Visible="true" />
+                                        <RadzenAxisTitle Text="Temperature (°C)" />
+                                    </RadzenValueAxis>
+                                    <RadzenLegend Position="LegendPosition.Top" />
+                                </RadzenChart>
+                                }
+                                else
+                                {
+                                    <p>No temperature trend data available for this period.</p>
+                                }
+                            </div>
+                            
+                            <h4>Pressure Trends</h4>
+                            <div class="mb-4">
+                                @if (analysisResult.HourlyPressures != null && analysisResult.HourlyPressures.Any())
+                                {
+                                    <RadzenChart>
+                                        <RadzenLineSeries Smooth="true" Data="@analysisResult.HourlyPressures" 
+                                                        CategoryProperty="Timestamp" 
+                                                        ValueProperty="Value" 
+                                                        Title="Pressure (hPa)" 
+                                                        StrokeWidth="3">
+                                            <RadzenMarkers MarkerType="MarkerType.Circle" Size="4" />
+                                        </RadzenLineSeries>
+                                        <RadzenCategoryAxis Formatter="@FormatTimestamp"></RadzenCategoryAxis>
+                                        <RadzenValueAxis>
+                                            <RadzenGridLines Visible="true" />
+                                            <RadzenAxisTitle Text="Pressure (hPa)" />
+                                        </RadzenValueAxis>
+                                    </RadzenChart>
+                                }
+                                else
+                                {
+                                    <p>No pressure trend data available for this period.</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
@@ -38,15 +359,33 @@ else
     private TemperatureMeasurement? measurement;
     private System.Threading.Timer? timer;
     private readonly int refreshIntervalSeconds = 30;
+    private WeatherAnalysisResult? analysisResult;
+    private WeatherAnalysisResult? recentAnalysisResult;
+    private int analysisPeriod = 7; // Default to 7-day analysis
+    private int analysisHours = 1; // Default to 1-hour analysis for recent data
+    private bool showShortTermAnalysis = true; // Default to short-term analysis view
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
         
+        // Start with short-term (recent) analysis
+        await AnalyzeRecentPeriod(analysisHours);
+        
+        // Also load long-term analysis in background
+        await AnalyzePeriod(analysisPeriod);
+        
         // Setup timer for auto-refresh
         timer = new System.Threading.Timer(async _ => 
         {
             await LoadData();
+            
+            // Only auto-refresh the analysis that's currently showing
+            if (showShortTermAnalysis)
+            {
+                await AnalyzeRecentPeriod(analysisHours);
+            }
+            
             await InvokeAsync(StateHasChanged);
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(refreshIntervalSeconds));
     }
@@ -65,6 +404,32 @@ else
         }
     }
     
+    private async Task AnalyzePeriod(int days)
+    {
+        analysisPeriod = days;
+        analysisResult = await TemperatureService.AnalyzeWeatherTrendsAsync(days);
+        StateHasChanged();
+    }
+    
+    private async Task AnalyzeRecentPeriod(int hours)
+    {
+        analysisHours = hours;
+        recentAnalysisResult = await TemperatureService.AnalyzeRecentMeasurementsAsync(hours);
+        StateHasChanged();
+    }
+    
+    private void SwitchToShortTermAnalysis()
+    {
+        showShortTermAnalysis = true;
+        StateHasChanged();
+    }
+    
+    private void SwitchToLongTermAnalysis()
+    {
+        showShortTermAnalysis = false;
+        StateHasChanged();
+    }
+    
     // Helper method to safely format nullable double values
     private string FormatDouble(double? value)
     {
@@ -77,6 +442,29 @@ else
         if (!celsius.HasValue) return "N/A";
         double fahrenheit = 32 + (celsius.Value * 9 / 5);
         return fahrenheit.ToString("F1");
+    }
+    
+    private string FormatTimestamp(object value)
+    {
+        if (value is DateTime dateTime)
+        {
+            if (showShortTermAnalysis)
+            {
+                // For short-term analysis, show hour:minute
+                return dateTime.ToString("HH:mm");
+            }
+            else if (analysisPeriod <= 7)
+            {
+                // For shorter periods, show date and time
+                return dateTime.ToString("MM/dd HH:mm");
+            }
+            else
+            {
+                // For longer periods, show just the date
+                return dateTime.ToString("MM/dd");
+            }
+        }
+        return string.Empty;
     }
 
     public void Dispose()

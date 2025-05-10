@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RuffinWeatherStation.Api.Models;
 using RuffinWeatherStation.Api.Services;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -32,6 +33,32 @@ namespace RuffinWeatherStation.Api.Controllers
         public async Task<ActionResult<IEnumerable<TemperatureMeasurement>>> GetRecent([FromQuery] int count = 25)
         {
             var measurements = await _weatherService.GetRecentMeasurementsAsync(count);
+            return measurements;
+        }
+
+        [HttpGet("hourly")]
+        public async Task<ActionResult<IEnumerable<HourlyMeasurement>>> GetHourlyMeasurements([FromQuery] string startDate = null)
+        {
+            DateTime? date = null;
+            if (!string.IsNullOrEmpty(startDate) && DateTime.TryParse(startDate, out var parsedDate))
+            {
+                date = parsedDate;
+            }
+            
+            var measurements = await _weatherService.GetHourlyMeasurementsAsync(date);
+            return measurements;
+        }
+
+        [HttpGet("daily")]
+        public async Task<ActionResult<IEnumerable<DailyMeasurement>>> GetDailyMeasurements([FromQuery] string startDate = null)
+        {
+            DateTime? date = null;
+            if (!string.IsNullOrEmpty(startDate) && DateTime.TryParse(startDate, out var parsedDate))
+            {
+                date = parsedDate;
+            }
+            
+            var measurements = await _weatherService.GetDailyMeasurementsAsync(date);
             return measurements;
         }
     }
