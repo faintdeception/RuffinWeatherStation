@@ -1,0 +1,86 @@
+@page "/weather-home"
+@using System.Net.Http.Json
+@inject TemperatureService TemperatureService
+
+<h1>Current Weather Dashboard</h1>
+
+@if (measurement == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="card" style="max-width: 400px;">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Temperature</h3>
+        </div>
+        <div class="card-body">
+            <div class="display-1 text-center">@FormatDouble(measurement.Fields?.Temperature)°C</div>
+            <div class="h4 text-center">@FormatTemperatureF(measurement.Fields?.Temperature)°F</div>
+            <p class="text-center text-muted">Last updated: @measurement.TimestampStr</p>
+            <p class="text-center text-muted">Auto-refreshing every @(refreshIntervalSeconds) seconds</p>
+            <hr />
+            <table class="table table-sm">
+                <tr><th>Humidity</th><td>@FormatDouble(measurement.Fields?.Humidity)%</td></tr>
+                <tr><th>Dewpoint</th><td>@FormatDouble(measurement.Fields?.Dewpoint)°C</td></tr>
+                <tr><th>Pressure</th><td>@FormatDouble(measurement.Fields?.Pressure) hPa</td></tr>
+                <tr><th>Light</th><td>@FormatDouble(measurement.Fields?.Lux) lux</td></tr>
+                <tr><th>Wind</th><td>@FormatDouble(measurement.Fields?.WindSpeed) m/s (@measurement.Fields?.WindDirectionCardinal)</td></tr>
+                <tr><th>Rain</th><td>@FormatDouble(measurement.Fields?.Rain) mm</td></tr>
+                <tr><th>Location</th><td>@measurement.Tags?.Location</td></tr>
+                <tr><th>Sensor</th><td>@measurement.Tags?.SensorType</td></tr>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    private TemperatureMeasurement? measurement;
+    private System.Threading.Timer? timer;
+    private readonly int refreshIntervalSeconds = 30;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        
+        // Setup timer for auto-refresh
+        timer = new System.Threading.Timer(async _ => 
+        {
+            await LoadData();
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(refreshIntervalSeconds));
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            // Use TemperatureService instead of direct HttpClient call
+            measurement = await TemperatureService.GetLatestMeasurementAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading weather data: {ex.Message}");
+            // You could add more error handling here
+        }
+    }
+    
+    // Helper method to safely format nullable double values
+    private string FormatDouble(double? value)
+    {
+        return value.HasValue ? value.Value.ToString("F1") : "N/A";
+    }
+    
+    // Helper method to convert Celsius to Fahrenheit
+    private string FormatTemperatureF(double? celsius)
+    {
+        if (!celsius.HasValue) return "N/A";
+        double fahrenheit = 32 + (celsius.Value * 9 / 5);
+        return fahrenheit.ToString("F1");
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

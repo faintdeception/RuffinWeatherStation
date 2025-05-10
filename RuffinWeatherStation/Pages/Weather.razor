@@ -1,0 +1,413 @@
+﻿@page "/weather"
+@inject TemperatureService TemperatureService
+
+<PageTitle>Weather Station Data</PageTitle>
+
+<h1>Weather Station</h1>
+
+<p>Real-time weather data from MongoDB.</p>
+
+@if (latestMeasurement?.Fields == null || recentMeasurements == null || chartData == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Current Temperature</h3>
+                </div>
+                <div class="card-body">
+                    <div class="display-1 text-center">@latestMeasurement.Fields.Temperature.ToString("F1")°C</div>
+                    <div class="h4 text-center">@latestMeasurement.Fields.TemperatureF.ToString("F1")°F</div>
+                    <p class="text-center text-muted">Last updated: @latestMeasurement.TimestampMs.ToString("g") (@TimeZoneInfo.Local.DisplayName)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Humidity</h3>
+                </div>
+                <div class="card-body">
+                    <div class="display-1 text-center">@latestMeasurement.Fields.Humidity.ToString("F1")%</div>
+                    <p class="text-center text-muted">Dewpoint: @latestMeasurement.Fields.Dewpoint.ToString("F1")°C / @latestMeasurement.Fields.DewpointF.ToString("F1")°F</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Wind</h3>
+                </div>
+                <div class="card-body">
+                    <div class="display-1 text-center">@latestMeasurement.Fields.WindSpeed.ToString("F1")</div>
+                    <p class="text-center text-muted">Direction: @latestMeasurement.Fields.WindDirectionCardinal (@latestMeasurement.Fields.WindDirection°)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Rainfall</h3>
+                </div>
+                <div class="card-body">
+                    <div class="display-1 text-center">@latestMeasurement.Fields.Rain.ToString("F1")</div>
+                    <p class="text-center text-muted">millimeters</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Temperature History</h3>
+                    <p class="text-muted">Last 25 measurements</p>
+                </div>
+                <div class="card-body">
+                    <RadzenChart>
+                        <RadzenLineSeries Data="@chartData" 
+                                        CategoryProperty="Timestamp" 
+                                        Title="Temperature (°C)" 
+                                        ValueProperty="Temperature" 
+                                        Smooth="true"
+                                        StrokeWidth="3">
+                            <RadzenMarkers MarkerType="MarkerType.Circle" />
+                        </RadzenLineSeries>
+                        <RadzenLineSeries Data="@chartData" 
+                                        CategoryProperty="Timestamp" 
+                                        Title="Temperature (°F)" 
+                                        ValueProperty="TemperatureF" 
+                                        Smooth="true"
+                                        StrokeWidth="3">
+                            <RadzenMarkers MarkerType="MarkerType.Square" />
+                        </RadzenLineSeries>
+                        <RadzenCategoryAxis Formatter="@FormatTimestamp" />
+                        <RadzenValueAxis>
+                            <RadzenGridLines Visible="true" />
+                            <RadzenAxisTitle Text="Temperature" />
+                        </RadzenValueAxis>
+                        <RadzenLegend Position="LegendPosition.Top" />
+                    </RadzenChart>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Additional Data</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>Location</th>
+                                <td>@latestMeasurement.Tags?.Location</td>
+                            </tr>
+                            <tr>
+                                <th>Sensor Type</th>
+                                <td>@latestMeasurement.Tags?.SensorType</td>
+                            </tr>
+                            <tr>
+                                <th>Pressure</th>
+                                <td>@latestMeasurement.Fields.Pressure.ToString("F1") hPa</td>
+                            </tr>
+                            <tr>
+                                <th>Light</th>
+                                <td>@latestMeasurement.Fields.Lux.ToString("F1") lux</td>
+                            </tr>
+                            <tr>
+                                <th>Rain</th>
+                                <td>@latestMeasurement.Fields.Rain mm</td>
+                            </tr>
+                            <tr>
+                                <th>Device Temp</th>
+                                <td>@latestMeasurement.Fields.DeviceTemperature.ToString("F1")°C / @(latestMeasurement.Fields.DeviceTemperature * 9 / 5 + 32).ToString("F1")°F</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Light Intensity History</h3>
+                    <p class="text-muted">Last 25 measurements</p>
+                </div>
+                <div class="card-body">
+                    <RadzenChart>
+                        <RadzenLineSeries Data="@chartData" 
+                                        CategoryProperty="Timestamp" 
+                                        Title="Light (lux)" 
+                                        ValueProperty="Lux" 
+                                        Smooth="true"
+                                        LineType="LineType.Dashed"
+                                        StrokeWidth="3">
+                            <RadzenMarkers MarkerType="MarkerType.Diamond" />
+                        </RadzenLineSeries>
+                        <RadzenCategoryAxis Formatter="@FormatTimestamp" />
+                        <RadzenValueAxis>
+                            <RadzenGridLines Visible="true" />
+                            <RadzenAxisTitle Text="Lux" />
+                        </RadzenValueAxis>
+                        <RadzenLegend Position="LegendPosition.Top" />
+                    </RadzenChart>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Pressure History</h3>
+                    <p class="text-muted">Last 25 measurements</p>
+                </div>
+                <div class="card-body">
+                    <RadzenChart>
+                        <RadzenLineSeries Data="@chartData" 
+                                        CategoryProperty="Timestamp" 
+                                        Title="Pressure (hPa)" 
+                                        ValueProperty="Pressure" 
+                                        Smooth="true"
+                                        LineType="LineType.Solid"
+                                        StrokeWidth="3">
+                            <RadzenMarkers MarkerType="MarkerType.Triangle" />
+                        </RadzenLineSeries>
+                        <RadzenCategoryAxis Formatter="@FormatTimestamp" />
+                        <RadzenValueAxis>
+                            <RadzenGridLines Visible="true" />
+                            <RadzenAxisTitle Text="Pressure (hPa)" />
+                        </RadzenValueAxis>
+                        <RadzenLegend Position="LegendPosition.Top" />
+                    </RadzenChart>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Rainfall History</h3>
+                    <p class="text-muted">Last 25 measurements</p>
+                </div>
+                <div class="card-body">
+                    <RadzenChart>
+                        <RadzenColumnSeries Data="@chartData" 
+                                          CategoryProperty="Timestamp" 
+                                          Title="Rainfall (mm)" 
+                                          ValueProperty="Rain"
+                                          Fill="rgba(54, 162, 235, 0.5)"
+                                          LineType="LineType.Solid">
+                        </RadzenColumnSeries>
+                        <RadzenCategoryAxis Formatter="@FormatTimestamp" />
+                        <RadzenValueAxis>
+                            <RadzenGridLines Visible="true" />
+                            <RadzenAxisTitle Text="Rainfall (mm)" />
+                        </RadzenValueAxis>
+                        <RadzenLegend Position="LegendPosition.Top" />
+                    </RadzenChart>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Today's Rainfall Accumulation</h3>
+                    <p class="text-muted">@DateTime.Now.ToString("D")</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="display-4 text-center">@accumulatedRainfall.ToString("F1") mm</div>
+                            <p class="text-center">Total rainfall today</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="display-4 text-center">@Math.Round(elapsedTime.TotalHours, 1) hours</div>
+                            <p class="text-center">Since @firstMeasurementTime?.ToString("t")</p>
+                        </div>
+                    </div>
+                    <hr />
+                    <RadzenChart>
+                        <RadzenAreaSeries Data="@rainfallData" 
+                                        CategoryProperty="Timestamp" 
+                                        Title="Rainfall Accumulation (mm)" 
+                                        ValueProperty="AccumulatedRain" 
+                                        Smooth="true"
+                                        Fill="rgba(54, 162, 235, 0.3)"
+                                        StrokeWidth="3">
+                        </RadzenAreaSeries>
+                        <RadzenColumnSeries Data="@rainfallData" 
+                                          CategoryProperty="Timestamp" 
+                                          Title="Rainfall Increment (mm)" 
+                                          ValueProperty="RainIncrement"
+                                          Fill="rgba(54, 162, 235, 0.7)">
+                        </RadzenColumnSeries>
+                        <RadzenCategoryAxis Formatter="@FormatTimestamp" />
+                        <RadzenValueAxis>
+                            <RadzenGridLines Visible="true" />
+                            <RadzenAxisTitle Text="Rainfall (mm)" />
+                        </RadzenValueAxis>
+                        <RadzenLegend Position="LegendPosition.Top" />
+                    </RadzenChart>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private TemperatureMeasurement? latestMeasurement;
+    private List<TemperatureMeasurement>? recentMeasurements;
+    private List<TemperatureMeasurement>? todaysMeasurements;
+    private List<ChartDataPoint>? chartData;
+    private List<RainfallDataPoint>? rainfallData;
+    private double accumulatedRainfall = 0;
+    private TimeSpan elapsedTime = TimeSpan.Zero;
+    private DateTime? firstMeasurementTime;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        // Refresh data every 30 seconds
+        var timer = new System.Threading.Timer(async _ => 
+        {
+            await LoadData();
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+    }
+
+    private async Task LoadData()
+    {
+        try 
+        {
+            latestMeasurement = await TemperatureService.GetLatestMeasurementAsync();
+            recentMeasurements = await TemperatureService.GetRecentMeasurementsAsync(25);
+            todaysMeasurements = await TemperatureService.GetTodaysMeasurementsAsync();
+            
+            // Calculate accumulated rainfall and elapsed time for today
+            if (todaysMeasurements != null && todaysMeasurements.Any())
+            {
+                // Get total rainfall by summing all rain values from today
+                accumulatedRainfall = todaysMeasurements.Sum(m => m.Fields?.Rain ?? 0);
+                
+                // Calculate elapsed time since first measurement of the day
+                firstMeasurementTime = todaysMeasurements.Min(m => m.TimestampMs);
+                if (firstMeasurementTime.HasValue)
+                {
+                    elapsedTime = DateTime.Now - firstMeasurementTime.Value;
+                }
+                
+                // Prepare rainfall data points with accumulated values
+                rainfallData = new List<RainfallDataPoint>();
+                double runningTotal = 0;
+                
+                foreach (var measurement in todaysMeasurements.OrderBy(m => m.TimestampMs))
+                {
+                    runningTotal += measurement.Fields?.Rain ?? 0;
+                    rainfallData.Add(new RainfallDataPoint
+                    {
+                        Timestamp = measurement.TimestampMs,
+                        RainIncrement = measurement.Fields?.Rain ?? 0,
+                        AccumulatedRain = runningTotal
+                    });
+                }
+            }
+            
+            // Prepare data for other charts - order by timestamp ascending
+            if (recentMeasurements != null)
+            {
+                chartData = recentMeasurements
+                    .Where(m => m.Fields != null)
+                    .OrderBy(m => m.TimestampMs)
+                    .Select(m => new ChartDataPoint 
+                    { 
+                        Timestamp = m.TimestampMs, 
+                        Temperature = m.Fields!.Temperature,
+                        Lux = m.Fields!.Lux,
+                        Pressure = m.Fields!.Pressure,
+                        Rain = m.Fields!.Rain
+                    })
+                    .ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading data: {ex.Message}");
+            // Could add proper error handling/display here
+        }
+    }
+
+    private string FormatTimestamp(object value)
+    {
+        if (value is DateTime dateTime)
+        {
+            return dateTime.ToString("HH:mm");
+        }
+        return string.Empty;
+    }
+
+    // Helper class for chart data
+    private class ChartDataPoint
+    {
+        private DateTime _timestamp;
+        
+        public DateTime Timestamp 
+        { 
+            get => _timestamp;
+            set
+            {
+                // Ensure the DateTime is valid and within reasonable bounds
+                if (value.Year < 1900 || value.Year > 2100)
+                {
+                    _timestamp = DateTime.Now; // Use current time as fallback
+                }
+                else
+                {
+                    _timestamp = value;
+                }
+            }
+        }
+        public double Temperature { get; set; }
+        public double TemperatureF => 32 + (Temperature * 9 / 5);
+        public double Lux { get; set; }
+        public double Pressure { get; set; }
+        public double Rain { get; set; }
+    }
+    
+    // Helper class for rainfall accumulation data
+    private class RainfallDataPoint
+    {
+        private DateTime _timestamp;
+        
+        public DateTime Timestamp 
+        { 
+            get => _timestamp;
+            set
+            {
+                // Ensure the DateTime is valid and within reasonable bounds
+                if (value.Year < 1900 || value.Year > 2100)
+                {
+                    _timestamp = DateTime.Now; // Use current time as fallback
+                }
+                else
+                {
+                    _timestamp = value;
+                }
+            }
+        }
+        public double RainIncrement { get; set; }
+        public double AccumulatedRain { get; set; }
+    }
+}

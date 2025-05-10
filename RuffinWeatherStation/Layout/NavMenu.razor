@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">RuffinWeatherStation</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <a class="nav-link @(IsCurrentUri("") ? "active" : "")" href="">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link @(IsCurrentUri("counter") ? "active" : "")" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link @(IsCurrentUri("weather") ? "active" : "")" href="weather">
+                <span class="bi bi-thermometer-half" aria-hidden="true"></span> Weather Data
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link @(IsCurrentUri("weather-home") ? "active" : "")" href="weather-home">
+                <span class="bi bi-cloud-sun" aria-hidden="true"></span> Weather Dashboard
+            </a>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+    
+    private bool IsCurrentUri(string uri)
+    {
+        // Simple helper to highlight the active link
+        return System.IO.Path.GetFileName(System.Environment.CurrentDirectory) == uri;
+    }
+}
