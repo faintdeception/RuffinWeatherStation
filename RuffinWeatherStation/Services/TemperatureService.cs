@@ -293,6 +293,37 @@ namespace RuffinWeatherStation.Services
             
             return result;
         }
+
+        public async Task<(TemperatureMeasurement? Measurement, bool NotFound, string? ErrorMessage)> GetTemperatureMeasurementByDate(DateTime date)
+        {
+            try
+            {
+                // Format the date in the required format for the API
+                string formattedDate = date.ToString("yyyy-MM-dd");
+                
+                // Use HttpClient directly instead of GetFromJsonAsync to handle 404 properly
+                var response = await _httpClient.GetAsync($"api/weather/date/{formattedDate}");
+                
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    // 404 - No data for this date
+                    return (null, true, null);
+                }
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    return (null, false, $"API error: {response.StatusCode}");
+                }
+                
+                var measurement = await response.Content.ReadFromJsonAsync<TemperatureMeasurement>();
+                return (measurement, false, null);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error fetching measurement for date {date:yyyy-MM-dd}: {ex.Message}");
+                return (null, false, ex.Message);
+            }
+        }
     }
 
     // New model classes for analysis

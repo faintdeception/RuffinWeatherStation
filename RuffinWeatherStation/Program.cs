@@ -17,7 +17,10 @@ builder.Services.AddScoped(sp =>
     return new HttpClient { BaseAddress = new Uri(apiBaseUrl) };
 });
 
+// Register services
 builder.Services.AddScoped<TemperatureService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<WeatherNoteService>();
 
 // Add Radzen services
 builder.Services.AddScoped<DialogService>();

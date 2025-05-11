@@ -1,0 +1,558 @@
+@page "/notes"
+@using RuffinWeatherStation.Models
+@using RuffinWeatherStation.Services
+@using System.ComponentModel.DataAnnotations
+@inject WeatherNoteService NoteService
+@inject AuthService AuthService
+@inject TemperatureService TemperatureService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<h3>Weather Notes</h3>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>@currentMonth.ToString("MMMM yyyy")</h4>
+            <div>
+                <button class="btn btn-outline-primary btn-sm me-2" @onclick="PreviousMonth">
+                    <i class="oi oi-chevron-left"></i> Previous
+                </button>
+                <button class="btn btn-outline-primary btn-sm" @onclick="NextMonth">
+                    Next <i class="oi oi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 text-end">
+        @if (isAuthenticated)
+        {
+            <button class="btn btn-outline-danger" @onclick="Logout">
+                Logout
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-primary" @onclick="NavigateToLogin">
+                Login
+            </button>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <!-- Calendar Column -->
+    <div class="col-md-6">
+        <div class="calendar mb-4">
+            <div class="calendar-header d-flex">
+                @foreach (var day in daysOfWeek)
+                {
+                    <div class="calendar-cell header">@day</div>
+                }
+            </div>
+            
+            @foreach (var week in calendarDays)
+            {
+                <div class="calendar-row d-flex">
+                    @foreach (var day in week)
+                    {
+                        string cellClass = "calendar-cell";
+                        if (day.Month != currentMonth.Month)
+                        {
+                            cellClass += " other-month";
+                        }
+                        if (day.Date == selectedDate.Date)
+                        {
+                            cellClass += " selected";
+                        }
+                        
+                        // Check if we have a note for this day
+                        bool hasNote = notes.Any(n => n.Date.Date == day.Date);
+                        if (hasNote)
+                        {
+                            cellClass += " has-note";
+                        }
+
+                        <div class="@cellClass" @onclick="() => SelectDate(day)">
+                            <span>@day.Day</span>
+                            @if (hasNote)
+                            {
+                                <div class="note-indicator"></div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Note Panel Column -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>@selectedDate.ToString("MMMM d, yyyy")</h5>
+            </div>
+            <div class="card-body">
+                @if (isLoading)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    @if (selectedDateWeather != null && selectedDateWeather.Fields != null)
+                    {
+                        <div class="weather-summary mb-3">
+                            <h6>Weather Data:</h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <p><strong>Temperature:</strong> @selectedDateWeather.Fields.Temperature &deg;C</p>
+                                    <p><strong>Humidity:</strong> @selectedDateWeather.Fields.Humidity%</p>
+                                </div>
+                                <div class="col-6">
+                                    <p><strong>Wind:</strong> @selectedDateWeather.Fields.WindSpeed @selectedDateWeather.Fields.WindDirectionCardinal</p>
+                                    <p><strong>Pressure:</strong> @selectedDateWeather.Fields.Pressure</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No weather data available for this date.</p>
+                    }
+
+                    <hr />
+                    <h6>Notes:</h6>
+
+                    @if (selectedNote != null)
+                    {
+                        @if (isEditing)
+                        {
+                            <EditForm Model="noteRequest" OnValidSubmit="SaveNote">
+                                <DataAnnotationsValidator />
+                                
+                                <div class="form-group mb-3">
+                                    <InputTextArea class="form-control" @bind-Value="noteRequest.Content" rows="5" />
+                                    <ValidationMessage For="@(() => noteRequest.Content)" />
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+                                    <button type="button" class="btn btn-danger" @onclick="DeleteNote">Delete</button>
+                                </div>
+                            </EditForm>
+                        }
+                        else
+                        {
+                            <div class="note-content mb-3">
+                                <p style="white-space: pre-wrap;">@selectedNote.Content</p>
+                            </div>
+                            
+                            @if (isAuthenticated)
+                            {
+                                <button class="btn btn-outline-primary" @onclick="EditNote">Edit Note</button>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <p>No notes for this date.</p>
+                        
+                        @if (isAuthenticated)
+                        {
+                            @if (isEditing)
+                            {
+                                <EditForm Model="noteRequest" OnValidSubmit="SaveNote">
+                                    <DataAnnotationsValidator />
+                                    
+                                    <div class="form-group mb-3">
+                                        <InputTextArea class="form-control" @bind-Value="noteRequest.Content" rows="5" placeholder="Enter your weather notes here..." />
+                                        <ValidationMessage For="@(() => noteRequest.Content)" />
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between">
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                        <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+                                    </div>
+                                </EditForm>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary" @onclick="CreateNote">Add Note</button>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted">Login to add notes.</p>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .calendar-cell {
+        flex: 1;
+        height: 60px;
+        border: 1px solid #e0e0e0;
+        padding: 5px;
+        text-align: right;
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .calendar-cell.header {
+        height: 40px;
+        text-align: center;
+        font-weight: bold;
+        background-color: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .calendar-cell:hover:not(.header) {
+        background-color: #f0f0f0;
+    }
+    
+    .calendar-cell.selected {
+        background-color: #e3f2fd;
+        border-color: #2196f3;
+    }
+    
+    .calendar-cell.other-month {
+        color: #aaa;
+    }
+    
+    .calendar-row {
+        display: flex;
+    }
+    
+    .has-note {
+        position: relative;
+    }
+    
+    .note-indicator {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #4caf50;
+    }
+</style>
+
+@code {
+    private DateTime currentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    private DateTime selectedDate = DateTime.Today;
+    private List<DateTime[]> calendarDays = new List<DateTime[]>();
+    private string[] daysOfWeek = new[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+    
+    private List<WeatherNote> notes = new List<WeatherNote>();
+    private WeatherNote? selectedNote;
+    private WeatherNoteRequest noteRequest = new WeatherNoteRequest { Content = string.Empty };
+    private bool isEditing = false;
+    private bool isLoading = false;
+    
+    private bool isAuthenticated = false;
+    private TemperatureMeasurement? selectedDateWeather;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        
+        try
+        {
+            // Check authentication status
+            var token = await AuthService.GetToken();
+            isAuthenticated = !string.IsNullOrEmpty(token);
+            
+            // Generate calendar days
+            GenerateCalendarDays();
+            
+            // Fetch notes for current month
+            await LoadNotesForMonth();
+            
+            // Load note for selected date
+            await LoadNoteForSelectedDate();
+            
+            // Load weather for selected date
+            await LoadWeatherForSelectedDate();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadNotesForMonth()
+    {
+        // Calculate first and last day to show on calendar (including overflow days)
+        var firstDay = new DateTime(currentMonth.Year, currentMonth.Month, 1).AddDays(-(int)new DateTime(currentMonth.Year, currentMonth.Month, 1).DayOfWeek);
+        var lastDay = firstDay.AddDays(42); // 6 weeks
+        
+        notes = await NoteService.GetNotesByDateRange(firstDay, lastDay);
+    }
+
+    private async Task LoadNoteForSelectedDate()
+    {
+        var (note, notFound, errorMessage) = await NoteService.GetNoteByDate(selectedDate);
+        
+        selectedNote = note;
+        
+        if (notFound)
+        {
+            // Note doesn't exist for this date, which is a normal case
+            Console.WriteLine($"No note exists for date: {selectedDate:yyyy-MM-dd}");
+        }
+        else if (errorMessage != null)
+        {
+            // An actual error occurred
+            Console.Error.WriteLine($"Error retrieving note: {errorMessage}");
+            await JSRuntime.InvokeVoidAsync("console.error", $"Failed to load note: {errorMessage}");
+        }
+        
+        // Initialize note request with current note data (if exists)
+        if (selectedNote != null)
+        {
+            noteRequest = new WeatherNoteRequest
+            {
+                Date = selectedNote.Date,
+                Content = selectedNote.Content
+            };
+        }
+        else
+        {
+            noteRequest = new WeatherNoteRequest
+            {
+                Date = selectedDate,
+                Content = string.Empty
+            };
+        }
+        
+        // Reset editing state
+        isEditing = false;
+    }
+
+    private void GenerateCalendarDays()
+    {
+        calendarDays.Clear();
+        
+        // Get the first day of the month and the number of days in the month
+        DateTime firstDayOfMonth = new DateTime(currentMonth.Year, currentMonth.Month, 1);
+        int daysInMonth = DateTime.DaysInMonth(currentMonth.Year, currentMonth.Month);
+        
+        // Calculate the date of the first Sunday before or on the 1st of the month
+        DateTime startDate = firstDayOfMonth.AddDays(-(int)firstDayOfMonth.DayOfWeek);
+        
+        // Generate the calendar days (6 weeks, starting from the calculated start date)
+        for (int week = 0; week < 6; week++)
+        {
+            DateTime[] weekDays = new DateTime[7];
+            
+            for (int day = 0; day < 7; day++)
+            {
+                weekDays[day] = startDate.AddDays(week * 7 + day);
+            }
+            
+            calendarDays.Add(weekDays);
+        }
+    }
+
+    private async Task SaveNote()
+    {
+        isLoading = true;
+        
+        try
+        {
+            if (isEditing)
+            {
+                // Update existing note
+                await NoteService.UpdateNote(selectedNote.Id, noteRequest);
+            }
+            else
+            {
+                // Create new note
+                await NoteService.CreateNote(noteRequest);
+            }
+            
+            // Refresh notes and selected note
+            await LoadNotesForMonth();
+            await LoadNoteForSelectedDate();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error saving note: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error saving note: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task DeleteNote()
+    {
+        if (selectedNote == null)
+            return;
+        
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the note for {selectedNote.Date:MMMM d, yyyy}?");
+        
+        if (!confirmed)
+            return;
+        
+        isLoading = true;
+        
+        try
+        {
+            await NoteService.DeleteNote(selectedNote.Id);
+            
+            // Refresh notes and selected note
+            await LoadNotesForMonth();
+            await LoadNoteForSelectedDate();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting note: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error deleting note: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SelectDate(DateTime date)
+    {
+        selectedDate = date;
+        
+        // Deselect the note immediately to avoid confusion
+        selectedNote = null;
+        
+        // Load note and weather for the selected date
+        LoadNoteForSelectedDate();
+        LoadWeatherForSelectedDate();
+    }
+
+    private async Task LoadWeatherForSelectedDate()
+    {
+        try
+        {
+            var (measurement, notFound, errorMessage) = await TemperatureService.GetTemperatureMeasurementByDate(selectedDate);
+            
+            selectedDateWeather = measurement;
+            
+            if (notFound)
+            {
+                // Weather data doesn't exist for this date, which is a normal case
+                Console.WriteLine($"No weather data exists for date: {selectedDate:yyyy-MM-dd}");
+            }
+            else if (errorMessage != null)
+            {
+                // An actual error occurred
+                Console.Error.WriteLine($"Error retrieving weather data: {errorMessage}");
+                await JSRuntime.InvokeVoidAsync("console.error", $"Failed to load weather data: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading weather: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error loading weather: {ex.Message}");
+            selectedDateWeather = null;
+        }
+    }
+
+    private void PreviousMonth()
+    {
+        currentMonth = currentMonth.AddMonths(-1);
+        RefreshData();
+    }
+
+    private void NextMonth()
+    {
+        currentMonth = currentMonth.AddMonths(1);
+        RefreshData();
+    }
+
+    private async void RefreshData()
+    {
+        isLoading = true;
+        
+        try
+        {
+            // Generate calendar days
+            GenerateCalendarDays();
+            
+            // Fetch notes for the updated month
+            await LoadNotesForMonth();
+            
+            // Load note for the first day of the new month (if available)
+            selectedDate = new DateTime(currentMonth.Year, currentMonth.Month, 1);
+            await LoadNoteForSelectedDate();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error refreshing data: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void Logout()
+    {
+        AuthService.Logout();
+        isAuthenticated = false;
+        
+        // Clear notes and selected date on logout
+        notes.Clear();
+        selectedDate = DateTime.Today;
+        selectedNote = null;
+    }
+
+    private void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private void EditNote()
+    {
+        if (selectedNote != null)
+        {
+            isEditing = true;
+            noteRequest = new WeatherNoteRequest
+            {
+                Date = selectedNote.Date,
+                Content = selectedNote.Content
+            };
+        }
+    }
+
+    private void CancelEdit()
+    {
+        isEditing = false;
+        noteRequest = new WeatherNoteRequest { Content = string.Empty };
+    }
+
+    private async Task CreateNote()
+    {
+        isEditing = true;
+        noteRequest = new WeatherNoteRequest
+        {
+            Date = selectedDate,
+            Content = string.Empty
+        };
+    }
+}

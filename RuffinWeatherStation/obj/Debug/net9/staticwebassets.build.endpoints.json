@@ -16253,8 +16253,8 @@
       ]
     },
     {
-      "Route": "_framework/RuffinWeatherStation.fbwre392h3.pdb",
-      "AssetFile": "_framework/RuffinWeatherStation.fbwre392h3.pdb",
+      "Route": "_framework/RuffinWeatherStation.33op3s6z0m.wasm",
+      "AssetFile": "_framework/RuffinWeatherStation.33op3s6z0m.wasm",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -16267,168 +16267,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "55780"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"pVl0/SRzs4HRfig+EzVHmp3g4RCuJhn+J4oYG/zKEZ0=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:24 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "fbwre392h3"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-pVl0/SRzs4HRfig+EzVHmp3g4RCuJhn+J4oYG/zKEZ0="
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/RuffinWeatherStation.pdb"
-        }
-      ]
-    },
-    {
-      "Route": "_framework/RuffinWeatherStation.fbwre392h3.pdb",
-      "AssetFile": "_framework/RuffinWeatherStation.fbwre392h3.pdb.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000024802818"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "40317"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"eE4WCmWFJKiHhvwGaaoETFewkA+4YIoxgv9eCTw1Fzk=\""
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"pVl0/SRzs4HRfig+EzVHmp3g4RCuJhn+J4oYG/zKEZ0=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:25 GMT"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "fbwre392h3"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-pVl0/SRzs4HRfig+EzVHmp3g4RCuJhn+J4oYG/zKEZ0="
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/RuffinWeatherStation.pdb"
-        }
-      ]
-    },
-    {
-      "Route": "_framework/RuffinWeatherStation.fbwre392h3.pdb.gz",
-      "AssetFile": "_framework/RuffinWeatherStation.fbwre392h3.pdb.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "40317"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"eE4WCmWFJKiHhvwGaaoETFewkA+4YIoxgv9eCTw1Fzk=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:25 GMT"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "fbwre392h3"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-eE4WCmWFJKiHhvwGaaoETFewkA+4YIoxgv9eCTw1Fzk="
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/RuffinWeatherStation.pdb.gz"
-        }
-      ]
-    },
-    {
-      "Route": "_framework/RuffinWeatherStation.o91njkwixs.wasm",
-      "AssetFile": "_framework/RuffinWeatherStation.o91njkwixs.wasm",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "92437"
+          "Value": "144661"
         },
         {
           "Name": "Content-Type",
@@ -16436,21 +16275,21 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"LKkfnruKZ6MGydqXzZ4ziTHkdYHhBrgEsQtMD3Z/ML4=\""
+          "Value": "\"0cZBRds1lAjiCP7ZFW1U65qyqpZfmrOKQV0ZV5URp2c=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:24 GMT"
+          "Value": "Sun, 11 May 2025 21:37:36 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "o91njkwixs"
+          "Value": "33op3s6z0m"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-LKkfnruKZ6MGydqXzZ4ziTHkdYHhBrgEsQtMD3Z/ML4="
+          "Value": "sha256-0cZBRds1lAjiCP7ZFW1U65qyqpZfmrOKQV0ZV5URp2c="
         },
         {
           "Name": "label",
@@ -16459,13 +16298,13 @@
       ]
     },
     {
-      "Route": "_framework/RuffinWeatherStation.o91njkwixs.wasm",
-      "AssetFile": "_framework/RuffinWeatherStation.o91njkwixs.wasm.gz",
+      "Route": "_framework/RuffinWeatherStation.33op3s6z0m.wasm",
+      "AssetFile": "_framework/RuffinWeatherStation.33op3s6z0m.wasm.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000031518896"
+          "Quality": "0.000019635949"
         }
       ],
       "ResponseHeaders": [
@@ -16483,7 +16322,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "31726"
+          "Value": "50926"
         },
         {
           "Name": "Content-Type",
@@ -16491,15 +16330,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"/v7ATeeCAG6GTeC54gvhW0qOVj2bClPHsbpxexmeiv0=\""
+          "Value": "\"B61ZXFmp6pMG+qKH42TxG2VIg6BYYfYi4CZDbiHNbHA=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"LKkfnruKZ6MGydqXzZ4ziTHkdYHhBrgEsQtMD3Z/ML4=\""
+          "Value": "W/\"0cZBRds1lAjiCP7ZFW1U65qyqpZfmrOKQV0ZV5URp2c=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:25 GMT"
+          "Value": "Sun, 11 May 2025 21:37:38 GMT"
         },
         {
           "Name": "Vary",
@@ -16509,11 +16348,11 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "o91njkwixs"
+          "Value": "33op3s6z0m"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-LKkfnruKZ6MGydqXzZ4ziTHkdYHhBrgEsQtMD3Z/ML4="
+          "Value": "sha256-0cZBRds1lAjiCP7ZFW1U65qyqpZfmrOKQV0ZV5URp2c="
         },
         {
           "Name": "label",
@@ -16522,8 +16361,8 @@
       ]
     },
     {
-      "Route": "_framework/RuffinWeatherStation.o91njkwixs.wasm.gz",
-      "AssetFile": "_framework/RuffinWeatherStation.o91njkwixs.wasm.gz",
+      "Route": "_framework/RuffinWeatherStation.33op3s6z0m.wasm.gz",
+      "AssetFile": "_framework/RuffinWeatherStation.33op3s6z0m.wasm.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -16540,7 +16379,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "31726"
+          "Value": "50926"
         },
         {
           "Name": "Content-Type",
@@ -16548,11 +16387,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"/v7ATeeCAG6GTeC54gvhW0qOVj2bClPHsbpxexmeiv0=\""
+          "Value": "\"B61ZXFmp6pMG+qKH42TxG2VIg6BYYfYi4CZDbiHNbHA=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:25 GMT"
+          "Value": "Sun, 11 May 2025 21:37:38 GMT"
         },
         {
           "Name": "Vary",
@@ -16562,11 +16401,11 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "o91njkwixs"
+          "Value": "33op3s6z0m"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-/v7ATeeCAG6GTeC54gvhW0qOVj2bClPHsbpxexmeiv0="
+          "Value": "sha256-B61ZXFmp6pMG+qKH42TxG2VIg6BYYfYi4CZDbiHNbHA="
         },
         {
           "Name": "label",
@@ -16576,7 +16415,7 @@
     },
     {
       "Route": "_framework/RuffinWeatherStation.pdb",
-      "AssetFile": "_framework/RuffinWeatherStation.fbwre392h3.pdb",
+      "AssetFile": "_framework/RuffinWeatherStation.xalkotb2u8.pdb",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -16589,7 +16428,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "55780"
+          "Value": "76108"
         },
         {
           "Name": "Content-Type",
@@ -16597,28 +16436,28 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"pVl0/SRzs4HRfig+EzVHmp3g4RCuJhn+J4oYG/zKEZ0=\""
+          "Value": "\"2YSKpgbC5plasAbEAFqOVxoDf/yozBQtoPiz5iKhMco=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:24 GMT"
+          "Value": "Sun, 11 May 2025 21:37:36 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-pVl0/SRzs4HRfig+EzVHmp3g4RCuJhn+J4oYG/zKEZ0="
+          "Value": "sha256-2YSKpgbC5plasAbEAFqOVxoDf/yozBQtoPiz5iKhMco="
         }
       ]
     },
     {
       "Route": "_framework/RuffinWeatherStation.pdb",
-      "AssetFile": "_framework/RuffinWeatherStation.fbwre392h3.pdb.gz",
+      "AssetFile": "_framework/RuffinWeatherStation.xalkotb2u8.pdb.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000024802818"
+          "Quality": "0.000018049890"
         }
       ],
       "ResponseHeaders": [
@@ -16636,7 +16475,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "40317"
+          "Value": "55401"
         },
         {
           "Name": "Content-Type",
@@ -16644,15 +16483,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"eE4WCmWFJKiHhvwGaaoETFewkA+4YIoxgv9eCTw1Fzk=\""
+          "Value": "\"Gsq5tM7VlIYVTkau94VD1oSCjDx5rxMT4hL5cbPMIFM=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"pVl0/SRzs4HRfig+EzVHmp3g4RCuJhn+J4oYG/zKEZ0=\""
+          "Value": "W/\"2YSKpgbC5plasAbEAFqOVxoDf/yozBQtoPiz5iKhMco=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:25 GMT"
+          "Value": "Sun, 11 May 2025 21:37:38 GMT"
         },
         {
           "Name": "Vary",
@@ -16662,13 +16501,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-pVl0/SRzs4HRfig+EzVHmp3g4RCuJhn+J4oYG/zKEZ0="
+          "Value": "sha256-2YSKpgbC5plasAbEAFqOVxoDf/yozBQtoPiz5iKhMco="
         }
       ]
     },
     {
       "Route": "_framework/RuffinWeatherStation.pdb.gz",
-      "AssetFile": "_framework/RuffinWeatherStation.fbwre392h3.pdb.gz",
+      "AssetFile": "_framework/RuffinWeatherStation.xalkotb2u8.pdb.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -16685,7 +16524,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "40317"
+          "Value": "55401"
         },
         {
           "Name": "Content-Type",
@@ -16693,11 +16532,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"eE4WCmWFJKiHhvwGaaoETFewkA+4YIoxgv9eCTw1Fzk=\""
+          "Value": "\"Gsq5tM7VlIYVTkau94VD1oSCjDx5rxMT4hL5cbPMIFM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:25 GMT"
+          "Value": "Sun, 11 May 2025 21:37:38 GMT"
         },
         {
           "Name": "Vary",
@@ -16707,13 +16546,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-eE4WCmWFJKiHhvwGaaoETFewkA+4YIoxgv9eCTw1Fzk="
+          "Value": "sha256-Gsq5tM7VlIYVTkau94VD1oSCjDx5rxMT4hL5cbPMIFM="
         }
       ]
     },
     {
       "Route": "_framework/RuffinWeatherStation.wasm",
-      "AssetFile": "_framework/RuffinWeatherStation.o91njkwixs.wasm",
+      "AssetFile": "_framework/RuffinWeatherStation.33op3s6z0m.wasm",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -16726,7 +16565,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "92437"
+          "Value": "144661"
         },
         {
           "Name": "Content-Type",
@@ -16734,28 +16573,28 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"LKkfnruKZ6MGydqXzZ4ziTHkdYHhBrgEsQtMD3Z/ML4=\""
+          "Value": "\"0cZBRds1lAjiCP7ZFW1U65qyqpZfmrOKQV0ZV5URp2c=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:24 GMT"
+          "Value": "Sun, 11 May 2025 21:37:36 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-LKkfnruKZ6MGydqXzZ4ziTHkdYHhBrgEsQtMD3Z/ML4="
+          "Value": "sha256-0cZBRds1lAjiCP7ZFW1U65qyqpZfmrOKQV0ZV5URp2c="
         }
       ]
     },
     {
       "Route": "_framework/RuffinWeatherStation.wasm",
-      "AssetFile": "_framework/RuffinWeatherStation.o91njkwixs.wasm.gz",
+      "AssetFile": "_framework/RuffinWeatherStation.33op3s6z0m.wasm.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000031518896"
+          "Quality": "0.000019635949"
         }
       ],
       "ResponseHeaders": [
@@ -16773,7 +16612,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "31726"
+          "Value": "50926"
         },
         {
           "Name": "Content-Type",
@@ -16781,15 +16620,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"/v7ATeeCAG6GTeC54gvhW0qOVj2bClPHsbpxexmeiv0=\""
+          "Value": "\"B61ZXFmp6pMG+qKH42TxG2VIg6BYYfYi4CZDbiHNbHA=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"LKkfnruKZ6MGydqXzZ4ziTHkdYHhBrgEsQtMD3Z/ML4=\""
+          "Value": "W/\"0cZBRds1lAjiCP7ZFW1U65qyqpZfmrOKQV0ZV5URp2c=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:25 GMT"
+          "Value": "Sun, 11 May 2025 21:37:38 GMT"
         },
         {
           "Name": "Vary",
@@ -16799,13 +16638,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-LKkfnruKZ6MGydqXzZ4ziTHkdYHhBrgEsQtMD3Z/ML4="
+          "Value": "sha256-0cZBRds1lAjiCP7ZFW1U65qyqpZfmrOKQV0ZV5URp2c="
         }
       ]
     },
     {
       "Route": "_framework/RuffinWeatherStation.wasm.gz",
-      "AssetFile": "_framework/RuffinWeatherStation.o91njkwixs.wasm.gz",
+      "AssetFile": "_framework/RuffinWeatherStation.33op3s6z0m.wasm.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -16822,7 +16661,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "31726"
+          "Value": "50926"
         },
         {
           "Name": "Content-Type",
@@ -16830,11 +16669,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"/v7ATeeCAG6GTeC54gvhW0qOVj2bClPHsbpxexmeiv0=\""
+          "Value": "\"B61ZXFmp6pMG+qKH42TxG2VIg6BYYfYi4CZDbiHNbHA=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:25 GMT"
+          "Value": "Sun, 11 May 2025 21:37:38 GMT"
         },
         {
           "Name": "Vary",
@@ -16844,7 +16683,168 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-/v7ATeeCAG6GTeC54gvhW0qOVj2bClPHsbpxexmeiv0="
+          "Value": "sha256-B61ZXFmp6pMG+qKH42TxG2VIg6BYYfYi4CZDbiHNbHA="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/RuffinWeatherStation.xalkotb2u8.pdb",
+      "AssetFile": "_framework/RuffinWeatherStation.xalkotb2u8.pdb",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "76108"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"2YSKpgbC5plasAbEAFqOVxoDf/yozBQtoPiz5iKhMco=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 11 May 2025 21:37:36 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "xalkotb2u8"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-2YSKpgbC5plasAbEAFqOVxoDf/yozBQtoPiz5iKhMco="
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/RuffinWeatherStation.pdb"
+        }
+      ]
+    },
+    {
+      "Route": "_framework/RuffinWeatherStation.xalkotb2u8.pdb",
+      "AssetFile": "_framework/RuffinWeatherStation.xalkotb2u8.pdb.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000018049890"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "55401"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Gsq5tM7VlIYVTkau94VD1oSCjDx5rxMT4hL5cbPMIFM=\""
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"2YSKpgbC5plasAbEAFqOVxoDf/yozBQtoPiz5iKhMco=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 11 May 2025 21:37:38 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "xalkotb2u8"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-2YSKpgbC5plasAbEAFqOVxoDf/yozBQtoPiz5iKhMco="
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/RuffinWeatherStation.pdb"
+        }
+      ]
+    },
+    {
+      "Route": "_framework/RuffinWeatherStation.xalkotb2u8.pdb.gz",
+      "AssetFile": "_framework/RuffinWeatherStation.xalkotb2u8.pdb.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "55401"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Gsq5tM7VlIYVTkau94VD1oSCjDx5rxMT4hL5cbPMIFM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 11 May 2025 21:37:38 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "xalkotb2u8"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Gsq5tM7VlIYVTkau94VD1oSCjDx5rxMT4hL5cbPMIFM="
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/RuffinWeatherStation.pdb.gz"
         }
       ]
     },
@@ -65147,17 +65147,17 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"1Wp8AkGxHN6mALuAFy+Dw2I8kXn7jeJEN9FZZgW1rcA=\""
+          "Value": "\"Q6EiURVaYyAOFEXI2JC5Zo79IeDvBvIeW7yXAXlq1Cs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:49:25 GMT"
+          "Value": "Sun, 11 May 2025 21:37:38 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-1Wp8AkGxHN6mALuAFy+Dw2I8kXn7jeJEN9FZZgW1rcA="
+          "Value": "sha256-Q6EiURVaYyAOFEXI2JC5Zo79IeDvBvIeW7yXAXlq1Cs="
         }
       ]
     },
@@ -65168,7 +65168,7 @@
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000080560702"
+          "Quality": "0.000080580177"
         }
       ],
       "ResponseHeaders": [
@@ -65186,7 +65186,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12412"
+          "Value": "12409"
         },
         {
           "Name": "Content-Type",
@@ -65194,15 +65194,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ZTsNg3IPmT/jXtGGVdV/y9ZzI/myDH2JBeI/F+Hbh4o=\""
+          "Value": "\"A3YpRbTzZai7TLdmwG8RmwQfYG80xdwdLUKvLwBhosg=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"1Wp8AkGxHN6mALuAFy+Dw2I8kXn7jeJEN9FZZgW1rcA=\""
+          "Value": "W/\"Q6EiURVaYyAOFEXI2JC5Zo79IeDvBvIeW7yXAXlq1Cs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:40:33 GMT"
+          "Value": "Sun, 11 May 2025 21:29:54 GMT"
         },
         {
           "Name": "Vary",
@@ -65212,7 +65212,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-1Wp8AkGxHN6mALuAFy+Dw2I8kXn7jeJEN9FZZgW1rcA="
+          "Value": "sha256-Q6EiURVaYyAOFEXI2JC5Zo79IeDvBvIeW7yXAXlq1Cs="
         }
       ]
     },
@@ -65235,7 +65235,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12412"
+          "Value": "12409"
         },
         {
           "Name": "Content-Type",
@@ -65243,11 +65243,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ZTsNg3IPmT/jXtGGVdV/y9ZzI/myDH2JBeI/F+Hbh4o=\""
+          "Value": "\"A3YpRbTzZai7TLdmwG8RmwQfYG80xdwdLUKvLwBhosg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:40:33 GMT"
+          "Value": "Sun, 11 May 2025 21:29:54 GMT"
         },
         {
           "Name": "Vary",
@@ -65257,7 +65257,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-ZTsNg3IPmT/jXtGGVdV/y9ZzI/myDH2JBeI/F+Hbh4o="
+          "Value": "sha256-A3YpRbTzZai7TLdmwG8RmwQfYG80xdwdLUKvLwBhosg="
         }
       ]
     },
@@ -68709,15 +68709,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"Q9uEiScu2WAbPmLrOyG1eOgGyG7t5hQ4PM0vPraIc1g=\""
+          "Value": "\"pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"CXjFRdc3jCorXQTWev1m7I6HGacdUEYXCI4JD6gnGNo=\""
+          "Value": "W/\"LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:25:08 GMT"
+          "Value": "Sun, 11 May 2025 21:34:17 GMT"
         },
         {
           "Name": "Vary",
@@ -68727,7 +68727,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-CXjFRdc3jCorXQTWev1m7I6HGacdUEYXCI4JD6gnGNo="
+          "Value": "sha256-LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k="
         }
       ]
     },
@@ -68754,17 +68754,17 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"CXjFRdc3jCorXQTWev1m7I6HGacdUEYXCI4JD6gnGNo=\""
+          "Value": "\"LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:25:08 GMT"
+          "Value": "Sun, 11 May 2025 21:34:17 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-CXjFRdc3jCorXQTWev1m7I6HGacdUEYXCI4JD6gnGNo="
+          "Value": "sha256-LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k="
         }
       ]
     },
@@ -68795,11 +68795,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"Q9uEiScu2WAbPmLrOyG1eOgGyG7t5hQ4PM0vPraIc1g=\""
+          "Value": "\"pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:25:08 GMT"
+          "Value": "Sun, 11 May 2025 21:34:17 GMT"
         },
         {
           "Name": "Vary",
@@ -68809,12 +68809,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-Q9uEiScu2WAbPmLrOyG1eOgGyG7t5hQ4PM0vPraIc1g="
+          "Value": "sha256-pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA="
         }
       ]
     },
     {
-      "Route": "appsettings.tfd4jm5g6b.json",
+      "Route": "appsettings.n7s0h2jmd8.json",
       "AssetFile": "appsettings.json.gz",
       "Selectors": [
         {
@@ -68846,15 +68846,15 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"Q9uEiScu2WAbPmLrOyG1eOgGyG7t5hQ4PM0vPraIc1g=\""
+          "Value": "\"pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA=\""
         },
         {
           "Name": "ETag",
-          "Value": "W/\"CXjFRdc3jCorXQTWev1m7I6HGacdUEYXCI4JD6gnGNo=\""
+          "Value": "W/\"LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:25:08 GMT"
+          "Value": "Sun, 11 May 2025 21:34:17 GMT"
         },
         {
           "Name": "Vary",
@@ -68864,11 +68864,11 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "tfd4jm5g6b"
+          "Value": "n7s0h2jmd8"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-CXjFRdc3jCorXQTWev1m7I6HGacdUEYXCI4JD6gnGNo="
+          "Value": "sha256-LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k="
         },
         {
           "Name": "label",
@@ -68877,7 +68877,7 @@
       ]
     },
     {
-      "Route": "appsettings.tfd4jm5g6b.json",
+      "Route": "appsettings.n7s0h2jmd8.json",
       "AssetFile": "appsettings.json",
       "Selectors": [],
       "ResponseHeaders": [
@@ -68899,21 +68899,21 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"CXjFRdc3jCorXQTWev1m7I6HGacdUEYXCI4JD6gnGNo=\""
+          "Value": "\"LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:25:08 GMT"
+          "Value": "Sun, 11 May 2025 21:34:17 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "tfd4jm5g6b"
+          "Value": "n7s0h2jmd8"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-CXjFRdc3jCorXQTWev1m7I6HGacdUEYXCI4JD6gnGNo="
+          "Value": "sha256-LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k="
         },
         {
           "Name": "label",
@@ -68922,7 +68922,7 @@
       ]
     },
     {
-      "Route": "appsettings.tfd4jm5g6b.json.gz",
+      "Route": "appsettings.n7s0h2jmd8.json.gz",
       "AssetFile": "appsettings.json.gz",
       "Selectors": [],
       "ResponseHeaders": [
@@ -68948,11 +68948,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"Q9uEiScu2WAbPmLrOyG1eOgGyG7t5hQ4PM0vPraIc1g=\""
+          "Value": "\"pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 10 May 2025 12:25:08 GMT"
+          "Value": "Sun, 11 May 2025 21:34:17 GMT"
         },
         {
           "Name": "Vary",
@@ -68962,11 +68962,11 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "tfd4jm5g6b"
+          "Value": "n7s0h2jmd8"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-Q9uEiScu2WAbPmLrOyG1eOgGyG7t5hQ4PM0vPraIc1g="
+          "Value": "sha256-pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA="
         },
         {
           "Name": "label",
