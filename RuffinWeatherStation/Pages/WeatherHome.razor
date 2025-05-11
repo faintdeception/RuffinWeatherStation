@@ -14,12 +14,29 @@ else
         <div class="col-md-4">
             <div class="card" style="max-width: 400px;">
                 <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Temperature</h3>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">Temperature</h3>
+                        @if (IsDeviceOffline())
+                        {
+                            <span class="badge bg-danger">OFFLINE</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Online</span>
+                        }
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="display-1 text-center">@FormatDouble(measurement.Fields?.Temperature)°C</div>
                     <div class="h4 text-center">@FormatTemperatureF(measurement.Fields?.Temperature)°F</div>
-                    <p class="text-center text-muted">Last updated: @measurement.TimestampStr</p>
+                    <p class="text-center text-muted">
+                        Last updated: @measurement.TimestampStr
+                        Zach <div>@IsDeviceOffline2()</div>
+                        @if (IsDeviceOffline())
+                        {
+                            <span class="text-danger d-block">Device has been offline for @GetOfflineDuration()</span>
+                        }
+                    </p>
                     <p class="text-center text-muted">Auto-refreshing every @(refreshIntervalSeconds) seconds</p>
                     <hr />
                     <table class="table table-sm">
@@ -53,6 +70,14 @@ else
                         </div>
                     </div>
                     <div class="card-body">
+                        @if (IsDeviceOffline())
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                Warning: Weather station appears to be offline. Data shown may not be current.
+                            </div>
+                        }
+                        
                         @if (recentAnalysisResult == null || !recentAnalysisResult.Success)
                         {
                             <p><em>Loading analysis data...</em></p>
@@ -364,6 +389,7 @@ else
     private int analysisPeriod = 7; // Default to 7-day analysis
     private int analysisHours = 1; // Default to 1-hour analysis for recent data
     private bool showShortTermAnalysis = true; // Default to short-term analysis view
+    private readonly int deviceOfflineThresholdMinutes = 1; // Consider device offline after 1 minute of no updates
 
     protected override async Task OnInitializedAsync()
     {
@@ -401,6 +427,50 @@ else
         {
             Console.Error.WriteLine($"Error loading weather data: {ex.Message}");
             // You could add more error handling here
+        }
+    }
+    
+    private bool IsDeviceOffline()
+    {
+        if (measurement == null)
+            return true;
+            
+        // Check if the last update is older than the threshold
+        TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
+        return timeSinceLastUpdate.TotalMinutes > deviceOfflineThresholdMinutes;
+    }
+
+    private string IsDeviceOffline2()
+    {
+        if (measurement == null)
+            return "true";
+            
+        // Check if the last update is older than the threshold
+        TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
+        return measurement.TimestampStr + " " + timeSinceLastUpdate.TotalMinutes + " " + deviceOfflineThresholdMinutes;
+    }
+    
+    private string GetOfflineDuration()
+    {
+        if (measurement == null)
+            return "unknown time";
+            
+        TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
+        
+        if (timeSinceLastUpdate.TotalHours >= 24)
+        {
+            int days = (int)timeSinceLastUpdate.TotalDays;
+            return $"{days} day{(days != 1 ? "s" : "")}";
+        }
+        else if (timeSinceLastUpdate.TotalMinutes >= 60)
+        {
+            int hours = (int)timeSinceLastUpdate.TotalHours;
+            return $"{hours} hour{(hours != 1 ? "s" : "")}";
+        }
+        else
+        {
+            int minutes = (int)timeSinceLastUpdate.TotalMinutes;
+            return $"{minutes} minute{(minutes != 1 ? "s" : "")}";
         }
     }
     
