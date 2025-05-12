@@ -13,6 +13,10 @@
       "PackagePath": "staticwebassets\\appsettings.json"
     },
     {
+      "Id": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\appsettings.production.json",
+      "PackagePath": "staticwebassets\\appsettings.production.json"
+    },
+    {
       "Id": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\css\\app.css",
       "PackagePath": "staticwebassets\\css\\app.css"
     },

@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "RuffinWeatherStation",
   "resources": {
-    "hash": "sha256-N36X/6hSrY4EUOhnmmyC9X3tikveOhV7veRV6pZ81aQ=",
+    "hash": "sha256-Gb8tqmlPoHh4jkEbi2/xwF3PebB31dGn0QzAzW6o5j4=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Authorization.gf26ou9jj9.wasm": "Microsoft.AspNetCore.Authorization.wasm",
       "Microsoft.AspNetCore.Components.v3fd2n5hlr.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -202,8 +202,8 @@
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
       "icudt_EFIGS.tptq2av103.dat": "icudt_EFIGS.dat",
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat",
-      "RuffinWeatherStation.33op3s6z0m.wasm": "RuffinWeatherStation.wasm",
-      "RuffinWeatherStation.xalkotb2u8.pdb": "RuffinWeatherStation.pdb"
+      "RuffinWeatherStation.r25prb9e8g.wasm": "RuffinWeatherStation.wasm",
+      "RuffinWeatherStation.ciliagfstj.pdb": "RuffinWeatherStation.pdb"
     },
     "jsModuleNative": {
       "dotnet.native.hvg7u8bimp.js": "sha256-LX9rFEWGVxhkOkAVPG0w5RxPwzPBlEUz6dQNjWS7M+M="
@@ -414,16 +414,17 @@
       "WindowsBase.5lai2eowco.wasm": "sha256-GcDi5293y2A7oSiFYTbBTUe0d+ISbvgeel4ZNd8KkPM=",
       "mscorlib.wzkfrp7u5k.wasm": "sha256-9PjsU0gaxxz5Vyw++p9DeYUWLsaXbaMS2RbX6wmTUmk=",
       "netstandard.d82br99ghv.wasm": "sha256-DS8keXxU4eQpa1kIoiFxOA2Ii2g9hoNWSaVi8F8AnIE=",
-      "RuffinWeatherStation.33op3s6z0m.wasm": "sha256-0cZBRds1lAjiCP7ZFW1U65qyqpZfmrOKQV0ZV5URp2c="
+      "RuffinWeatherStation.r25prb9e8g.wasm": "sha256-DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo="
     },
     "pdb": {
-      "RuffinWeatherStation.xalkotb2u8.pdb": "sha256-2YSKpgbC5plasAbEAFqOVxoDf/yozBQtoPiz5iKhMco="
+      "RuffinWeatherStation.ciliagfstj.pdb": "sha256-ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno="
     }
   },
   "cacheBootResources": true,
   "debugLevel": -1,
   "appsettings": [
-    "../appsettings.json"
+    "../appsettings.json",
+    "../appsettings.production.json"
   ],
   "globalizationMode": "sharded",
   "extensions": {

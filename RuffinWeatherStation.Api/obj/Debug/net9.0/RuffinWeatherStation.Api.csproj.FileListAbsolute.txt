@@ -47,3 +47,4 @@ C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\Ruff
 C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\RuffinWeatherStation.Api\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\RuffinWeatherStation.Api\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\RuffinWeatherStation.Api\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\dbm82\Source\Repos\Freelance\DreampipeStudios\RuffinWeatherStation\RuffinWeatherStation.Api\bin\Debug\net9.0\appsettings.template.json
