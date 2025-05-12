@@ -34,8 +34,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "/RuffinWeatherStation"
           output_location: "wwwroot"
-          api_location: ""
+          api_location: "/RuffinWeatherStation.Api"
           app_build_command: "dotnet publish -c Release -o publish"
+          deployment_action: "upload"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
