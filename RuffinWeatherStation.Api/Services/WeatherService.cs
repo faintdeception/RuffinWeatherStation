@@ -15,11 +15,18 @@ namespace RuffinWeatherStation.Api.Services
 
         public WeatherService(IConfiguration configuration)
         {
-            var client = new MongoClient("mongodb://localhost:27017");
-            var database = client.GetDatabase("weather_data");
-            _measurements = database.GetCollection<TemperatureMeasurement>("measurements");
-            _hourlyMeasurements = database.GetCollection<HourlyMeasurement>("hourly_measurements");
-            _dailyMeasurements = database.GetCollection<DailyMeasurement>("daily_measurements");
+            var connectionString = configuration.GetConnectionString("MongoDb");
+            var databaseName = configuration.GetValue<string>("DatabaseSettings:DatabaseName");
+            
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase(databaseName);
+            
+            _measurements = database.GetCollection<TemperatureMeasurement>(
+                configuration.GetValue<string>("DatabaseSettings:Collections:Measurements"));
+            _hourlyMeasurements = database.GetCollection<HourlyMeasurement>(
+                configuration.GetValue<string>("DatabaseSettings:Collections:HourlyMeasurements"));
+            _dailyMeasurements = database.GetCollection<DailyMeasurement>(
+                configuration.GetValue<string>("DatabaseSettings:Collections:DailyMeasurements"));
         }
 
         public async Task<TemperatureMeasurement> GetLatestMeasurementAsync()

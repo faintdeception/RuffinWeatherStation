@@ -78,6 +78,7 @@ ScaffoldingReadMe.txt
 appsettings.Development.json
 appsettings.Production.json
 appsettings.Staging.json
+!appsettings.template.json
 !**/wwwroot/appsettings.json
 
 # JetBrains Rider
