@@ -31,14 +31,8 @@ jobs:
         env:
           AZURE_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}      
       
-      - name: Build Blazor App
-        run: |
-          cd RuffinWeatherStation
-          dotnet publish -c Release
-          echo "Build output directory contents:"
-          ls bin/Release/net9/wwwroot/
-          echo "Publish output directory contents:"
-          ls bin/Release/net9/publish/wwwroot/
+
+          
           
       - name: Deploy to Static Web App
         if: github.ref == 'refs/heads/main' # Only deploy on main branch pushes
@@ -48,8 +42,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_GRASS_0FFC76B10 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           app_location: "./RuffinWeatherStation"
-          output_location: "bin/Release/net9/publish/wwwroot"
-          api_location: "./RuffinWeatherStation.Api"
+          output_location: "wwwroot"
           skip_app_build: false
           action: "upload"
       
