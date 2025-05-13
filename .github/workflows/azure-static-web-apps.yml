@@ -46,6 +46,7 @@ jobs:
           output_location: "bin/Release/net9/wwwroot"
           api_location: "./RuffinWeatherStation.Api"
           skip_app_build: true
+          action: "upload"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
