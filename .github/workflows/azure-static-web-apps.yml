@@ -31,6 +31,13 @@ jobs:
           echo "Build output directory contents:"
           ls -la bin/Release/net9/wwwroot/
           
+      - name: Check Token Format
+        run: |
+          echo "Token length: ${#AZURE_TOKEN}"
+          echo "First 4 chars: ${AZURE_TOKEN:0:4}..."
+        env:
+          AZURE_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          
       - name: Deploy to Static Web App
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
