@@ -43,7 +43,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           app_location: "./RuffinWeatherStation"
           output_location: "wwwroot"
-          api_location: "./RuffinWeatherStation.Api"
           skip_app_build: false
           action: "upload"
       
