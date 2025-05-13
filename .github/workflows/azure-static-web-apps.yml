@@ -29,7 +29,7 @@ jobs:
           echo "Token length: ${#AZURE_TOKEN}"
           echo "First 4 chars: ${AZURE_TOKEN:0:4}..."
         env:
-          AZURE_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
+          AZURE_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}      
       
       - name: Build Blazor App
         run: |
@@ -38,20 +38,19 @@ jobs:
           echo "Build output directory contents:"
           ls -la bin/Release/net9/wwwroot/
           
-
-          
       - name: Deploy to Static Web App
+        if: github.ref == 'refs/heads/main' # Only deploy on main branch pushes
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          app_location: "RuffinWeatherStation"
-          output_location: "bin/Release/net9/publish/wwwroot"
-          api_location: "RuffinWeatherStation.Api"
-          skip_app_build: false
+          app_location: "./RuffinWeatherStation"
+          output_location: "bin/Release/net9/wwwroot"
+          api_location: "./RuffinWeatherStation.Api"
+          skip_app_build: true
           action: "upload"
-
+      
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
