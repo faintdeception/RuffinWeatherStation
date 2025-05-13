@@ -24,13 +24,11 @@ jobs:
         with:
           dotnet-version: '9.0.x'
       
-      # First build the app ourselves to have more control
       - name: Build Blazor App
         run: |
           cd RuffinWeatherStation
           dotnet publish -c Release
-          # Verify the output directory has the index.html file
-          echo "Checking for index.html:"
+          echo "Build output directory contents:"
           ls -la bin/Release/net9/wwwroot/
           
       - name: Azure Login
@@ -44,13 +42,10 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          # Skip the build step since we already built the app
+          app_location: "./RuffinWeatherStation"
+          output_location: "bin/Release/net9/wwwroot"
+          api_location: "./RuffinWeatherStation.Api"
           skip_app_build: true
-          # Point directly to the wwwroot folder with the built static files
-          app_location: "RuffinWeatherStation/bin/Release/net9/wwwroot"
-          # Use "." since we're already pointing to the output directory
-          output_location: "."
-          api_location: "/RuffinWeatherStation.Api"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
