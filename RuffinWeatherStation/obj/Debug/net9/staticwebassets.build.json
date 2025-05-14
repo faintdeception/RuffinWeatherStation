@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "AY+lr1O/nPE1vQ/QPeBXc9rWzQRL5N+3PN3rQet5248=",
+  "Hash": "2v4DxMtmxfvbJHm6XxxlsKrv3FA4vDnr6jy63bNnuow=",
   "Source": "RuffinWeatherStation",
   "BasePath": "/",
   "Mode": "Root",
@@ -955,8 +955,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "manifest",
-      "Fingerprint": "hwo4rppkey",
-      "Integrity": "7xkjHzeK5Bz/H9WCoW7FZOkmE9fnBZ0fRc5Dvu7pUnU=",
+      "Fingerprint": "n0n34zl2u2",
+      "Integrity": "uaizTlImYqaRMVzgKlc9ldfs3YNQiE77pmKiaR+99rg=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "obj\\Debug\\net9\\blazor.boot.json"
@@ -1816,8 +1816,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "symbol",
-      "Fingerprint": "ciliagfstj",
-      "Integrity": "ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno=",
+      "Fingerprint": "o4sbo1bis1",
+      "Integrity": "2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "obj\\Debug\\net9\\RuffinWeatherStation.pdb"
@@ -1837,8 +1837,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "runtime",
-      "Fingerprint": "r25prb9e8g",
-      "Integrity": "DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo=",
+      "Fingerprint": "olytt3k7d6",
+      "Integrity": "bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\webcil\\RuffinWeatherStation.wasm"
@@ -5330,12 +5330,12 @@
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\System.ServiceProcess.wasm"
     },
     {
-      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-r25prb9e8g.gz",
+      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-olytt3k7d6.gz",
       "SourceId": "RuffinWeatherStation",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\",
       "BasePath": "/",
-      "RelativePath": "_framework/RuffinWeatherStation#[.{fingerprint=r25prb9e8g}]!.wasm.gz",
+      "RelativePath": "_framework/RuffinWeatherStation#[.{fingerprint=olytt3k7d6}]!.wasm.gz",
       "AssetKind": "Build",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -5344,8 +5344,8 @@
       "RelatedAsset": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\RuffinWeatherStation.wasm",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "6po5vjqrqj",
-      "Integrity": "tui4a58xl0DTOavhvjE+a3QAbsVznO0cePYOuz9zyXA=",
+      "Fingerprint": "2h14ipt9pq",
+      "Integrity": "irmvqMN2Shr2J4zW5BLT9JdLq2TCJMqKKkITQ4cTjk0=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\RuffinWeatherStation.wasm"
@@ -5624,12 +5624,12 @@
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\System.ObjectModel.wasm"
     },
     {
-      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-jzbueq5rg6.gz",
+      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-ffuc3g0m8i.gz",
       "SourceId": "RuffinWeatherStation",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\",
       "BasePath": "/",
-      "RelativePath": "index#[.{fingerprint=jzbueq5rg6}]?.html.gz",
+      "RelativePath": "index#[.{fingerprint=ffuc3g0m8i}]?.html.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -5638,8 +5638,8 @@
       "RelatedAsset": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\index.html",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "4a7jbeopmu",
-      "Integrity": "ZLGX+0kexaueGBEKNDMNwHolQiyD2AH7t5xzfg32CBQ=",
+      "Fingerprint": "c5k09v26np",
+      "Integrity": "AHVgGfWioq7l86InG+m/WrYFl70OwJ5b5C0v+pSwZ+Q=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\index.html"
@@ -5750,12 +5750,12 @@
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\Microsoft.Extensions.FileProviders.Physical.wasm"
     },
     {
-      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-ciliagfstj.gz",
+      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-o4sbo1bis1.gz",
       "SourceId": "RuffinWeatherStation",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\",
       "BasePath": "/",
-      "RelativePath": "_framework/RuffinWeatherStation#[.{fingerprint=ciliagfstj}]!.pdb.gz",
+      "RelativePath": "_framework/RuffinWeatherStation#[.{fingerprint=o4sbo1bis1}]!.pdb.gz",
       "AssetKind": "Build",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -5764,8 +5764,8 @@
       "RelatedAsset": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\RuffinWeatherStation.pdb",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "j82fdvnfaq",
-      "Integrity": "7Q1cwlV8c2r5uQmLmjcX+rjbvFEw0yg8iRUPc9L+9Og=",
+      "Fingerprint": "4jhlhw7lwx",
+      "Integrity": "ANPvPLi9DEblS1mArDehTc9WDQcmv7R6ETrvQuMt0mI=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\RuffinWeatherStation.pdb"
@@ -5834,12 +5834,12 @@
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\System.IO.Compression.ZipFile.wasm"
     },
     {
-      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-n7s0h2jmd8.gz",
+      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-jxwr9y36c5.gz",
       "SourceId": "RuffinWeatherStation",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\",
       "BasePath": "/",
-      "RelativePath": "appsettings#[.{fingerprint=n7s0h2jmd8}]?.json.gz",
+      "RelativePath": "appsettings#[.{fingerprint=jxwr9y36c5}]?.json.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -5848,8 +5848,8 @@
       "RelatedAsset": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\appsettings.json",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "01cznz2pbh",
-      "Integrity": "pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA=",
+      "Fingerprint": "chr5j76pfc",
+      "Integrity": "YCkDa4lfkpYU9Og/B3+UkYZ8EP+HYN8h4c3nReu6iQQ=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\appsettings.json"
@@ -6233,7 +6233,7 @@
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map"
     },
     {
-      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\48o6j4b350-hwo4rppkey.gz",
+      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\48o6j4b350-n0n34zl2u2.gz",
       "SourceId": "RuffinWeatherStation",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\",
@@ -6247,8 +6247,8 @@
       "RelatedAsset": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\blazor.boot.json",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "yga1cma808",
-      "Integrity": "vtC4CygwIZK1jiyP8TQVTqWva2hyuWsgpC6z2HTbRF0=",
+      "Fingerprint": "64rkrskbx7",
+      "Integrity": "RrEDXhu73+YkM6USizy6kutA2zKEYWiFA05zi//A4xE=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\blazor.boot.json"
@@ -8856,6 +8856,27 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\System.Runtime.CompilerServices.Unsafe.wasm"
+    },
+    {
+      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\jhzo2ys1sy-iqnxzagqao.gz",
+      "SourceId": "RuffinWeatherStation",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\",
+      "BasePath": "/",
+      "RelativePath": "css/weather-dashboard#[.{fingerprint=iqnxzagqao}]?.css.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\css\\weather-dashboard.css",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "vfdd1hsgxz",
+      "Integrity": "S8pO3U3u6LZDQAMZBtTXGGTRDFSicBjg6sNVz1N2Po8=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\css\\weather-dashboard.css"
     },
     {
       "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\jm849gz4qd-dw9trzj7vz.gz",
@@ -11518,8 +11539,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "settings",
-      "Fingerprint": "n7s0h2jmd8",
-      "Integrity": "LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k=",
+      "Fingerprint": "jxwr9y36c5",
+      "Integrity": "if8Ipcdmdg7rbFTxOhV+xbwkF56JrCVbul1e8vjYAUQ=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\appsettings.json"
@@ -11565,6 +11586,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\app.css"
+    },
+    {
+      "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\css\\weather-dashboard.css",
+      "SourceId": "RuffinWeatherStation",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "css/weather-dashboard#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "iqnxzagqao",
+      "Integrity": "auFgATAjddBGQ+vlxX5CaGx1D/YoI0Okjualis67ucM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\weather-dashboard.css"
     },
     {
       "Identity": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\favicon.png",
@@ -11623,8 +11665,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "jzbueq5rg6",
-      "Integrity": "0eEq6MlBs1S8UhTRE1B12CWPbGFSTtQDv1s/a5XiEVY=",
+      "Fingerprint": "ffuc3g0m8i",
+      "Integrity": "C8jphXqYybRJi76avzHm025lbIea4+mbhui61r0WusE=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\index.html"
@@ -20195,7 +20237,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "39456"
+          "Value": "39495"
         },
         {
           "Name": "Content-Type",
@@ -20203,11 +20245,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"7xkjHzeK5Bz/H9WCoW7FZOkmE9fnBZ0fRc5Dvu7pUnU=\""
+          "Value": "\"uaizTlImYqaRMVzgKlc9ldfs3YNQiE77pmKiaR+99rg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:41 GMT"
+          "Value": "Wed, 14 May 2025 19:01:42 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -20217,18 +20259,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-7xkjHzeK5Bz/H9WCoW7FZOkmE9fnBZ0fRc5Dvu7pUnU="
+          "Value": "sha256-uaizTlImYqaRMVzgKlc9ldfs3YNQiE77pmKiaR+99rg="
         }
       ]
     },
     {
       "Route": "_framework/blazor.boot.json",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\48o6j4b350-hwo4rppkey.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\48o6j4b350-n0n34zl2u2.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000080502335"
+          "Quality": "0.000080476420"
         }
       ],
       "ResponseHeaders": [
@@ -20238,15 +20280,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12421"
+          "Value": "12425"
         },
         {
           "Name": "ETag",
-          "Value": "\"vtC4CygwIZK1jiyP8TQVTqWva2hyuWsgpC6z2HTbRF0=\""
+          "Value": "\"RrEDXhu73+YkM6USizy6kutA2zKEYWiFA05zi//A4xE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 21:56:16 GMT"
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -20266,19 +20308,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"7xkjHzeK5Bz/H9WCoW7FZOkmE9fnBZ0fRc5Dvu7pUnU=\""
+          "Value": "W/\"uaizTlImYqaRMVzgKlc9ldfs3YNQiE77pmKiaR+99rg=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-7xkjHzeK5Bz/H9WCoW7FZOkmE9fnBZ0fRc5Dvu7pUnU="
+          "Value": "sha256-uaizTlImYqaRMVzgKlc9ldfs3YNQiE77pmKiaR+99rg="
         }
       ]
     },
     {
       "Route": "_framework/blazor.boot.json.gz",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\48o6j4b350-hwo4rppkey.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\48o6j4b350-n0n34zl2u2.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -20287,7 +20329,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12421"
+          "Value": "12425"
         },
         {
           "Name": "Content-Type",
@@ -20295,11 +20337,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"vtC4CygwIZK1jiyP8TQVTqWva2hyuWsgpC6z2HTbRF0=\""
+          "Value": "\"RrEDXhu73+YkM6USizy6kutA2zKEYWiFA05zi//A4xE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 21:56:16 GMT"
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -20317,7 +20359,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-vtC4CygwIZK1jiyP8TQVTqWva2hyuWsgpC6z2HTbRF0="
+          "Value": "sha256-RrEDXhu73+YkM6USizy6kutA2zKEYWiFA05zi//A4xE="
         }
       ]
     },
@@ -32081,7 +32123,7 @@
       ]
     },
     {
-      "Route": "_framework/RuffinWeatherStation.ciliagfstj.pdb",
+      "Route": "_framework/RuffinWeatherStation.o4sbo1bis1.pdb",
       "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\RuffinWeatherStation.pdb",
       "Selectors": [],
       "ResponseHeaders": [
@@ -32091,7 +32133,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "79260"
+          "Value": "91840"
         },
         {
           "Name": "Content-Type",
@@ -32099,11 +32141,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno=\""
+          "Value": "\"2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:40 GMT"
+          "Value": "Wed, 14 May 2025 15:06:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -32113,7 +32155,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ciliagfstj"
+          "Value": "o4sbo1bis1"
         },
         {
           "Name": "label",
@@ -32121,18 +32163,18 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno="
+          "Value": "sha256-2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ="
         }
       ]
     },
     {
-      "Route": "_framework/RuffinWeatherStation.ciliagfstj.pdb",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-ciliagfstj.gz",
+      "Route": "_framework/RuffinWeatherStation.o4sbo1bis1.pdb",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-o4sbo1bis1.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000017766407"
+          "Quality": "0.000015469818"
         }
       ],
       "ResponseHeaders": [
@@ -32142,15 +32184,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "56285"
+          "Value": "64641"
         },
         {
           "Name": "ETag",
-          "Value": "\"7Q1cwlV8c2r5uQmLmjcX+rjbvFEw0yg8iRUPc9L+9Og=\""
+          "Value": "\"ANPvPLi9DEblS1mArDehTc9WDQcmv7R6ETrvQuMt0mI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:41 GMT"
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -32170,13 +32212,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno=\""
+          "Value": "W/\"2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ciliagfstj"
+          "Value": "o4sbo1bis1"
         },
         {
           "Name": "label",
@@ -32184,13 +32226,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno="
+          "Value": "sha256-2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ="
         }
       ]
     },
     {
-      "Route": "_framework/RuffinWeatherStation.ciliagfstj.pdb.gz",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-ciliagfstj.gz",
+      "Route": "_framework/RuffinWeatherStation.o4sbo1bis1.pdb.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-o4sbo1bis1.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -32199,7 +32241,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "56285"
+          "Value": "64641"
         },
         {
           "Name": "Content-Type",
@@ -32207,11 +32249,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"7Q1cwlV8c2r5uQmLmjcX+rjbvFEw0yg8iRUPc9L+9Og=\""
+          "Value": "\"ANPvPLi9DEblS1mArDehTc9WDQcmv7R6ETrvQuMt0mI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:41 GMT"
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -32229,7 +32271,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ciliagfstj"
+          "Value": "o4sbo1bis1"
         },
         {
           "Name": "label",
@@ -32237,7 +32279,168 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-7Q1cwlV8c2r5uQmLmjcX+rjbvFEw0yg8iRUPc9L+9Og="
+          "Value": "sha256-ANPvPLi9DEblS1mArDehTc9WDQcmv7R6ETrvQuMt0mI="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/RuffinWeatherStation.olytt3k7d6.wasm",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\RuffinWeatherStation.wasm",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "188181"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/wasm"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 15:06:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "olytt3k7d6"
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/RuffinWeatherStation.wasm"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/RuffinWeatherStation.olytt3k7d6.wasm",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-olytt3k7d6.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000015431861"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "64800"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"irmvqMN2Shr2J4zW5BLT9JdLq2TCJMqKKkITQ4cTjk0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/wasm"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "olytt3k7d6"
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/RuffinWeatherStation.wasm"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4="
+        }
+      ]
+    },
+    {
+      "Route": "_framework/RuffinWeatherStation.olytt3k7d6.wasm.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-olytt3k7d6.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "64800"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/wasm"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"irmvqMN2Shr2J4zW5BLT9JdLq2TCJMqKKkITQ4cTjk0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "olytt3k7d6"
+        },
+        {
+          "Name": "label",
+          "Value": "_framework/RuffinWeatherStation.wasm.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-irmvqMN2Shr2J4zW5BLT9JdLq2TCJMqKKkITQ4cTjk0="
         }
       ]
     },
@@ -32252,7 +32455,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "79260"
+          "Value": "91840"
         },
         {
           "Name": "Content-Type",
@@ -32260,11 +32463,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno=\""
+          "Value": "\"2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:40 GMT"
+          "Value": "Wed, 14 May 2025 15:06:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -32274,18 +32477,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno="
+          "Value": "sha256-2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ="
         }
       ]
     },
     {
       "Route": "_framework/RuffinWeatherStation.pdb",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-ciliagfstj.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-o4sbo1bis1.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000017766407"
+          "Quality": "0.000015469818"
         }
       ],
       "ResponseHeaders": [
@@ -32295,15 +32498,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "56285"
+          "Value": "64641"
         },
         {
           "Name": "ETag",
-          "Value": "\"7Q1cwlV8c2r5uQmLmjcX+rjbvFEw0yg8iRUPc9L+9Og=\""
+          "Value": "\"ANPvPLi9DEblS1mArDehTc9WDQcmv7R6ETrvQuMt0mI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:41 GMT"
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -32323,19 +32526,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno=\""
+          "Value": "W/\"2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-ZLeh9vqf2v0O91I/h0jDSCr+VDtXShKdKreiEkU+bno="
+          "Value": "sha256-2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ="
         }
       ]
     },
     {
       "Route": "_framework/RuffinWeatherStation.pdb.gz",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-ciliagfstj.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1pm7ey9vvl-o4sbo1bis1.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -32344,7 +32547,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "56285"
+          "Value": "64641"
         },
         {
           "Name": "Content-Type",
@@ -32352,11 +32555,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"7Q1cwlV8c2r5uQmLmjcX+rjbvFEw0yg8iRUPc9L+9Og=\""
+          "Value": "\"ANPvPLi9DEblS1mArDehTc9WDQcmv7R6ETrvQuMt0mI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:41 GMT"
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -32374,168 +32577,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-7Q1cwlV8c2r5uQmLmjcX+rjbvFEw0yg8iRUPc9L+9Og="
-        }
-      ]
-    },
-    {
-      "Route": "_framework/RuffinWeatherStation.r25prb9e8g.wasm",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\bin\\Debug\\net9\\wwwroot\\_framework\\RuffinWeatherStation.wasm",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "146709"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/wasm"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:40 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "r25prb9e8g"
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/RuffinWeatherStation.wasm"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo="
-        }
-      ]
-    },
-    {
-      "Route": "_framework/RuffinWeatherStation.r25prb9e8g.wasm",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-r25prb9e8g.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000019362209"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "51646"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"tui4a58xl0DTOavhvjE+a3QAbsVznO0cePYOuz9zyXA=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:41 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/wasm"
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo=\""
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "r25prb9e8g"
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/RuffinWeatherStation.wasm"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo="
-        }
-      ]
-    },
-    {
-      "Route": "_framework/RuffinWeatherStation.r25prb9e8g.wasm.gz",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-r25prb9e8g.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "51646"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/wasm"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"tui4a58xl0DTOavhvjE+a3QAbsVznO0cePYOuz9zyXA=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:41 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "r25prb9e8g"
-        },
-        {
-          "Name": "label",
-          "Value": "_framework/RuffinWeatherStation.wasm.gz"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-tui4a58xl0DTOavhvjE+a3QAbsVznO0cePYOuz9zyXA="
+          "Value": "sha256-ANPvPLi9DEblS1mArDehTc9WDQcmv7R6ETrvQuMt0mI="
         }
       ]
     },
@@ -32550,7 +32592,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "146709"
+          "Value": "188181"
         },
         {
           "Name": "Content-Type",
@@ -32558,11 +32600,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo=\""
+          "Value": "\"bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:40 GMT"
+          "Value": "Wed, 14 May 2025 15:06:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -32572,18 +32614,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo="
+          "Value": "sha256-bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4="
         }
       ]
     },
     {
       "Route": "_framework/RuffinWeatherStation.wasm",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-r25prb9e8g.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-olytt3k7d6.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000019362209"
+          "Quality": "0.000015431861"
         }
       ],
       "ResponseHeaders": [
@@ -32593,15 +32635,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "51646"
+          "Value": "64800"
         },
         {
           "Name": "ETag",
-          "Value": "\"tui4a58xl0DTOavhvjE+a3QAbsVznO0cePYOuz9zyXA=\""
+          "Value": "\"irmvqMN2Shr2J4zW5BLT9JdLq2TCJMqKKkITQ4cTjk0=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:41 GMT"
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -32621,19 +32663,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo=\""
+          "Value": "W/\"bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-DQOeHzM3j8OQjvUv+tm0O1wdtNzNQ9LFLWq/dZVLygo="
+          "Value": "sha256-bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4="
         }
       ]
     },
     {
       "Route": "_framework/RuffinWeatherStation.wasm.gz",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-r25prb9e8g.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\0dssehy3tg-olytt3k7d6.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -32642,7 +32684,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "51646"
+          "Value": "64800"
         },
         {
           "Name": "Content-Type",
@@ -32650,11 +32692,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"tui4a58xl0DTOavhvjE+a3QAbsVznO0cePYOuz9zyXA=\""
+          "Value": "\"irmvqMN2Shr2J4zW5BLT9JdLq2TCJMqKKkITQ4cTjk0=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 12 May 2025 22:20:41 GMT"
+          "Value": "Wed, 14 May 2025 15:06:50 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -32672,7 +32714,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-tui4a58xl0DTOavhvjE+a3QAbsVznO0cePYOuz9zyXA="
+          "Value": "sha256-irmvqMN2Shr2J4zW5BLT9JdLq2TCJMqKKkITQ4cTjk0="
         }
       ]
     },
@@ -80954,12 +80996,12 @@
     },
     {
       "Route": "appsettings.json",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-n7s0h2jmd8.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-jxwr9y36c5.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.011627906977"
+          "Quality": "0.007518796992"
         }
       ],
       "ResponseHeaders": [
@@ -80969,15 +81011,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "85"
+          "Value": "132"
         },
         {
           "Name": "ETag",
-          "Value": "\"pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA=\""
+          "Value": "\"YCkDa4lfkpYU9Og/B3+UkYZ8EP+HYN8h4c3nReu6iQQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 11 May 2025 21:34:17 GMT"
+          "Value": "Wed, 14 May 2025 01:07:14 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -80997,13 +81039,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k=\""
+          "Value": "W/\"if8Ipcdmdg7rbFTxOhV+xbwkF56JrCVbul1e8vjYAUQ=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k="
+          "Value": "sha256-if8Ipcdmdg7rbFTxOhV+xbwkF56JrCVbul1e8vjYAUQ="
         }
       ]
     },
@@ -81018,7 +81060,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "69"
+          "Value": "126"
         },
         {
           "Name": "Content-Type",
@@ -81026,11 +81068,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k=\""
+          "Value": "\"if8Ipcdmdg7rbFTxOhV+xbwkF56JrCVbul1e8vjYAUQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 11 May 2025 21:34:17 GMT"
+          "Value": "Wed, 14 May 2025 01:07:14 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -81040,13 +81082,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k="
+          "Value": "sha256-if8Ipcdmdg7rbFTxOhV+xbwkF56JrCVbul1e8vjYAUQ="
         }
       ]
     },
     {
       "Route": "appsettings.json.gz",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-n7s0h2jmd8.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-jxwr9y36c5.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -81055,7 +81097,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "85"
+          "Value": "132"
         },
         {
           "Name": "Content-Type",
@@ -81063,11 +81105,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA=\""
+          "Value": "\"YCkDa4lfkpYU9Og/B3+UkYZ8EP+HYN8h4c3nReu6iQQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 11 May 2025 21:34:17 GMT"
+          "Value": "Wed, 14 May 2025 01:07:14 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -81085,18 +81127,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA="
+          "Value": "sha256-YCkDa4lfkpYU9Og/B3+UkYZ8EP+HYN8h4c3nReu6iQQ="
         }
       ]
     },
     {
-      "Route": "appsettings.n7s0h2jmd8.json",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-n7s0h2jmd8.gz",
+      "Route": "appsettings.jxwr9y36c5.json",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-jxwr9y36c5.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.011627906977"
+          "Quality": "0.007518796992"
         }
       ],
       "ResponseHeaders": [
@@ -81106,15 +81148,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "85"
+          "Value": "132"
         },
         {
           "Name": "ETag",
-          "Value": "\"pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA=\""
+          "Value": "\"YCkDa4lfkpYU9Og/B3+UkYZ8EP+HYN8h4c3nReu6iQQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 11 May 2025 21:34:17 GMT"
+          "Value": "Wed, 14 May 2025 01:07:14 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -81134,13 +81176,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k=\""
+          "Value": "W/\"if8Ipcdmdg7rbFTxOhV+xbwkF56JrCVbul1e8vjYAUQ=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "n7s0h2jmd8"
+          "Value": "jxwr9y36c5"
         },
         {
           "Name": "label",
@@ -81148,12 +81190,12 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k="
+          "Value": "sha256-if8Ipcdmdg7rbFTxOhV+xbwkF56JrCVbul1e8vjYAUQ="
         }
       ]
     },
     {
-      "Route": "appsettings.n7s0h2jmd8.json",
+      "Route": "appsettings.jxwr9y36c5.json",
       "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\appsettings.json",
       "Selectors": [],
       "ResponseHeaders": [
@@ -81163,7 +81205,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "69"
+          "Value": "126"
         },
         {
           "Name": "Content-Type",
@@ -81171,11 +81213,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k=\""
+          "Value": "\"if8Ipcdmdg7rbFTxOhV+xbwkF56JrCVbul1e8vjYAUQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 11 May 2025 21:34:17 GMT"
+          "Value": "Wed, 14 May 2025 01:07:14 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -81185,7 +81227,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "n7s0h2jmd8"
+          "Value": "jxwr9y36c5"
         },
         {
           "Name": "label",
@@ -81193,13 +81235,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-LcjBPkisIhm0S+FvN8hX5ZeTD3fUrUozIYLiofwo1/k="
+          "Value": "sha256-if8Ipcdmdg7rbFTxOhV+xbwkF56JrCVbul1e8vjYAUQ="
         }
       ]
     },
     {
-      "Route": "appsettings.n7s0h2jmd8.json.gz",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-n7s0h2jmd8.gz",
+      "Route": "appsettings.jxwr9y36c5.json.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\240lvlbn6u-jxwr9y36c5.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -81208,7 +81250,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "85"
+          "Value": "132"
         },
         {
           "Name": "Content-Type",
@@ -81216,11 +81258,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA=\""
+          "Value": "\"YCkDa4lfkpYU9Og/B3+UkYZ8EP+HYN8h4c3nReu6iQQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 11 May 2025 21:34:17 GMT"
+          "Value": "Wed, 14 May 2025 01:07:14 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -81238,7 +81280,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "n7s0h2jmd8"
+          "Value": "jxwr9y36c5"
         },
         {
           "Name": "label",
@@ -81246,7 +81288,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-pGpM5jKve5YMXiHqSE+RZHJ8ylX+nQdGrV8mEewjWFA="
+          "Value": "sha256-YCkDa4lfkpYU9Og/B3+UkYZ8EP+HYN8h4c3nReu6iQQ="
         }
       ]
     },
@@ -81847,6 +81889,304 @@
       ]
     },
     {
+      "Route": "css/weather-dashboard.css",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\jhzo2ys1sy-iqnxzagqao.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.001015228426"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "984"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"S8pO3U3u6LZDQAMZBtTXGGTRDFSicBjg6sNVz1N2Po8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 02:32:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"auFgATAjddBGQ+vlxX5CaGx1D/YoI0Okjualis67ucM=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-auFgATAjddBGQ+vlxX5CaGx1D/YoI0Okjualis67ucM="
+        }
+      ]
+    },
+    {
+      "Route": "css/weather-dashboard.css",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\css\\weather-dashboard.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3317"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"auFgATAjddBGQ+vlxX5CaGx1D/YoI0Okjualis67ucM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 02:32:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-auFgATAjddBGQ+vlxX5CaGx1D/YoI0Okjualis67ucM="
+        }
+      ]
+    },
+    {
+      "Route": "css/weather-dashboard.css.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\jhzo2ys1sy-iqnxzagqao.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "984"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"S8pO3U3u6LZDQAMZBtTXGGTRDFSicBjg6sNVz1N2Po8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 02:32:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-S8pO3U3u6LZDQAMZBtTXGGTRDFSicBjg6sNVz1N2Po8="
+        }
+      ]
+    },
+    {
+      "Route": "css/weather-dashboard.iqnxzagqao.css",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\jhzo2ys1sy-iqnxzagqao.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.001015228426"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "984"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"S8pO3U3u6LZDQAMZBtTXGGTRDFSicBjg6sNVz1N2Po8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 02:32:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"auFgATAjddBGQ+vlxX5CaGx1D/YoI0Okjualis67ucM=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "iqnxzagqao"
+        },
+        {
+          "Name": "label",
+          "Value": "css/weather-dashboard.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-auFgATAjddBGQ+vlxX5CaGx1D/YoI0Okjualis67ucM="
+        }
+      ]
+    },
+    {
+      "Route": "css/weather-dashboard.iqnxzagqao.css",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\css\\weather-dashboard.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3317"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"auFgATAjddBGQ+vlxX5CaGx1D/YoI0Okjualis67ucM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 02:32:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "iqnxzagqao"
+        },
+        {
+          "Name": "label",
+          "Value": "css/weather-dashboard.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-auFgATAjddBGQ+vlxX5CaGx1D/YoI0Okjualis67ucM="
+        }
+      ]
+    },
+    {
+      "Route": "css/weather-dashboard.iqnxzagqao.css.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\jhzo2ys1sy-iqnxzagqao.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "984"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"S8pO3U3u6LZDQAMZBtTXGGTRDFSicBjg6sNVz1N2Po8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 02:32:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "iqnxzagqao"
+        },
+        {
+          "Name": "label",
+          "Value": "css/weather-dashboard.css.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-S8pO3U3u6LZDQAMZBtTXGGTRDFSicBjg6sNVz1N2Po8="
+        }
+      ]
+    },
+    {
       "Route": "favicon.ifv42okdf2.png",
       "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\favicon.png",
       "Selectors": [],
@@ -82011,13 +82351,13 @@
       ]
     },
     {
-      "Route": "index.html",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-jzbueq5rg6.gz",
+      "Route": "index.ffuc3g0m8i.html",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-ffuc3g0m8i.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.001945525292"
+          "Quality": "0.001901140684"
         }
       ],
       "ResponseHeaders": [
@@ -82027,19 +82367,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "513"
+          "Value": "525"
         },
         {
           "Name": "ETag",
-          "Value": "\"ZLGX+0kexaueGBEKNDMNwHolQiyD2AH7t5xzfg32CBQ=\""
+          "Value": "\"AHVgGfWioq7l86InG+m/WrYFl70OwJ5b5C0v+pSwZ+Q=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 09 May 2025 23:57:20 GMT"
+          "Value": "Wed, 14 May 2025 12:18:58 GMT"
         },
         {
           "Name": "Cache-Control",
-          "Value": "no-cache"
+          "Value": "max-age=31536000, immutable"
         },
         {
           "Name": "Content-Encoding",
@@ -82055,18 +82395,26 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"0eEq6MlBs1S8UhTRE1B12CWPbGFSTtQDv1s/a5XiEVY=\""
+          "Value": "W/\"C8jphXqYybRJi76avzHm025lbIea4+mbhui61r0WusE=\""
         }
       ],
       "EndpointProperties": [
         {
+          "Name": "fingerprint",
+          "Value": "ffuc3g0m8i"
+        },
+        {
+          "Name": "label",
+          "Value": "index.html"
+        },
+        {
           "Name": "integrity",
-          "Value": "sha256-0eEq6MlBs1S8UhTRE1B12CWPbGFSTtQDv1s/a5XiEVY="
+          "Value": "sha256-C8jphXqYybRJi76avzHm025lbIea4+mbhui61r0WusE="
         }
       ]
     },
     {
-      "Route": "index.html",
+      "Route": "index.ffuc3g0m8i.html",
       "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\index.html",
       "Selectors": [],
       "ResponseHeaders": [
@@ -82076,7 +82424,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1144"
+          "Value": "1208"
         },
         {
           "Name": "Content-Type",
@@ -82084,121 +82432,21 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"0eEq6MlBs1S8UhTRE1B12CWPbGFSTtQDv1s/a5XiEVY=\""
+          "Value": "\"C8jphXqYybRJi76avzHm025lbIea4+mbhui61r0WusE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 09 May 2025 23:57:20 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-0eEq6MlBs1S8UhTRE1B12CWPbGFSTtQDv1s/a5XiEVY="
-        }
-      ]
-    },
-    {
-      "Route": "index.html.gz",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-jzbueq5rg6.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "513"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/html"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"ZLGX+0kexaueGBEKNDMNwHolQiyD2AH7t5xzfg32CBQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 09 May 2025 23:57:20 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-ZLGX+0kexaueGBEKNDMNwHolQiyD2AH7t5xzfg32CBQ="
-        }
-      ]
-    },
-    {
-      "Route": "index.jzbueq5rg6.html",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-jzbueq5rg6.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.001945525292"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "513"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"ZLGX+0kexaueGBEKNDMNwHolQiyD2AH7t5xzfg32CBQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 09 May 2025 23:57:20 GMT"
+          "Value": "Wed, 14 May 2025 12:18:58 GMT"
         },
         {
           "Name": "Cache-Control",
           "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/html"
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"0eEq6MlBs1S8UhTRE1B12CWPbGFSTtQDv1s/a5XiEVY=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "jzbueq5rg6"
+          "Value": "ffuc3g0m8i"
         },
         {
           "Name": "label",
@@ -82206,13 +82454,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-0eEq6MlBs1S8UhTRE1B12CWPbGFSTtQDv1s/a5XiEVY="
+          "Value": "sha256-C8jphXqYybRJi76avzHm025lbIea4+mbhui61r0WusE="
         }
       ]
     },
     {
-      "Route": "index.jzbueq5rg6.html",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\index.html",
+      "Route": "index.ffuc3g0m8i.html.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-ffuc3g0m8i.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -82221,7 +82469,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1144"
+          "Value": "525"
         },
         {
           "Name": "Content-Type",
@@ -82229,56 +82477,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"0eEq6MlBs1S8UhTRE1B12CWPbGFSTtQDv1s/a5XiEVY=\""
+          "Value": "\"AHVgGfWioq7l86InG+m/WrYFl70OwJ5b5C0v+pSwZ+Q=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 09 May 2025 23:57:20 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "jzbueq5rg6"
-        },
-        {
-          "Name": "label",
-          "Value": "index.html"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-0eEq6MlBs1S8UhTRE1B12CWPbGFSTtQDv1s/a5XiEVY="
-        }
-      ]
-    },
-    {
-      "Route": "index.jzbueq5rg6.html.gz",
-      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-jzbueq5rg6.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "513"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/html"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"ZLGX+0kexaueGBEKNDMNwHolQiyD2AH7t5xzfg32CBQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 09 May 2025 23:57:20 GMT"
+          "Value": "Wed, 14 May 2025 12:18:58 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -82296,7 +82499,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "jzbueq5rg6"
+          "Value": "ffuc3g0m8i"
         },
         {
           "Name": "label",
@@ -82304,7 +82507,144 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-ZLGX+0kexaueGBEKNDMNwHolQiyD2AH7t5xzfg32CBQ="
+          "Value": "sha256-AHVgGfWioq7l86InG+m/WrYFl70OwJ5b5C0v+pSwZ+Q="
+        }
+      ]
+    },
+    {
+      "Route": "index.html",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-ffuc3g0m8i.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.001901140684"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "525"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"AHVgGfWioq7l86InG+m/WrYFl70OwJ5b5C0v+pSwZ+Q=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 12:18:58 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"C8jphXqYybRJi76avzHm025lbIea4+mbhui61r0WusE=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-C8jphXqYybRJi76avzHm025lbIea4+mbhui61r0WusE="
+        }
+      ]
+    },
+    {
+      "Route": "index.html",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\index.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1208"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"C8jphXqYybRJi76avzHm025lbIea4+mbhui61r0WusE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 12:18:58 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-C8jphXqYybRJi76avzHm025lbIea4+mbhui61r0WusE="
+        }
+      ]
+    },
+    {
+      "Route": "index.html.gz",
+      "AssetFile": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\obj\\Debug\\net9\\compressed\\1efjutv9rq-ffuc3g0m8i.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "525"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"AHVgGfWioq7l86InG+m/WrYFl70OwJ5b5C0v+pSwZ+Q=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 14 May 2025 12:18:58 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-AHVgGfWioq7l86InG+m/WrYFl70OwJ5b5C0v+pSwZ+Q="
         }
       ]
     },

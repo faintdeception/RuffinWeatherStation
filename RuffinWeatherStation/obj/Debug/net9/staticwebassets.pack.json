@@ -21,6 +21,10 @@
       "PackagePath": "staticwebassets\\css\\app.css"
     },
     {
+      "Id": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\css\\weather-dashboard.css",
+      "PackagePath": "staticwebassets\\css\\weather-dashboard.css"
+    },
+    {
       "Id": "C:\\Users\\dbm82\\Source\\Repos\\Freelance\\DreampipeStudios\\RuffinWeatherStation\\RuffinWeatherStation\\wwwroot\\favicon.png",
       "PackagePath": "staticwebassets\\favicon.png"
     },

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RuffinWeatherStation")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+19d0a07f3fd848d40881651b83b2c94579bc5869")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a68b238e82ded73fc596f4459a52fe9558e470b4")]
 [assembly: System.Reflection.AssemblyProductAttribute("RuffinWeatherStation")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RuffinWeatherStation")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
