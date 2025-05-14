@@ -23,6 +23,7 @@ namespace RuffinWeatherStation.Services
         private const int RECENT_CACHE_MINUTES = 30;
         private const int DAILY_CACHE_MINUTES = 60;
         private const int HOURLY_CACHE_MINUTES = 45;
+        private const int PREDICTION_CACHE_MINUTES = 60;
 
         public TemperatureService(HttpClient httpClient, IJSRuntime jsRuntime)
         {
@@ -441,6 +442,24 @@ namespace RuffinWeatherStation.Services
         {
             // Call the existing method that already implements this functionality
             return await AnalyzeWeatherTrendsAsync(days);
+        }
+
+        public async Task<WeatherPrediction?> GetLatestPredictionAsync()
+        {
+            return await GetCachedDataAsync<WeatherPrediction>(
+                "latest_prediction", 
+                PREDICTION_CACHE_MINUTES,
+                async () => {
+                    try
+                    {
+                        return await _httpClient.GetFromJsonAsync<WeatherPrediction>("api/weather/prediction/latest");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error fetching latest prediction: {ex.Message}");
+                        return null;
+                    }
+                });
         }
     }
 

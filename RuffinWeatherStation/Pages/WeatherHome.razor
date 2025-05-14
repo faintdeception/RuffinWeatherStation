@@ -5,6 +5,25 @@
 
 <h1>Current Weather Dashboard</h1>
 
+@if (prediction != null)
+{
+    <div class="alert alert-info mb-4">
+        <div class="d-flex align-items-start">
+            <div style="font-size: 2rem; margin-right: 15px;">🤖</div>
+            <div>
+                <h5 class="alert-heading">Weather Prediction</h5>
+                <p class="mb-0">@prediction.Reasoning</p>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <small class="text-muted">Created: @prediction.CreatedAt | Confidence: @prediction.ConfidencePercentage</small>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="RefreshPrediction">
+                        <span class="oi oi-reload" aria-hidden="true"></span> Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <p>Real-time weather data from the Ruffin Weather Station</p>
     
@@ -414,6 +433,7 @@ else
 
 @code {
     private TemperatureMeasurement? measurement;
+    private WeatherPrediction? prediction;
     private WeatherAnalysisResult? analysisResult;
     private WeatherAnalysisResult? recentAnalysisResult;
     private int analysisPeriod = 7; // Default to 7-day analysis
@@ -428,6 +448,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
+        
+        // Load the prediction data
+        await LoadPredictionData();
         
         // Start with short-term (recent) analysis
         await AnalyzeRecentPeriod(analysisHours);
@@ -463,6 +486,24 @@ else
         StateHasChanged();
     }
 
+    private async Task RefreshPrediction()
+    {
+        await LoadPredictionData();
+        StateHasChanged();
+    }
+
+    private async Task LoadPredictionData()
+    {
+        try
+        {
+            prediction = await TemperatureService.GetLatestPredictionAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading prediction data: {ex.Message}");
+        }
+    }
+
     private async Task LoadData()
     {
         try
@@ -491,20 +532,19 @@ else
         if (measurement == null)
             return true;
             
-        // Check if the data is older than the freshness threshold
-        TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
-        return timeSinceLastUpdate.TotalMinutes > DATA_FRESH_MINUTES;
+        // Calculate minutes since last update
+        var dataAge = DateTime.Now - measurement.TimestampMs;
+        return dataAge.TotalMinutes > DATA_FRESH_MINUTES;
     }
     
-    // Method to check if the device appears to be offline based on recency of data
     private bool IsDeviceOffline()
     {
         if (measurement == null)
             return true;
             
-        // Check if the device hasn't updated within the threshold period
-        TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
-        return timeSinceLastUpdate.TotalMinutes > deviceOfflineThresholdMinutes;
+        // Calculate minutes since last update
+        var dataAge = DateTime.Now - measurement.TimestampMs;
+        return dataAge.TotalMinutes > deviceOfflineThresholdMinutes;
     }
     
     private string GetDataAge()
@@ -512,108 +552,109 @@ else
         if (measurement == null)
             return "unknown";
             
-        TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
-        
-        if (timeSinceLastUpdate.TotalHours >= 24)
+        var age = DateTime.Now - measurement.TimestampMs;
+        if (age.TotalDays > 1)
         {
-            return $"{Math.Floor(timeSinceLastUpdate.TotalDays)} day(s) and {timeSinceLastUpdate.Hours} hour(s)";
+            return $"{Math.Floor(age.TotalDays)} day(s)";
         }
-        else if (timeSinceLastUpdate.TotalMinutes >= 60)
+        else if (age.TotalHours > 1)
         {
-            return $"{Math.Floor(timeSinceLastUpdate.TotalHours)} hour(s) and {timeSinceLastUpdate.Minutes} minute(s)";
+            return $"{Math.Floor(age.TotalHours)} hour(s)";
         }
-        else
+        else 
         {
-            return $"{Math.Floor(timeSinceLastUpdate.TotalMinutes)} minute(s)";
+            return $"{Math.Floor(age.TotalMinutes)} minute(s)";
         }
     }
     
     private string GetTimeUntilCacheRefresh()
     {
         if (!nextCacheRefresh.HasValue)
-            return "unknown time";
+            return "unknown";
             
-        TimeSpan timeUntilRefresh = nextCacheRefresh.Value - DateTime.Now;
-        if (timeUntilRefresh.TotalSeconds <= 0)
+        var timeLeft = nextCacheRefresh.Value - DateTime.Now;
+        if (timeLeft.TotalSeconds <= 0)
             return "any moment";
             
-        if (timeUntilRefresh.TotalMinutes >= 1)
-        {
-            return $"{Math.Ceiling(timeUntilRefresh.TotalMinutes)} minute(s)";
-        }
+        if (timeLeft.TotalMinutes < 1)
+            return $"{Math.Ceiling(timeLeft.TotalSeconds)} seconds";
         else
-        {
-            return $"{Math.Ceiling(timeUntilRefresh.TotalSeconds)} second(s)";
-        }
+            return $"{Math.Ceiling(timeLeft.TotalMinutes)} minutes";
     }
     
-    // Formatting methods
+    private void SwitchToLongTermAnalysis()
+    {
+        showShortTermAnalysis = false;
+        StateHasChanged();
+    }
+    
+    private void SwitchToShortTermAnalysis()
+    {
+        showShortTermAnalysis = true;
+        StateHasChanged();
+    }
+    
+    private async Task AnalyzePeriod(int days)
+    {
+        analysisPeriod = days;
+        try
+        {
+            analysisResult = await TemperatureService.GetAnalysisAsync(days);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error analyzing weather over {days} days: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+    
+    private async Task AnalyzeRecentPeriod(int hours)
+    {
+        analysisHours = hours;
+        try
+        {
+            recentAnalysisResult = await TemperatureService.GetRecentAnalysisAsync(hours);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error analyzing recent weather over {hours} hours: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+    
     private string FormatDouble(double? value)
     {
-        if (value == null) return "N/A";
-        return Math.Round(value.Value, 1).ToString();
+        if (value == null)
+            return "N/A";
+            
+        return Math.Round(value.Value, 1).ToString("0.0");
     }
     
-    private string FormatTemperatureF(double? celsius)
+    private string FormatTemperatureF(double? tempC)
     {
-        if (celsius == null) return "N/A";
-        double fahrenheit = (celsius.Value * 9 / 5) + 32;
-        return Math.Round(fahrenheit, 1).ToString();
+        if (tempC == null)
+            return "N/A";
+            
+        double tempF = 32 + (tempC.Value * 9 / 5);
+        return Math.Round(tempF, 1).ToString("0.0");
     }
     
     private string FormatTimestamp(object value)
     {
         if (value is DateTime dt)
         {
-            return dt.ToString("MM/dd HH:mm");
+            if (showShortTermAnalysis)
+            {
+                // For short-term (hourly) analysis, show hour and minutes
+                return dt.ToString("HH:mm");
+            }
+            else
+            {
+                // For long-term analysis, show just the day
+                return dt.ToString("MM/dd");
+            }
         }
+        
         return value?.ToString() ?? "";
-    }
-    
-    // Analysis methods
-    private async Task AnalyzeRecentPeriod(int hours)
-    {
-        try
-        {
-            analysisHours = hours;
-            recentAnalysisResult = await TemperatureService.GetRecentAnalysisAsync(hours);
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Error analyzing recent period: {ex.Message}");
-            recentAnalysisResult = new WeatherAnalysisResult 
-            { 
-                Success = false, 
-                ErrorMessage = $"Failed to retrieve recent analysis: {ex.Message}" 
-            };
-        }
-    }
-    
-    private async Task AnalyzePeriod(int days)
-    {
-        try
-        {
-            analysisPeriod = days;
-            analysisResult = await TemperatureService.GetAnalysisAsync(days);
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Error analyzing period: {ex.Message}");
-            analysisResult = new WeatherAnalysisResult 
-            { 
-                Success = false, 
-                ErrorMessage = $"Failed to retrieve analysis: {ex.Message}" 
-            };
-        }
-    }
-    
-    private void SwitchToShortTermAnalysis()
-    {
-        showShortTermAnalysis = true;
-    }
-    
-    private void SwitchToLongTermAnalysis()
-    {
-        showShortTermAnalysis = false;
     }
 }

@@ -61,5 +61,23 @@ namespace RuffinWeatherStation.Api.Controllers
             var measurements = await _weatherService.GetDailyMeasurementsAsync(date);
             return measurements;
         }
+
+        [HttpGet("prediction/latest")]
+        public async Task<ActionResult<WeatherPrediction>> GetLatestPrediction()
+        {
+            var prediction = await _weatherService.GetLatestPredictionAsync();
+            if (prediction == null)
+            {
+                return NotFound();
+            }
+            return prediction;
+        }
+
+        [HttpGet("prediction/recent")]
+        public async Task<ActionResult<IEnumerable<WeatherPrediction>>> GetRecentPredictions([FromQuery] int count = 5)
+        {
+            var predictions = await _weatherService.GetRecentPredictionsAsync(count);
+            return predictions;
+        }
     }
 }

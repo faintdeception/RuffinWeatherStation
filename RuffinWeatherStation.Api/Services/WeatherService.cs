@@ -12,6 +12,7 @@ namespace RuffinWeatherStation.Api.Services
         private readonly IMongoCollection<TemperatureMeasurement> _measurements;
         private readonly IMongoCollection<HourlyMeasurement> _hourlyMeasurements;
         private readonly IMongoCollection<DailyMeasurement> _dailyMeasurements;
+        private readonly IMongoCollection<WeatherPrediction> _predictions;
 
         public WeatherService(IConfiguration configuration)
         {
@@ -62,8 +63,9 @@ namespace RuffinWeatherStation.Api.Services
                 var measurementsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Measurements");
                 var hourlyCollection = configuration.GetValue<string>("DatabaseSettings:Collections:HourlyMeasurements");
                 var dailyCollection = configuration.GetValue<string>("DatabaseSettings:Collections:DailyMeasurements");
+                var predictionsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Predictions") ?? "predictions";
                 
-                Console.WriteLine($"[WEATHER SERVICE] Collections: Measurements={measurementsCollection}, Hourly={hourlyCollection}, Daily={dailyCollection}");
+                Console.WriteLine($"[WEATHER SERVICE] Collections: Measurements={measurementsCollection}, Hourly={hourlyCollection}, Daily={dailyCollection}, Predictions={predictionsCollection}");
                 
                 Console.WriteLine("[WEATHER SERVICE] Creating MongoDB client...");
                 var client = new MongoClient(connectionString);
@@ -75,6 +77,7 @@ namespace RuffinWeatherStation.Api.Services
                 _measurements = database.GetCollection<TemperatureMeasurement>(measurementsCollection);
                 _hourlyMeasurements = database.GetCollection<HourlyMeasurement>(hourlyCollection);
                 _dailyMeasurements = database.GetCollection<DailyMeasurement>(dailyCollection);
+                _predictions = database.GetCollection<WeatherPrediction>(predictionsCollection);
                 
                 Console.WriteLine("[WEATHER SERVICE] Successfully initialized WeatherService");
                 
@@ -142,6 +145,37 @@ namespace RuffinWeatherStation.Api.Services
             return await _dailyMeasurements.Find(filter)
                 .SortBy(m => m.TimestampMs)
                 .ToListAsync();
+        }
+
+        public async Task<WeatherPrediction> GetLatestPredictionAsync()
+        {
+            try
+            {
+                return await _predictions.Find(_ => true)
+                    .SortByDescending(p => p.CreatedAt)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WEATHER SERVICE ERROR] Error fetching latest prediction: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<List<WeatherPrediction>> GetRecentPredictionsAsync(int count = 5)
+        {
+            try
+            {
+                return await _predictions.Find(_ => true)
+                    .SortByDescending(p => p.CreatedAt)
+                    .Limit(count)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WEATHER SERVICE ERROR] Error fetching recent predictions: {ex.Message}");
+                return new List<WeatherPrediction>();
+            }
         }
     }
 }
