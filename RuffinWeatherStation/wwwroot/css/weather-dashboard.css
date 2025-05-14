@@ -1,1 +1,133 @@
+/* Red/orange theme for Ruffin Weather Station */
+
+:root {
+    --primary-color: #9c4b28;         /* Deep rust red, not too bright */
+    --primary-light: #c66b47;         /* Lighter rust red for hover states */
+    --primary-dark: #7a3921;          /* Darker rust red for borders/accents */
+    --secondary-color: #e8b298;       /* Soft peach for contrast elements */
+    --background-color: #fff9f5;      /* Very light peach background */
+    --text-color: #3d2a24;            /* Dark brown for text */
+    --border-color: #dbc0b0;          /* Soft peach border color */
+    --card-background: #fffaf6;       /* Slightly off-white for cards */
+    --highlight-color: #f58a5c;       /* Brighter orange for highlights/accents */
+    --danger-color: #d9534f;          /* Red for warnings/alerts */
+    --success-color: #5cb85c;         /* Green for success states */
+}
+
+/* Apply theme to main layout elements */
+.page {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.sidebar {
+    background-image: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary-color) 70%);
+}
+
+.top-row {
+    background-color: var(--card-background);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-dark);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+}
+
+/* Card styling */
+.card {
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(156, 75, 40, 0.1);
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Navigation links */
+.nav-link {
+    color: var(--secondary-color);
+}
+
+.nav-link:hover {
+    color: white;
+    background-color: var(--primary-light);
+}
+
+.nav-link.active {
+    background-color: var(--highlight-color);
+    color: white;
+}
+
+/* Tables */
+table {
+    border-color: var(--border-color);
+}
+
+thead {
+    background-color: var(--primary-light);
+    color: white;
+}
+
+/* Weather-specific elements */
+.temperature-high {
+    color: var(--highlight-color);
+}
+
+.temperature-low {
+    color: var(--secondary-color);
+}
+
+/* Form elements */
+input, select, textarea {
+    border: 1px solid var(--border-color);
+    background-color: var(--card-background);
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.2rem rgba(156, 75, 40, 0.25);
+}
+
+/* Alerts */
+.alert-warning {
+    background-color: rgba(245, 138, 92, 0.2);
+    border-color: var(--highlight-color);
+    color: var(--primary-dark);
+}
+
+/* Weather dashboard cards */
+.weather-card {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: var(--card-background);
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary-light);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-color);
+}
 
