@@ -66,18 +66,42 @@ try
     {
         options.AddPolicy("AllowBlazorApp", policy =>
         {
-            policy.WithOrigins(
-                    "https://localhost:5001", 
-                    "http://localhost:5000",
-                    "https://localhost:7272",
-                    "http://localhost:5259",
-                    "https://localhost:7159",  // Added potential Blazor app port
-                    "http://localhost:5204",   // Added potential Blazor app port
-                    "https://ruffin-weather-app.azurestaticapps.net",
-                    "https://gray-grass-0ffc76b10.4.azurestaticapps.net",
-                    "https://proud-forest-0544df410.azurestaticapps.net") // Add your Azure Static Web App URL
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
+            // Allow specific development origins
+            var allowedOrigins = new List<string>
+            {
+                "https://localhost:5001", 
+                "http://localhost:5000",
+                "https://localhost:7272",
+                "http://localhost:5259",
+                "https://localhost:7159",
+                "http://localhost:5204",
+                "https://ruffin-weather-app.azurestaticapps.net"
+            };
+            
+            policy.SetIsOriginAllowed(origin => 
+            {
+                // Check if origin is in our explicit list
+                if (allowedOrigins.Contains(origin))
+                {
+                    return true;
+                }
+                
+                // Allow any gray-grass Azure Static Web App URL regardless of the numeric suffix
+                if (origin.Contains("gray-grass-0ffc76b10") && origin.EndsWith(".azurestaticapps.net"))
+                {
+                    return true;
+                }
+                
+                // Allow proud-forest Azure Static Web App URL
+                if (origin.Contains("proud-forest-0544df410") && origin.EndsWith(".azurestaticapps.net"))
+                {
+                    return true;
+                }
+                
+                return false;
+            })
+            .AllowAnyMethod()
+            .AllowAnyHeader();
         });
     });
 
