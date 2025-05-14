@@ -15,7 +15,7 @@ namespace RuffinWeatherStation.Models
         public string Location { get; set; }
 
         [JsonPropertyName("created_at")]
-        public string CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         [JsonPropertyName("prediction_12h")]
         public PredictionData Prediction12h { get; set; }
@@ -36,12 +36,7 @@ namespace RuffinWeatherStation.Models
         [JsonIgnore]
         public DateTime CreatedAtDateTime 
         { 
-            get 
-            {
-                if (DateTime.TryParse(CreatedAt, out DateTime result))
-                    return result;
-                return DateTime.Now;
-            } 
+            get;
         }
     }
 
