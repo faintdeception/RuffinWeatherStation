@@ -63,7 +63,7 @@ namespace RuffinWeatherStation.Api.Services
                 var measurementsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Measurements");
                 var hourlyCollection = configuration.GetValue<string>("DatabaseSettings:Collections:HourlyMeasurements");
                 var dailyCollection = configuration.GetValue<string>("DatabaseSettings:Collections:DailyMeasurements");
-                var predictionsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Predictions") ?? "predictions";
+                var predictionsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Predictions") ?? "weather_predictions";
                 
                 Console.WriteLine($"[WEATHER SERVICE] Collections: Measurements={measurementsCollection}, Hourly={hourlyCollection}, Daily={dailyCollection}, Predictions={predictionsCollection}");
                 
