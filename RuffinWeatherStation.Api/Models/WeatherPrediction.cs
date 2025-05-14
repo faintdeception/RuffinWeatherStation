@@ -55,5 +55,8 @@ namespace RuffinWeatherStation.Api.Models
 
         [BsonElement("max")]
         public double Max { get; set; }
+
+        [BsonElement("avg")]
+        public double Avg { get; set; }
     }
 }

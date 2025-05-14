@@ -63,9 +63,12 @@ namespace RuffinWeatherStation.Models
         [JsonPropertyName("max")]
         public double Max { get; set; }
         
-        // Helper property to get the average
+        [JsonPropertyName("avg")]
+        public double Avg { get; set; }
+        
+        // Helper property to get the average if the Avg property isn't set
         [JsonIgnore]
-        public double Average => (Min + Max) / 2;
+        public double Average => Avg > 0 ? Avg : (Min + Max) / 2;
         
         // Format the range as a string
         public string Range => $"{Min:0.0} - {Max:0.0}";
