@@ -1,5 +1,6 @@
 @page "/apitest"
 @inject HttpClient Http
+@inject IJSRuntime JSRuntime
 @using System.Text.Json
 
 <PageTitle>API Connection Test</PageTitle>
@@ -15,6 +16,7 @@
             <p>Test your API connection by clicking the buttons below:</p>
             <button class="btn btn-primary me-2" @onclick="TestHealthEndpoint">Test Health Endpoint</button>
             <button class="btn btn-success me-2" @onclick="TestWeatherEndpoint">Test Weather API</button>
+            <button class="btn btn-warning me-2" @onclick="TestWithFetch">Test with JavaScript Fetch</button>
             <button class="btn btn-info" @onclick="ClearResults">Clear Results</button>
         </div>
 
@@ -36,7 +38,7 @@
         {
             <div class="alert alert-danger">
                 <h4>Error:</h4>
-                <p>@_error</p>
+                <p style="white-space: pre-wrap;">@_error</p>
             </div>
         }
         else if (_data != null)
@@ -70,6 +72,40 @@
     </div>
 </div>
 
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>CORS Diagnostics</h3>
+    </div>
+    <div class="card-body">
+        <p>Common CORS-related errors:</p>
+        <ul>
+            <li><strong>Failed to fetch</strong> - Often indicates a CORS issue or network connectivity problem</li>
+            <li><strong>Access to fetch has been blocked by CORS policy</strong> - Server isn't including proper CORS headers</li>
+            <li><strong>No 'Access-Control-Allow-Origin' header</strong> - API is missing critical CORS headers</li>
+        </ul>
+        
+        <div class="alert alert-warning mt-3">
+            <strong>Current domain: </strong> <span id="currentDomain"></span><br/>
+            <strong>Origin header value: </strong> <span id="originHeader"></span>
+        </div>
+        
+        <button class="btn btn-secondary" @onclick="ShowBrowserConsole">Show Browser Console Instructions</button>
+        
+        @if (_showConsoleInstructions)
+        {
+            <div class="alert alert-info mt-3">
+                <h5>How to Check Browser Console:</h5>
+                <ol>
+                    <li>Press <strong>F12</strong> or right-click → Inspect</li>
+                    <li>Go to the <strong>Console</strong> tab</li>
+                    <li>Look for red error messages related to CORS or fetch</li>
+                    <li>If you see <strong>"Failed to fetch"</strong> or <strong>"has been blocked by CORS policy"</strong>, your API isn't properly configured for CORS</li>
+                </ol>
+            </div>
+        }
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h3>Troubleshooting Tips</h3>
@@ -79,19 +115,22 @@
         <ul>
             <li>
                 <strong>CORS Errors</strong> - Make sure your API's CORS policy includes your Blazor app's domain.
+                <ul>
+                    <li>Check that <code>WithOrigins()</code> in your API includes: <span id="currentUrl"></span></li>
+                    <li>Restart your API service after updating CORS settings</li>
+                </ul>
             </li>
             <li>
                 <strong>API Not Found</strong> - Verify the API URL is correct and the service is running.
+                <ul>
+                    <li>Try accessing the API URL directly in a browser tab</li>
+                    <li>Check if <code>/health</code> endpoint responds</li>
+                </ul>
             </li>
             <li>
                 <strong>Network Issues</strong> - Check if you can access the API directly in a browser.
             </li>
-            <li>
-                <strong>Authentication Issues</strong> - If API requires authentication, ensure tokens are properly set.
-            </li>
         </ul>
-        
-        <p>Check your browser console (F12) for additional error details.</p>
     </div>
 </div>
 
@@ -104,10 +143,34 @@
     private string _responseStatus = "";
     private long _responseTime = 0;
     private string ApiBaseUrl = "";
+    private bool _showConsoleInstructions = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         ApiBaseUrl = Http.BaseAddress?.ToString() ?? "";
+        await UpdateDomainInfo();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await UpdateDomainInfo();
+        }
+    }
+
+    private async Task UpdateDomainInfo()
+    {
+        await JSRuntime.InvokeVoidAsync("eval", @"
+            document.getElementById('currentDomain').textContent = window.location.origin;
+            document.getElementById('originHeader').textContent = window.location.origin;
+            document.getElementById('currentUrl').textContent = window.location.origin;
+        ");
+    }
+
+    private void ShowBrowserConsole()
+    {
+        _showConsoleInstructions = !_showConsoleInstructions;
     }
 
     private async Task TestHealthEndpoint()
@@ -118,6 +181,86 @@
     private async Task TestWeatherEndpoint()
     {
         await TestEndpoint("api/weather/recent?count=1", "GET");
+    }
+
+    private async Task TestWithFetch()
+    {
+        _loading = true;
+        _error = null;
+        _data = null;
+
+        try
+        {
+            var baseUrl = string.IsNullOrEmpty(ApiBaseUrl) ? Http.BaseAddress?.ToString() : ApiBaseUrl;
+            var endpoint = "health";
+            _requestUrl = $"{baseUrl.TrimEnd('/')}/{endpoint}";
+            _requestMethod = "GET (JS Fetch)";
+
+            var result = await JSRuntime.InvokeAsync<string>("eval", $@"
+                (async () => {{
+                    try {{
+                        console.log('Fetching {_requestUrl} via JavaScript');
+                        const startTime = performance.now();
+                        const response = await fetch('{_requestUrl}', {{
+                            method: 'GET',
+                            headers: {{
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'Fetch'
+                            }},
+                            mode: 'cors',
+                            cache: 'no-store'
+                        }});
+                        const endTime = performance.now();
+                        
+                        const responseTime = Math.round(endTime - startTime);
+                        const responseData = {{
+                            status: response.status + ' ' + response.statusText,
+                            time: responseTime,
+                            body: await response.text(),
+                            ok: response.ok
+                        }};
+                        
+                        return JSON.stringify(responseData);
+                    }} catch (error) {{
+                        console.error('Fetch error:', error);
+                        return JSON.stringify({{
+                            error: true,
+                            message: error.toString()
+                        }});
+                    }}
+                }})();
+            ");
+
+            var resultObj = JsonSerializer.Deserialize<JsonElement>(result);
+            
+            if (resultObj.TryGetProperty("error", out var isError) && isError.GetBoolean())
+            {
+                _error = resultObj.GetProperty("message").GetString();
+            }
+            else
+            {
+                _responseStatus = resultObj.GetProperty("status").GetString();
+                _responseTime = resultObj.GetProperty("time").GetInt64();
+                
+                var body = resultObj.GetProperty("body").GetString();
+                try {
+                    var jsonDoc = JsonDocument.Parse(body);
+                    _data = JsonSerializer.Serialize(jsonDoc, new JsonSerializerOptions { WriteIndented = true });
+                }
+                catch {
+                    _data = body;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = $"Exception: {ex.Message}\n" +
+                     $"Stack trace: {ex.StackTrace}";
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     private async Task TestEndpoint(string endpoint, string method)
@@ -148,7 +291,9 @@
             HttpResponseMessage response;
             if (method == "GET")
             {
-                response = await Http.GetAsync(url);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("X-Requested-With", "HttpClient");
+                response = await Http.SendAsync(request);
             }
             else
             {

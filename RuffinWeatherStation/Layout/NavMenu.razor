@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
+@inject NavigationManager NavigationManager
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -56,7 +57,9 @@
     
     private bool IsCurrentUri(string uri)
     {
-        // Simple helper to highlight the active link
-        return System.IO.Path.GetFileName(System.Environment.CurrentDirectory) == uri;
+        // Use NavigationManager to properly determine current URI
+        var currentUri = System.IO.Path.GetFileName(new Uri(NavigationManager.Uri).LocalPath);
+        return string.Equals(currentUri, uri, StringComparison.OrdinalIgnoreCase) ||
+               (string.IsNullOrEmpty(currentUri) && string.IsNullOrEmpty(uri));
     }
 }
