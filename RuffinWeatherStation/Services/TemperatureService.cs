@@ -5,45 +5,145 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using System.Text.Json;
+using Microsoft.JSInterop;
 
 namespace RuffinWeatherStation.Services
 {
     public class TemperatureService
     {
         private readonly HttpClient _httpClient;
-        // Removed hardcoded API URL - will use HttpClient's BaseAddress instead
+        private readonly IJSRuntime _jsRuntime;
+        
+        // Cache dictionaries to store API responses
+        private Dictionary<string, (object Data, DateTime Timestamp)> _memoryCache = new();
+        
+        // Cache expiration times (in minutes)
+        private const int LATEST_CACHE_MINUTES = 15;
+        private const int RECENT_CACHE_MINUTES = 30;
+        private const int DAILY_CACHE_MINUTES = 60;
+        private const int HOURLY_CACHE_MINUTES = 45;
 
-        public TemperatureService(HttpClient httpClient)
+        public TemperatureService(HttpClient httpClient, IJSRuntime jsRuntime)
         {
             _httpClient = httpClient;
+            _jsRuntime = jsRuntime;
         }
 
-        public async Task<TemperatureMeasurement?> GetLatestMeasurementAsync()
+        // Helper methods for caching
+        private async Task<T?> GetCachedDataAsync<T>(string cacheKey, int cacheMinutes, Func<Task<T?>> fetchFunction)
         {
-            try
+            // First try memory cache
+            if (_memoryCache.TryGetValue(cacheKey, out var cachedData) && 
+                (DateTime.Now - cachedData.Timestamp).TotalMinutes < cacheMinutes)
             {
-                // Use relative URL - HttpClient.BaseAddress will be prepended
-                return await _httpClient.GetFromJsonAsync<TemperatureMeasurement>("api/weather/latest");
+                Console.WriteLine($"Cache hit for {cacheKey} - returning memory cached data");
+                return (T)cachedData.Data;
+            }
+            
+            // Then try local storage
+            try 
+            {
+                var storedData = await LoadFromLocalStorageAsync<CacheEntry<T>>(cacheKey);
+                if (storedData != null && 
+                    (DateTime.Now - storedData.Timestamp).TotalMinutes < cacheMinutes)
+                {
+                    Console.WriteLine($"Cache hit for {cacheKey} - returning localStorage data");
+                    
+                    // Update memory cache
+                    _memoryCache[cacheKey] = (storedData.Data, storedData.Timestamp);
+                    
+                    return storedData.Data;
+                }
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error fetching latest measurement: {ex.Message}");
-                return null;
+                Console.Error.WriteLine($"Error reading from localStorage: {ex.Message}");
+                // Continue to fetch from API if localStorage fails
             }
+            
+            // If not in cache or expired, fetch new data
+            Console.WriteLine($"Cache miss for {cacheKey} - fetching from API");
+            var data = await fetchFunction();
+            
+            if (data != null)
+            {
+                // Update memory cache
+                _memoryCache[cacheKey] = (data, DateTime.Now);
+                
+                // Update localStorage cache
+                try 
+                {
+                    await SaveToLocalStorageAsync(cacheKey, new CacheEntry<T> 
+                    { 
+                        Data = data, 
+                        Timestamp = DateTime.Now 
+                    });
+                }
+                catch (Exception ex) 
+                {
+                    Console.Error.WriteLine($"Error writing to localStorage: {ex.Message}");
+                    // Continue even if localStorage fails
+                }
+            }
+            
+            return data;
+        }
+        
+        private async Task SaveToLocalStorageAsync<T>(string key, T data)
+        {
+            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", key, 
+                JsonSerializer.Serialize(data));
+        }
+
+        private async Task<T?> LoadFromLocalStorageAsync<T>(string key) where T : class
+        {
+            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
+            return json == null ? null : JsonSerializer.Deserialize<T>(json);
+        }
+
+        // Local cache class
+        private class CacheEntry<T>
+        {
+            public T Data { get; set; } = default!;
+            public DateTime Timestamp { get; set; }
+        }
+
+        // Updated methods with caching
+        public async Task<TemperatureMeasurement?> GetLatestMeasurementAsync()
+        {
+            return await GetCachedDataAsync<TemperatureMeasurement>(
+                "latest_measurement", 
+                LATEST_CACHE_MINUTES,
+                async () => {
+                    try
+                    {
+                        return await _httpClient.GetFromJsonAsync<TemperatureMeasurement>("api/weather/latest");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error fetching latest measurement: {ex.Message}");
+                        return null;
+                    }
+                });
         }
 
         public async Task<List<TemperatureMeasurement>?> GetRecentMeasurementsAsync(int count = 25)
         {
-            try
-            {
-                // Use relative URL - HttpClient.BaseAddress will be prepended
-                return await _httpClient.GetFromJsonAsync<List<TemperatureMeasurement>>($"api/weather/recent?count={count}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error fetching recent measurements: {ex.Message}");
-                return null;
-            }
+            return await GetCachedDataAsync<List<TemperatureMeasurement>>(
+                $"recent_measurements_{count}", 
+                RECENT_CACHE_MINUTES,
+                async () => {
+                    try
+                    {
+                        return await _httpClient.GetFromJsonAsync<List<TemperatureMeasurement>>($"api/weather/recent?count={count}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error fetching recent measurements: {ex.Message}");
+                        return null;
+                    }
+                });
         }
         
         public async Task<List<TemperatureMeasurement>?> GetTodaysMeasurementsAsync()
@@ -75,38 +175,44 @@ namespace RuffinWeatherStation.Services
 
         public async Task<List<HourlyMeasurement>?> GetHourlyMeasurementsAsync(int days = 1)
         {
-            try
-            {
-                // Calculate the start date
-                DateTime startDate = DateTime.UtcNow.AddDays(-days);
-                string formattedDate = startDate.ToString("yyyy-MM-dd");
-                
-                // Use relative URL with query parameter for start date
-                return await _httpClient.GetFromJsonAsync<List<HourlyMeasurement>>($"api/weather/hourly?startDate={formattedDate}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error fetching hourly measurements: {ex.Message}");
-                return null;
-            }
+            return await GetCachedDataAsync<List<HourlyMeasurement>>(
+                $"hourly_measurements_{days}", 
+                HOURLY_CACHE_MINUTES,
+                async () => {
+                    try
+                    {
+                        DateTime startDate = DateTime.UtcNow.AddDays(-days);
+                        string formattedDate = startDate.ToString("yyyy-MM-dd");
+                        
+                        return await _httpClient.GetFromJsonAsync<List<HourlyMeasurement>>($"api/weather/hourly?startDate={formattedDate}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error fetching hourly measurements: {ex.Message}");
+                        return null;
+                    }
+                });
         }
 
         public async Task<List<DailyMeasurement>?> GetDailyMeasurementsAsync(int days = 7)
         {
-            try
-            {
-                // Calculate the start date
-                DateTime startDate = DateTime.UtcNow.AddDays(-days);
-                string formattedDate = startDate.ToString("yyyy-MM-dd");
-                
-                // Use relative URL with query parameter for start date
-                return await _httpClient.GetFromJsonAsync<List<DailyMeasurement>>($"api/weather/daily?startDate={formattedDate}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error fetching daily measurements: {ex.Message}");
-                return null;
-            }
+            return await GetCachedDataAsync<List<DailyMeasurement>>(
+                $"daily_measurements_{days}", 
+                DAILY_CACHE_MINUTES,
+                async () => {
+                    try
+                    {
+                        DateTime startDate = DateTime.UtcNow.AddDays(-days);
+                        string formattedDate = startDate.ToString("yyyy-MM-dd");
+                        
+                        return await _httpClient.GetFromJsonAsync<List<DailyMeasurement>>($"api/weather/daily?startDate={formattedDate}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error fetching daily measurements: {ex.Message}");
+                        return null;
+                    }
+                });
         }
 
         public async Task<WeatherAnalysisResult> AnalyzeWeatherTrendsAsync(int days = 7)

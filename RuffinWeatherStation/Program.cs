@@ -14,10 +14,17 @@ builder.Services.AddScoped(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
     var apiBaseUrl = config.GetSection("ApiSettings:BaseUrl").Value ?? builder.HostEnvironment.BaseAddress;
-    return new HttpClient { BaseAddress = new Uri(apiBaseUrl) };
+    
+    // Configure HttpClient with compression headers
+    var httpClient = new HttpClient { BaseAddress = new Uri(apiBaseUrl) };
+    httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
+    httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("br"));
+    
+    return httpClient;
 });
 
 // Register services
+// Note: TemperatureService constructor now requires IJSRuntime - this is automatically injected
 builder.Services.AddScoped<TemperatureService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<WeatherNoteService>();

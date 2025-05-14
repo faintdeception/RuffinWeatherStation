@@ -5,11 +5,37 @@
 
 <h1>Weather Station</h1>
 
-<p>Real-time weather data from MongoDB.</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p>Real-time weather data from MongoDB.</p>
+    
+    <button class="btn btn-primary" @onclick="RefreshData" disabled="@isLoading">
+        @if (isLoading)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span class="ms-1">Refreshing...</span>
+        }
+        else
+        {
+            <span class="oi oi-reload" aria-hidden="true"></span>
+            <span class="ms-1">Refresh Data</span>
+        }
+    </button>
+</div>
 
-@if (latestMeasurement?.Fields == null || recentMeasurements == null || chartData == null)
+@if (isLoading && latestMeasurement?.Fields == null)
 {
-    <p><em>Loading...</em></p>
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading weather data...</p>
+    </div>
+}
+else if (latestMeasurement?.Fields == null || recentMeasurements == null || chartData == null)
+{
+    <div class="alert alert-warning" role="alert">
+        No weather data available. Please try refreshing.
+    </div>
 }
 else
 {
@@ -22,7 +48,14 @@ else
                 <div class="card-body">
                     <div class="display-1 text-center">@latestMeasurement.Fields.Temperature.ToString("F1")°C</div>
                     <div class="h4 text-center">@latestMeasurement.Fields.TemperatureF.ToString("F1")°F</div>
-                    <p class="text-center text-muted">Last updated: @latestMeasurement.TimestampMs.ToString("g") (@TimeZoneInfo.Local.DisplayName)</p>
+                    <p class="text-center text-muted">
+                        Last updated: @latestMeasurement.TimestampMs.ToString("g") 
+                        (@TimeZoneInfo.Local.DisplayName)
+                        @if (cacheStatus != null)
+                        {
+                            <span class="badge bg-info ms-2">@cacheStatus</span>
+                        }
+                    </p>
                 </div>
             </div>
         </div>
@@ -276,16 +309,29 @@ else
     private double accumulatedRainfall = 0;
     private TimeSpan elapsedTime = TimeSpan.Zero;
     private DateTime? firstMeasurementTime;
+    private bool isLoading = true;
+    private string? cacheStatus;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
-        // Refresh data every 30 seconds
-        var timer = new System.Threading.Timer(async _ => 
-        {
-            await LoadData();
-            await InvokeAsync(StateHasChanged);
-        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+        // Remove the automatic timer refresh to save API calls
+    }
+
+    private async Task RefreshData()
+    {
+        isLoading = true;
+        StateHasChanged();  // Ensure loading indicator is shown immediately
+        
+        await LoadData();
+        
+        isLoading = false;
+        cacheStatus = "Just updated";
+        
+        // Clear the cache status indicator after 5 seconds
+        await Task.Delay(5000);
+        cacheStatus = null;
+        StateHasChanged();
     }
 
     private async Task LoadData()
@@ -341,10 +387,13 @@ else
                     })
                     .ToList();
             }
+            
+            isLoading = false;
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error loading data: {ex.Message}");
+            isLoading = false;
             // Could add proper error handling/display here
         }
     }
