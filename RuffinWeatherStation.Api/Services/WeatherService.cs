@@ -46,7 +46,7 @@ namespace RuffinWeatherStation.Api.Services
                     }
                     
                     Console.WriteLine($"[WEATHER SERVICE] Connection string found, begins with: {maskedConnectionString.Substring(0, 15)}...");
-                    Console.WriteLine($"[WEATHER SERVICE] Connection string length: {connectionString.Length}");
+                    Console.WriteLine($"[WEATHER SERVICE] Connection string length: {connectionString}");
                 }
                 
                 var databaseName = configuration.GetValue<string>("DatabaseSettings:DatabaseName");
