@@ -26,7 +26,28 @@ namespace RuffinWeatherStation.Api.Services
                     throw new InvalidOperationException("MongoDB connection string not found in configuration");
                 }
                 
-                Console.WriteLine($"[WEATHER SERVICE] Connection string found with length: {connectionString.Length}");
+                // Safely display part of the connection string for debugging
+                if (connectionString.Length > 20)
+                {
+                    string maskedConnectionString = connectionString;
+                    // If it contains a password, mask it
+                    if (maskedConnectionString.Contains("@"))
+                    {
+                        var parts = maskedConnectionString.Split('@');
+                        var credentialPart = parts[0];
+                        var hostPart = parts[1];
+                        
+                        if (credentialPart.Contains(':'))
+                        {
+                            var userPass = credentialPart.Split(':');
+                            var username = userPass[0];
+                            maskedConnectionString = $"{username}:****@{hostPart}";
+                        }
+                    }
+                    
+                    Console.WriteLine($"[WEATHER SERVICE] Connection string found, begins with: {maskedConnectionString.Substring(0, 15)}...");
+                    Console.WriteLine($"[WEATHER SERVICE] Connection string length: {connectionString.Length}");
+                }
                 
                 var databaseName = configuration.GetValue<string>("DatabaseSettings:DatabaseName");
                 if (string.IsNullOrEmpty(databaseName))

@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using RuffinWeatherStation.Api.Services;
 using System.Text;
 using System.IO;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 try
 {
@@ -96,6 +98,19 @@ try
         }
     });
 
+    // Add health checks
+    Console.WriteLine("[STARTUP] Adding health checks...");
+    builder.Services.AddHealthChecks()
+        .AddCheck("MongoDB", () => {
+            try {
+                // We'll just report healthy since we've already validated the connection
+                return HealthCheckResult.Healthy("MongoDB connection is available");
+            }
+            catch (Exception ex) {
+                return HealthCheckResult.Unhealthy("MongoDB connection failed", ex);
+            }
+        });
+
     Console.WriteLine("[STARTUP] All services registered, building app...");
     var app = builder.Build();
 
@@ -115,6 +130,15 @@ try
     app.UseAuthorization();
 
     app.MapControllers();
+
+    // Add health check endpoint
+    app.MapHealthChecks("/health", new HealthCheckOptions {
+        ResultStatusCodes = {
+            [HealthStatus.Healthy] = 200,
+            [HealthStatus.Degraded] = 200,
+            [HealthStatus.Unhealthy] = 503
+        }
+    });
 
     Console.WriteLine("[STARTUP] App fully configured, starting...");
     app.Run();

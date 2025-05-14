@@ -28,12 +28,22 @@ jobs:
         run: |
           echo "Token length: ${#AZURE_TOKEN}"
           echo "First 10 chars: ${AZURE_TOKEN:0:10}..."
+          
+          # Check connection string is set in environment
+          if [[ -n "$MONGO_CONNECTION" ]]; then
+            echo "MongoDB connection string is set"
+            # Safe output of masked connection string
+            CONNECTION_LENGTH=${#MONGO_CONNECTION}
+            MASKED_URI=$(echo $MONGO_CONNECTION | sed -E 's/(mongodb\+srv:\/\/[^:]+:)([^@]+)(@.+)/\1****\3/')
+            echo "Connection string (masked): $MASKED_URI"
+            echo "Connection string length: $CONNECTION_LENGTH"
+          else
+            echo "WARNING: MongoDB connection string not found!"
+          fi
         env:
-          AZURE_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}      
+          AZURE_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          MONGO_CONNECTION: ${{ secrets.MONGODB_CONNECTION_STRING }}      
       
-
-          
-          
       - name: Deploy to Static Web App
         if: github.ref == 'refs/heads/main' # Only deploy on main branch pushes
         id: builddeploy
