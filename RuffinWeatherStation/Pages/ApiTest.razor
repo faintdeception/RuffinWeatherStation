@@ -1,0 +1,209 @@
+@page "/apitest"
+@inject HttpClient Http
+@using System.Text.Json
+
+<PageTitle>API Connection Test</PageTitle>
+
+<h1>API Connection Test</h1>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>API Connectivity Diagnostics</h3>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <p>Test your API connection by clicking the buttons below:</p>
+            <button class="btn btn-primary me-2" @onclick="TestHealthEndpoint">Test Health Endpoint</button>
+            <button class="btn btn-success me-2" @onclick="TestWeatherEndpoint">Test Weather API</button>
+            <button class="btn btn-info" @onclick="ClearResults">Clear Results</button>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">API Base URL:</label>
+            <input class="form-control" @bind="ApiBaseUrl" @bind:event="oninput" />
+            <small class="form-text text-muted">Current HttpClient BaseAddress: @Http.BaseAddress</small>
+        </div>
+
+        @if (_loading)
+        {
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (_error != null)
+        {
+            <div class="alert alert-danger">
+                <h4>Error:</h4>
+                <p>@_error</p>
+            </div>
+        }
+        else if (_data != null)
+        {
+            <div class="alert alert-success">
+                <h4>Success! Received data:</h4>
+                <pre style="white-space: pre-wrap; word-break: break-all;">@_data</pre>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Request Details</h3>
+    </div>
+    <div class="card-body">
+        <dl>
+            <dt>Request URL</dt>
+            <dd>@_requestUrl</dd>
+            
+            <dt>Request Method</dt>
+            <dd>@_requestMethod</dd>
+            
+            <dt>Response Status</dt>
+            <dd>@_responseStatus</dd>
+            
+            <dt>Response Time</dt>
+            <dd>@_responseTime ms</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Troubleshooting Tips</h3>
+    </div>
+    <div class="card-body">
+        <h5>Common Issues:</h5>
+        <ul>
+            <li>
+                <strong>CORS Errors</strong> - Make sure your API's CORS policy includes your Blazor app's domain.
+            </li>
+            <li>
+                <strong>API Not Found</strong> - Verify the API URL is correct and the service is running.
+            </li>
+            <li>
+                <strong>Network Issues</strong> - Check if you can access the API directly in a browser.
+            </li>
+            <li>
+                <strong>Authentication Issues</strong> - If API requires authentication, ensure tokens are properly set.
+            </li>
+        </ul>
+        
+        <p>Check your browser console (F12) for additional error details.</p>
+    </div>
+</div>
+
+@code {
+    private string _data;
+    private string _error;
+    private bool _loading;
+    private string _requestUrl = "";
+    private string _requestMethod = "";
+    private string _responseStatus = "";
+    private long _responseTime = 0;
+    private string ApiBaseUrl = "";
+
+    protected override void OnInitialized()
+    {
+        ApiBaseUrl = Http.BaseAddress?.ToString() ?? "";
+    }
+
+    private async Task TestHealthEndpoint()
+    {
+        await TestEndpoint("health", "GET");
+    }
+
+    private async Task TestWeatherEndpoint()
+    {
+        await TestEndpoint("api/weather/recent?count=1", "GET");
+    }
+
+    private async Task TestEndpoint(string endpoint, string method)
+    {
+        _loading = true;
+        _error = null;
+        _data = null;
+        _requestUrl = "";
+        _requestMethod = "";
+        _responseStatus = "";
+        _responseTime = 0;
+
+        try
+        {
+            // Update HttpClient BaseAddress if changed
+            if (!string.IsNullOrEmpty(ApiBaseUrl) && 
+                Http.BaseAddress?.ToString() != ApiBaseUrl)
+            {
+                Http.BaseAddress = new Uri(ApiBaseUrl);
+            }
+
+            var url = endpoint;
+            _requestUrl = new Uri(Http.BaseAddress, url).ToString();
+            _requestMethod = method;
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            
+            HttpResponseMessage response;
+            if (method == "GET")
+            {
+                response = await Http.GetAsync(url);
+            }
+            else
+            {
+                // Add other methods as needed
+                throw new NotImplementedException($"Method {method} not implemented");
+            }
+
+            sw.Stop();
+            _responseTime = sw.ElapsedMilliseconds;
+            _responseStatus = $"{(int)response.StatusCode} {response.StatusCode}";
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                
+                // Try to format as JSON if possible
+                try
+                {
+                    var jsonDoc = JsonDocument.Parse(content);
+                    _data = JsonSerializer.Serialize(
+                        jsonDoc,
+                        new JsonSerializerOptions { WriteIndented = true }
+                    );
+                }
+                catch
+                {
+                    // If not valid JSON, show as plain text
+                    _data = content;
+                }
+            }
+            else
+            {
+                _error = $"API returned status code: {response.StatusCode}\n" +
+                         $"Response: {await response.Content.ReadAsStringAsync()}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = $"Exception: {ex.Message}\n" +
+                     $"Stack trace: {ex.StackTrace}";
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ClearResults()
+    {
+        _data = null;
+        _error = null;
+        _requestUrl = "";
+        _requestMethod = "";
+        _responseStatus = "";
+        _responseTime = 0;
+    }
+}

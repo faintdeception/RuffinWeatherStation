@@ -73,7 +73,9 @@ try
                     "http://localhost:5259",
                     "https://localhost:7159",  // Added potential Blazor app port
                     "http://localhost:5204",   // Added potential Blazor app port
-                    "https://ruffin-weather-app.azurestaticapps.net") // Add your Azure Static Web App URL
+                    "https://ruffin-weather-app.azurestaticapps.net",
+                    "https://gray-grass-0ffc76b10.4.azurestaticapps.net",
+                    "https://proud-forest-0544df410.azurestaticapps.net") // Add your Azure Static Web App URL
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
