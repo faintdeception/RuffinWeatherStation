@@ -430,6 +430,18 @@ namespace RuffinWeatherStation.Services
                 return (null, false, ex.Message);
             }
         }
+
+        public async Task<WeatherAnalysisResult> GetRecentAnalysisAsync(int hours)
+        {
+            // Call the existing method that already implements this functionality
+            return await AnalyzeRecentMeasurementsAsync(hours);
+        }
+
+        public async Task<WeatherAnalysisResult> GetAnalysisAsync(int days)
+        {
+            // Call the existing method that already implements this functionality
+            return await AnalyzeWeatherTrendsAsync(days);
+        }
     }
 
     // New model classes for analysis

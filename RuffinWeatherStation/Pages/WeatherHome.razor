@@ -5,9 +5,37 @@
 
 <h1>Current Weather Dashboard</h1>
 
-@if (measurement == null)
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p>Real-time weather data from the Ruffin Weather Station</p>
+    
+    <button class="btn btn-primary" @onclick="RefreshData" disabled="@isLoading">
+        @if (isLoading)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span class="ms-1">Refreshing...</span>
+        }
+        else
+        {
+            <span class="oi oi-reload" aria-hidden="true"></span>
+            <span class="ms-1">Refresh Data</span>
+        }
+    </button>
+</div>
+
+@if (isLoading && measurement?.Fields == null)
 {
-    <p><em>Loading...</em></p>
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading weather data...</p>
+    </div>
+}
+else if (measurement == null)
+{
+    <div class="alert alert-warning" role="alert">
+        No weather data available. Please try refreshing.
+    </div>
 }
 else
 {
@@ -17,14 +45,11 @@ else
                 <div class="card-header bg-primary text-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3 class="mb-0">Temperature</h3>
-                        @if (IsDeviceOffline())
-                        {
-                            <span class="badge bg-danger">OFFLINE</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-success">Online</span>
-                        }
+                        <div>
+                            <span class="badge @(IsDataStale() ? "bg-warning" : "bg-success")">
+                                @(IsDataStale() ? "Data may be stale" : "Data current")
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -32,13 +57,19 @@ else
                     <div class="h4 text-center">@FormatTemperatureF(measurement.Fields?.Temperature)°F</div>
                     <p class="text-center text-muted">
                         Last updated: @measurement.TimestampStr
-                        Zach <div>@IsDeviceOffline2()</div>
-                        @if (IsDeviceOffline())
+                        @if (cacheStatus != null)
                         {
-                            <span class="text-danger d-block">Device has been offline for @GetOfflineDuration()</span>
+                            <span class="badge bg-info ms-2">@cacheStatus</span>
+                        }
+                        @if (IsDataStale())
+                        {
+                            <span class="text-warning d-block">Data is @GetDataAge() old</span>
+                        }
+                        @if (nextCacheRefresh.HasValue)
+                        {
+                            <small class="d-block mt-1">Next data refresh in approximately @GetTimeUntilCacheRefresh()</small>
                         }
                     </p>
-                    <p class="text-center text-muted">Auto-refreshing every @(refreshIntervalSeconds) seconds</p>
                     <hr />
                     <table class="table table-sm">
                         <tr><th>Humidity</th><td>@FormatDouble(measurement.Fields?.Humidity)%</td></tr>
@@ -383,14 +414,16 @@ else
 
 @code {
     private TemperatureMeasurement? measurement;
-    private System.Threading.Timer? timer;
-    private readonly int refreshIntervalSeconds = 30;
     private WeatherAnalysisResult? analysisResult;
     private WeatherAnalysisResult? recentAnalysisResult;
     private int analysisPeriod = 7; // Default to 7-day analysis
     private int analysisHours = 1; // Default to 1-hour analysis for recent data
     private bool showShortTermAnalysis = true; // Default to short-term analysis view
-    private readonly int deviceOfflineThresholdMinutes = 1; // Consider device offline after 1 minute of no updates
+    private readonly int deviceOfflineThresholdMinutes = 10; // Consider device offline after 10 minutes of no updates
+    private bool isLoading = true;
+    private string? cacheStatus;
+    private DateTime? nextCacheRefresh;
+    private readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(15); // Estimated cache duration
 
     protected override async Task OnInitializedAsync()
     {
@@ -401,20 +434,33 @@ else
         
         // Also load long-term analysis in background
         await AnalyzePeriod(analysisPeriod);
+    }
+
+    private async Task RefreshData()
+    {
+        isLoading = true;
+        StateHasChanged();  // Ensure loading indicator is shown immediately
         
-        // Setup timer for auto-refresh
-        timer = new System.Threading.Timer(async _ => 
+        await LoadData();
+        
+        // Only refresh the analysis that's currently showing
+        if (showShortTermAnalysis)
         {
-            await LoadData();
-            
-            // Only auto-refresh the analysis that's currently showing
-            if (showShortTermAnalysis)
-            {
-                await AnalyzeRecentPeriod(analysisHours);
-            }
-            
-            await InvokeAsync(StateHasChanged);
-        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(refreshIntervalSeconds));
+            await AnalyzeRecentPeriod(analysisHours);
+        }
+        else 
+        {
+            await AnalyzePeriod(analysisPeriod);
+        }
+        
+        isLoading = false;
+        cacheStatus = "Just updated";
+        StateHasChanged();
+        
+        // Clear the cache status indicator after 5 seconds
+        await Task.Delay(5000);
+        cacheStatus = null;
+        StateHasChanged();
     }
 
     private async Task LoadData()
@@ -423,123 +469,151 @@ else
         {
             // Use TemperatureService instead of direct HttpClient call
             measurement = await TemperatureService.GetLatestMeasurementAsync();
+            
+            // Update the next cache refresh time estimation
+            nextCacheRefresh = DateTime.Now.Add(cacheDuration);
+            
+            isLoading = false;
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error loading weather data: {ex.Message}");
-            // You could add more error handling here
+            isLoading = false;
         }
     }
     
+    // New constants for data age thresholds
+    private readonly int DATA_FRESH_MINUTES = 60; // Data is considered fresh within 1 hour
+    
+    // Updated methods to reflect data freshness instead of device online status
+    private bool IsDataStale()
+    {
+        if (measurement == null)
+            return true;
+            
+        // Check if the data is older than the freshness threshold
+        TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
+        return timeSinceLastUpdate.TotalMinutes > DATA_FRESH_MINUTES;
+    }
+    
+    // Method to check if the device appears to be offline based on recency of data
     private bool IsDeviceOffline()
     {
         if (measurement == null)
             return true;
             
-        // Check if the last update is older than the threshold
+        // Check if the device hasn't updated within the threshold period
         TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
         return timeSinceLastUpdate.TotalMinutes > deviceOfflineThresholdMinutes;
     }
-
-    private string IsDeviceOffline2()
-    {
-        if (measurement == null)
-            return "true";
-            
-        // Check if the last update is older than the threshold
-        TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
-        return measurement.TimestampStr + " " + timeSinceLastUpdate.TotalMinutes + " " + deviceOfflineThresholdMinutes;
-    }
     
-    private string GetOfflineDuration()
+    private string GetDataAge()
     {
         if (measurement == null)
-            return "unknown time";
+            return "unknown";
             
         TimeSpan timeSinceLastUpdate = DateTime.UtcNow - measurement.TimestampMs;
         
         if (timeSinceLastUpdate.TotalHours >= 24)
         {
-            int days = (int)timeSinceLastUpdate.TotalDays;
-            return $"{days} day{(days != 1 ? "s" : "")}";
+            return $"{Math.Floor(timeSinceLastUpdate.TotalDays)} day(s) and {timeSinceLastUpdate.Hours} hour(s)";
         }
         else if (timeSinceLastUpdate.TotalMinutes >= 60)
         {
-            int hours = (int)timeSinceLastUpdate.TotalHours;
-            return $"{hours} hour{(hours != 1 ? "s" : "")}";
+            return $"{Math.Floor(timeSinceLastUpdate.TotalHours)} hour(s) and {timeSinceLastUpdate.Minutes} minute(s)";
         }
         else
         {
-            int minutes = (int)timeSinceLastUpdate.TotalMinutes;
-            return $"{minutes} minute{(minutes != 1 ? "s" : "")}";
+            return $"{Math.Floor(timeSinceLastUpdate.TotalMinutes)} minute(s)";
+        }
+    }
+    
+    private string GetTimeUntilCacheRefresh()
+    {
+        if (!nextCacheRefresh.HasValue)
+            return "unknown time";
+            
+        TimeSpan timeUntilRefresh = nextCacheRefresh.Value - DateTime.Now;
+        if (timeUntilRefresh.TotalSeconds <= 0)
+            return "any moment";
+            
+        if (timeUntilRefresh.TotalMinutes >= 1)
+        {
+            return $"{Math.Ceiling(timeUntilRefresh.TotalMinutes)} minute(s)";
+        }
+        else
+        {
+            return $"{Math.Ceiling(timeUntilRefresh.TotalSeconds)} second(s)";
+        }
+    }
+    
+    // Formatting methods
+    private string FormatDouble(double? value)
+    {
+        if (value == null) return "N/A";
+        return Math.Round(value.Value, 1).ToString();
+    }
+    
+    private string FormatTemperatureF(double? celsius)
+    {
+        if (celsius == null) return "N/A";
+        double fahrenheit = (celsius.Value * 9 / 5) + 32;
+        return Math.Round(fahrenheit, 1).ToString();
+    }
+    
+    private string FormatTimestamp(object value)
+    {
+        if (value is DateTime dt)
+        {
+            return dt.ToString("MM/dd HH:mm");
+        }
+        return value?.ToString() ?? "";
+    }
+    
+    // Analysis methods
+    private async Task AnalyzeRecentPeriod(int hours)
+    {
+        try
+        {
+            analysisHours = hours;
+            recentAnalysisResult = await TemperatureService.GetRecentAnalysisAsync(hours);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error analyzing recent period: {ex.Message}");
+            recentAnalysisResult = new WeatherAnalysisResult 
+            { 
+                Success = false, 
+                ErrorMessage = $"Failed to retrieve recent analysis: {ex.Message}" 
+            };
         }
     }
     
     private async Task AnalyzePeriod(int days)
     {
-        analysisPeriod = days;
-        analysisResult = await TemperatureService.AnalyzeWeatherTrendsAsync(days);
-        StateHasChanged();
-    }
-    
-    private async Task AnalyzeRecentPeriod(int hours)
-    {
-        analysisHours = hours;
-        recentAnalysisResult = await TemperatureService.AnalyzeRecentMeasurementsAsync(hours);
-        StateHasChanged();
+        try
+        {
+            analysisPeriod = days;
+            analysisResult = await TemperatureService.GetAnalysisAsync(days);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error analyzing period: {ex.Message}");
+            analysisResult = new WeatherAnalysisResult 
+            { 
+                Success = false, 
+                ErrorMessage = $"Failed to retrieve analysis: {ex.Message}" 
+            };
+        }
     }
     
     private void SwitchToShortTermAnalysis()
     {
         showShortTermAnalysis = true;
-        StateHasChanged();
     }
     
     private void SwitchToLongTermAnalysis()
     {
         showShortTermAnalysis = false;
-        StateHasChanged();
-    }
-    
-    // Helper method to safely format nullable double values
-    private string FormatDouble(double? value)
-    {
-        return value.HasValue ? value.Value.ToString("F1") : "N/A";
-    }
-    
-    // Helper method to convert Celsius to Fahrenheit
-    private string FormatTemperatureF(double? celsius)
-    {
-        if (!celsius.HasValue) return "N/A";
-        double fahrenheit = 32 + (celsius.Value * 9 / 5);
-        return fahrenheit.ToString("F1");
-    }
-    
-    private string FormatTimestamp(object value)
-    {
-        if (value is DateTime dateTime)
-        {
-            if (showShortTermAnalysis)
-            {
-                // For short-term analysis, show hour:minute
-                return dateTime.ToString("HH:mm");
-            }
-            else if (analysisPeriod <= 7)
-            {
-                // For shorter periods, show date and time
-                return dateTime.ToString("MM/dd HH:mm");
-            }
-            else
-            {
-                // For longer periods, show just the date
-                return dateTime.ToString("MM/dd");
-            }
-        }
-        return string.Empty;
-    }
-
-    public void Dispose()
-    {
-        timer?.Dispose();
     }
 }
