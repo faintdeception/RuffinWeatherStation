@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json.Serialization;
+using RuffinWeatherStation.Models.JsonConverters;
 
 namespace RuffinWeatherStation.Models
 {
@@ -14,7 +15,8 @@ namespace RuffinWeatherStation.Models
         [JsonPropertyName("location")]
         public string Location { get; set; }
 
-        [JsonPropertyName("created_at")]
+        [JsonPropertyName("createdAt")]
+        [JsonConverter(typeof(DateTimeConverter))]
         public DateTime CreatedAt { get; set; }
 
         [JsonPropertyName("prediction_12h")]
@@ -31,13 +33,6 @@ namespace RuffinWeatherStation.Models
         
         // Returns the confidence as a percentage
         public string ConfidencePercentage => $"{Confidence * 100:0}%";
-        
-        // Format the creation date for display
-        [JsonIgnore]
-        public DateTime CreatedAtDateTime 
-        { 
-            get;
-        }
     }
 
     public class PredictionData

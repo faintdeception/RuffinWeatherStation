@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Text.Json;
 using Microsoft.JSInterop;
+using RuffinWeatherStation.Models.JsonConverters;
 
 namespace RuffinWeatherStation.Services
 {
@@ -452,7 +453,17 @@ namespace RuffinWeatherStation.Services
                 async () => {
                     try
                     {
-                        return await _httpClient.GetFromJsonAsync<WeatherPrediction>("api/weather/prediction/latest");
+                        // Fetch the raw JSON response for debugging
+                        var response = await _httpClient.GetAsync("api/weather/prediction/latest");
+                        var json = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"WeatherPrediction JSON: {json}");
+
+                        // Deserialize as before
+                        return JsonSerializer.Deserialize<WeatherPrediction>(json, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            Converters = { new DateTimeConverter() }
+                        });
                     }
                     catch (Exception ex)
                     {

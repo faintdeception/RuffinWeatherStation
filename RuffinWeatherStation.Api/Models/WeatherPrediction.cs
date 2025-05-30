@@ -18,7 +18,7 @@ namespace RuffinWeatherStation.Api.Models
         public string Location { get; set; }
 
         [BsonElement("created_at")]
-        public string CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         [BsonElement("prediction_12h")]
         public PredictionData Prediction12h { get; set; }
