@@ -33,6 +33,19 @@ namespace RuffinWeatherStation.Models
         
         // Returns the confidence as a percentage
         public string ConfidencePercentage => $"{Confidence * 100:0}%";
+        
+        public bool HasError { get; set; }
+        public string? ErrorMessage { get; set; }
+
+        public static WeatherPrediction CreateError(string errorMessage)
+        {
+            return new WeatherPrediction
+            {
+                HasError = true,
+                ErrorMessage = errorMessage,
+                CreatedAt = DateTime.UtcNow
+            };
+        }
     }
 
     public class PredictionData
