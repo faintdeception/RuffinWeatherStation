@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "RuffinWeatherStation",
   "resources": {
-    "hash": "sha256-VvYQKWes0wx8recs3p99LOeZ0oA/b6xpS8Fv3BsLmww=",
+    "hash": "sha256-goa+voHCxD5FaNs29U5WiNrNh78IPf+c2MfT559F4kc=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Authorization.gf26ou9jj9.wasm": "Microsoft.AspNetCore.Authorization.wasm",
       "Microsoft.AspNetCore.Components.v3fd2n5hlr.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -196,23 +196,23 @@
       "netstandard.d82br99ghv.wasm": "netstandard.wasm",
       "System.Private.CoreLib.wejp19zmu1.wasm": "System.Private.CoreLib.wasm",
       "dotnet.js": "dotnet.js",
-      "dotnet.native.hvg7u8bimp.js": "dotnet.native.js",
-      "dotnet.native.3c4wvb350q.wasm": "dotnet.native.wasm",
-      "dotnet.runtime.cymp1amu5g.js": "dotnet.runtime.js",
+      "dotnet.native.uhsveqo9bs.js": "dotnet.native.js",
+      "dotnet.native.swgexbmoy7.wasm": "dotnet.native.wasm",
+      "dotnet.runtime.5nhp1wfg9b.js": "dotnet.runtime.js",
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
       "icudt_EFIGS.tptq2av103.dat": "icudt_EFIGS.dat",
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat",
-      "RuffinWeatherStation.olytt3k7d6.wasm": "RuffinWeatherStation.wasm",
-      "RuffinWeatherStation.o4sbo1bis1.pdb": "RuffinWeatherStation.pdb"
+      "RuffinWeatherStation.1oxj6ljytg.wasm": "RuffinWeatherStation.wasm",
+      "RuffinWeatherStation.cd42gdkadz.pdb": "RuffinWeatherStation.pdb"
     },
     "jsModuleNative": {
-      "dotnet.native.hvg7u8bimp.js": "sha256-LX9rFEWGVxhkOkAVPG0w5RxPwzPBlEUz6dQNjWS7M+M="
+      "dotnet.native.uhsveqo9bs.js": "sha256-/ifJokfQvXKw1hEziCkYR9SOJIKSdGG/UKw5gbLWrj0="
     },
     "jsModuleRuntime": {
-      "dotnet.runtime.cymp1amu5g.js": "sha256-dCmS9Zx4egtLYSUgTI3R6gMS+Yg8MkzxW1CgEMJKAEw="
+      "dotnet.runtime.5nhp1wfg9b.js": "sha256-kTZbe5ESp04VMT22TnjRmFj88VbtEcohZfCm4og/IDw="
     },
     "wasmNative": {
-      "dotnet.native.3c4wvb350q.wasm": "sha256-89jyB8DlCnV2BPMV477jOe1Sm0WXwVf8RuoSPsj4Ym8="
+      "dotnet.native.swgexbmoy7.wasm": "sha256-HHqsNtcX76Ik012KVAobmCLooIZ2znhTFCqfijzEdi0="
     },
     "icu": {
       "icudt_CJK.tjcz0u77k5.dat": "sha256-SZLtQnRc0JkwqHab0VUVP7T3uBPSeYzxzDnpxPpUnHk=",
@@ -414,10 +414,10 @@
       "WindowsBase.5lai2eowco.wasm": "sha256-GcDi5293y2A7oSiFYTbBTUe0d+ISbvgeel4ZNd8KkPM=",
       "mscorlib.wzkfrp7u5k.wasm": "sha256-9PjsU0gaxxz5Vyw++p9DeYUWLsaXbaMS2RbX6wmTUmk=",
       "netstandard.d82br99ghv.wasm": "sha256-DS8keXxU4eQpa1kIoiFxOA2Ii2g9hoNWSaVi8F8AnIE=",
-      "RuffinWeatherStation.olytt3k7d6.wasm": "sha256-bH2ic0o4Irs2iZkEtDHLC/OpTEF/Fl7QJwEa1bJ4BB4="
+      "RuffinWeatherStation.1oxj6ljytg.wasm": "sha256-z+SYSc/lkeOG0lm1gBqient1gXzQtevoS8GipiiexRc="
     },
     "pdb": {
-      "RuffinWeatherStation.o4sbo1bis1.pdb": "sha256-2LBPKZyk+CPFqDMAwsIw+HE1aFP9KTWoANNxK4K56ZQ="
+      "RuffinWeatherStation.cd42gdkadz.pdb": "sha256-YFmlMUf9426TbWNtMfP/dGZMsf0OfY5a3cK5JgFjK4s="
     }
   },
   "cacheBootResources": true,
