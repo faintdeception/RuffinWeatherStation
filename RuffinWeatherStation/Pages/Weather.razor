@@ -159,7 +159,7 @@ else
                             </tr>
                             <tr>
                                 <th>Device Temp</th>
-                                <td>@latestMeasurement.Fields.DeviceTemperature.ToString("F1")°C / @(latestMeasurement.Fields.DeviceTemperature * 9 / 5 + 32).ToString("F1")°F</td>
+                                <td>@(latestMeasurement.Fields.DeviceTemperature.ToString("F1"))°C / @((latestMeasurement.Fields.DeviceTemperature * 9 / 5 + 32).ToString("F1"))°F</td>
                             </tr>
                         </tbody>
                     </table>
