@@ -4,7 +4,20 @@
 @inject TemperatureService TemperatureService
 
 <h1>Current Weather Dashboard</h1>
-
+<div class="alert alert-info text-center mb-4" style="border-left: 5px solid #17a2b8;">
+    <div class="d-flex align-items-center justify-content-center">
+        <div style="font-size: 2rem; margin-right: 15px;">🏖️</div>
+        <div>
+            <h4 class="alert-heading mb-1">Weather Station Vacation Mode</h4>
+            <p class="mb-2">We're taking a break! The weather station will be temporarily offline for maintenance and battery replacement.</p>
+            <p class="mb-0">
+                <strong>Expected return:</strong> Early July 2025 📅 
+                <br/>
+                <small class="text-muted">Don't worry - we'll be back with fresh data and improved reliability soon!</small>
+            </p>
+        </div>
+    </div>
+</div>
 @if (prediction != null)
 {
     <div class="alert alert-info mb-4">
