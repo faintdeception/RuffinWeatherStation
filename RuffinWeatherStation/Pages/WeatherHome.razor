@@ -2,6 +2,7 @@
 @page "/home"
 @using System.Net.Http.Json
 @inject TemperatureService TemperatureService
+@inject IJSRuntime JSRuntime
 
 <h1>Current Weather Dashboard</h1>
 @* <div class="alert alert-info text-center mb-4" style="border-left: 5px solid #17a2b8;">
@@ -39,7 +40,7 @@
                 <h5 class="alert-heading">AI Generated Weather Prediction</h5>
                 <p class="mb-0">@prediction.Reasoning</p>
                 <div class="d-flex justify-content-between align-items-center mt-2">
-                    <small class="text-muted">Created: @prediction.CreatedAt | Confidence: @prediction.ConfidencePercentage</small>
+                    <small class="text-muted">Created: @FormatDateTimeForUserWithTimezone(prediction.CreatedAt) | Confidence: @prediction.ConfidencePercentage</small>
                     <button class="btn btn-sm btn-outline-primary" @onclick="RefreshPrediction">
                         <span class="oi oi-reload" aria-hidden="true"></span> Update
                     </button>
@@ -50,7 +51,13 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <p>Real-time weather data from the Ruffin Weather Station</p>
+    <div>
+        <p class="mb-1">Real-time weather data from the Ruffin Weather Station</p>
+        @if (!string.IsNullOrEmpty(userTimeZone))
+        {
+            <small class="text-muted">📍 Times shown in: @userTimeZone</small>
+        }
+    </div>
     
     <button class="btn btn-primary" @onclick="RefreshData" disabled="@isLoading">
         @if (isLoading)
@@ -100,7 +107,7 @@ else
                     <div class="display-1 text-center">@FormatDouble(measurement.Fields?.Temperature)°C</div>
                     <div class="h4 text-center">@FormatTemperatureF(measurement.Fields?.Temperature)°F</div>
                     <p class="text-center text-muted">
-                        Last updated: @measurement.TimestampStr
+                        Last updated: @FormatDateTimeForUserWithTimezone(measurement.TimestampMs)
                         @if (cacheStatus != null)
                         {
                             <span class="badge bg-info ms-2">@cacheStatus</span>
@@ -167,7 +174,7 @@ else
                             <div class="row mb-2">
                                 <div class="col-12">
                                     <div class="alert alert-info">
-                                        <strong>Analysis Period:</strong> @recentAnalysisResult.StartDate.ToString("g") to @recentAnalysisResult.EndDate.ToString("g")
+                                        <strong>Analysis Period:</strong> @FormatDateTimeForUser(recentAnalysisResult.StartDate) to @FormatDateTimeForUser(recentAnalysisResult.EndDate)
                                         <br/>
                                         <strong>Measurements:</strong> @recentAnalysisResult.MeasurementCount data points (avg. @recentAnalysisResult.SampleRate min between samples)
                                     </div>
@@ -286,7 +293,7 @@ else
                                             <RadzenMarkers MarkerType="MarkerType.Circle" Size="4" />
                                         </RadzenLineSeries>
                                         <RadzenCategoryAxis Formatter="@FormatTimestamp"></RadzenCategoryAxis>
-                                        <RadzenValueAxis>
+                                        <RadzenValueAxis Formatter="@FormatPressureValue">
                                             <RadzenGridLines Visible="true" />
                                             <RadzenAxisTitle Text="Pressure (hPa)" />
                                         </RadzenValueAxis>
@@ -381,7 +388,7 @@ else
                                             <h5>Rainfall</h5>
                                             <div class="display-6">@FormatDouble(analysisResult.TotalRainfall) mm</div>
                                             <div>Rainy Days: @analysisResult.RainyDaysCount</div>
-                                            <div>Analysis Period: @analysisResult.StartDate.ToString("MMM d") - @analysisResult.EndDate.ToString("MMM d")</div>
+                                            <div>Analysis Period: @ConvertToUserTimeZone(analysisResult.StartDate).ToString("MMM d") - @ConvertToUserTimeZone(analysisResult.EndDate).ToString("MMM d")</div>
                                         </div>
                                     </div>
                                 </div>
@@ -437,7 +444,7 @@ else
                                             <RadzenMarkers MarkerType="MarkerType.Circle" Size="4" />
                                         </RadzenLineSeries>
                                         <RadzenCategoryAxis Formatter="@FormatTimestamp"></RadzenCategoryAxis>
-                                        <RadzenValueAxis>
+                                        <RadzenValueAxis Formatter="@FormatPressureValue">
                                             <RadzenGridLines Visible="true" />
                                             <RadzenAxisTitle Text="Pressure (hPa)" />
                                         </RadzenValueAxis>
@@ -469,9 +476,13 @@ else
     private string? cacheStatus;
     private DateTime? nextCacheRefresh;
     private readonly TimeSpan cacheDuration = TimeSpan.FromMinutes(15); // Estimated cache duration
+    private string? userTimeZone; // Store user's timezone
 
     protected override async Task OnInitializedAsync()
     {
+        // Get user's timezone first
+        await GetUserTimeZone();
+        
         await LoadData();
         
         // Load the prediction data
@@ -482,6 +493,52 @@ else
         
         // Also load long-term analysis in background
         await AnalyzePeriod(analysisPeriod);
+    }
+
+    private async Task GetUserTimeZone()
+    {
+        try
+        {
+            userTimeZone = await JSRuntime.InvokeAsync<string>("eval", "Intl.DateTimeFormat().resolvedOptions().timeZone");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error getting user timezone: {ex.Message}");
+            userTimeZone = null; // Fallback to UTC
+        }
+    }
+
+    private DateTime ConvertToUserTimeZone(DateTime utcDateTime)
+    {
+        if (string.IsNullOrEmpty(userTimeZone))
+        {
+            // Fallback to local system time if timezone detection failed
+            return utcDateTime.ToLocalTime();
+        }
+
+        try
+        {
+            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(userTimeZone);
+            return TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, timeZoneInfo);
+        }
+        catch
+        {
+            // If timezone conversion fails, fall back to local time
+            return utcDateTime.ToLocalTime();
+        }
+    }
+
+    private string FormatDateTimeForUser(DateTime utcDateTime)
+    {
+        var localDateTime = ConvertToUserTimeZone(utcDateTime);
+        return localDateTime.ToString("g"); // General date/time pattern (short)
+    }
+
+    private string FormatDateTimeForUserWithTimezone(DateTime utcDateTime)
+    {
+        var localDateTime = ConvertToUserTimeZone(utcDateTime);
+        var timeZoneDisplay = string.IsNullOrEmpty(userTimeZone) ? "Local Time" : userTimeZone;
+        return $"{localDateTime:g} ({timeZoneDisplay})";
     }
 
     private async Task RefreshData()
@@ -664,19 +721,31 @@ else
         return Math.Round(tempF, 1).ToString("0.0");
     }
     
+    private string FormatPressureValue(object value)
+    {
+        if (value is double pressure)
+        {
+            return pressure.ToString("F3");
+        }
+        return value?.ToString() ?? "";
+    }
+    
     private string FormatTimestamp(object value)
     {
         if (value is DateTime dt)
         {
+            // Convert UTC to user's timezone for chart display
+            var localDateTime = ConvertToUserTimeZone(dt);
+            
             if (showShortTermAnalysis)
             {
                 // For short-term (hourly) analysis, show hour and minutes
-                return dt.ToString("HH:mm");
+                return localDateTime.ToString("HH:mm");
             }
             else
             {
                 // For long-term analysis, show just the day
-                return dt.ToString("MM/dd");
+                return localDateTime.ToString("MM/dd");
             }
         }
         
