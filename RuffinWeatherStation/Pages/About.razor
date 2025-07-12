@@ -1,0 +1,234 @@
+@page "/about"
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">About the Ruffin Weather Station</h1>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title">🌦️ How This All Started</h3>
+                            <p class="card-text">
+                                So my kids brought home a little DIY no-tech weather station from school and asked me to help them build it. 
+                                I'm always excited about any opportunity to geek out with them, so we spent about 20 minutes building 
+                                the thing and then a week or so collecting data in an Excel spreadsheet.
+                            </p>
+                            <p class="card-text">
+                                That's when we decided to take things to the next level and build one of our own. This is a super popular 
+                                project, so there are tons of resources available online. I ended up buying the SparkFun Weather Station Kit 
+                                (which includes all the mechanical sensors - weather vane, anemometer, rain gauge) and a "Weather HAT" from 
+                                Pimoroni with digital sensors for humidity, temperature, light levels, and barometric pressure.
+                            </p>
+                            <p class="card-text">
+                                The fun part was writing code to read the sensor data and pipe it to an app. What started as a simple 
+                                family project has turned into this full-featured weather monitoring system. The hat arrived and suddenly 
+                                I found myself way more interested in this project than anything I had going on at work!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title">🔧 The Technical Stuff</h3>
+                            <p class="card-text">
+                                Here's what I ended up putting together. It's basically a Raspberry Pi doing all the heavy lifting - 
+                                collecting data from the sensors and transmitting it to this web dashboard where we can see real-time 
+                                conditions and analyze trends over time.
+                            </p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Hardware:</h5>
+                                    <ul>
+                                        <li>Raspberry Pi (the brain of the operation)</li>
+                                        <li>SparkFun Weather Station Kit</li>
+                                        <li>Pimoroni Weather HAT</li>
+                                        <li>A bunch of sensors for everything you'd want to measure</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Software:</h5>
+                                    <ul>
+                                        <li>ASP.NET Core Blazor (this dashboard you're looking at)</li>
+                                        <li>Python code running on the Pi</li>
+                                        <li>RESTful API to tie it all together</li>
+                                        <li>Some AI magic for weather predictions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title">📊 What We're Tracking</h3>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Temperature
+                                    <span class="badge bg-primary rounded-pill">°C/°F</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Humidity
+                                    <span class="badge bg-primary rounded-pill">%</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Barometric Pressure
+                                    <span class="badge bg-primary rounded-pill">hPa</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Wind Speed & Direction
+                                    <span class="badge bg-primary rounded-pill">m/s</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Rainfall
+                                    <span class="badge bg-primary rounded-pill">mm</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Light Levels
+                                    <span class="badge bg-primary rounded-pill">lux</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Dewpoint
+                                    <span class="badge bg-primary rounded-pill">°C</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">🚀 What It Does</h3>
+                            <ul>
+                                <li>Collects data 24/7 (when the Pi stays plugged in)</li>
+                                <li>Shows historical trends and analysis</li>
+                                <li>AI-powered predictions (because why not?)</li>
+                                <li>Interactive charts that actually work</li>
+                                <li>Weather notes for when something interesting happens</li>
+                                <li>Works on your phone (responsive design FTW)</li>
+                                <li>Shows times in your timezone, not mine</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">📖 The Full Story</h3>
+                            <p class="card-text">
+                                This project has been an incredible learning experience. It combines hardware tinkering, software development, 
+                                and data science in ways I didn't expect when we started. What began as helping my kids with a school project 
+                                turned into something much more sophisticated and useful.
+                            </p>
+                            <p class="card-text">
+                                If you want the full story of how this all came together (including the technical challenges and moments of 
+                                frustration when things didn't work), you can read the blog post that started it all:
+                            </p>
+                            <a href="https://zachruffin.com/writing-words-about-things/building-a-weather-station" 
+                               class="btn btn-primary me-2 mb-2" target="_blank">
+                                <i class="bi bi-arrow-up-right-square"></i> Read the Full Story
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">💻 The Code (For Fellow Nerds)</h3>
+                            <p class="card-text">
+                                This project is actually made up of several different repositories. I've made everything open source 
+                                because I remember how helpful it was to find examples when I was figuring this stuff out. 
+                                Feel free to poke around, copy whatever's useful, or let me know if you find bugs!
+                            </p>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 border-secondary">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <i class="bi bi-globe"></i> This Website
+                                            </h5>
+                                            <p class="card-text">
+                                                The Blazor dashboard you're looking at right now. I built it with ASP.NET Core 
+                                                and it handles all the real-time data visualization and AI predictions.
+                                            </p>
+                                            <div class="mb-2">
+                                                <span class="badge bg-secondary me-1">Blazor</span>
+                                                <span class="badge bg-secondary me-1">C#</span>
+                                                <span class="badge bg-secondary">.NET</span>
+                                            </div>
+                                            <a href="https://github.com/faintdeception/RuffinWeatherStation" 
+                                               class="btn btn-outline-primary" target="_blank">
+                                                <i class="bi bi-github"></i> View on GitHub
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 border-secondary">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <i class="bi bi-cpu"></i> The Raspberry Pi Code
+                                            </h5>
+                                            <p class="card-text">
+                                                The Python code that runs on the Raspberry Pi. It reads all the sensor data 
+                                                and sends it to the web dashboard. This is where the magic happens.
+                                            </p>
+                                            <div class="mb-2">
+                                                <span class="badge bg-secondary me-1">Python</span>
+                                                <span class="badge bg-secondary me-1">Raspberry Pi</span>
+                                                <span class="badge bg-secondary">IoT</span>
+                                            </div>
+                                            <a href="https://github.com/faintdeception/weather-station" 
+                                               class="btn btn-outline-primary" target="_blank">
+                                                <i class="bi bi-github"></i> View on GitHub
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 border-secondary">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <i class="bi bi-robot"></i> The AI Predictions
+                                            </h5>
+                                            <p class="card-text">
+                                                The machine learning service that tries to predict the weather based on historical data. 
+                                                Sometimes it's surprisingly accurate, sometimes... well, it's still learning.
+                                            </p>
+                                            <div class="mb-2">
+                                                <span class="badge bg-secondary me-1">Python</span>
+                                                <span class="badge bg-secondary me-1">AI/ML</span>
+                                                <span class="badge bg-secondary">LLM</span>
+                                            </div>
+                                            <a href="https://github.com/faintdeception/weather-llm-service" 
+                                               class="btn btn-outline-primary" target="_blank">
+                                                <i class="bi bi-github"></i> View on GitHub
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Open Source:</strong> All of this code is available for anyone to use, learn from, or improve upon. 
+                                If you find something useful or spot a bug, don't hesitate to fork it or submit a pull request!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
