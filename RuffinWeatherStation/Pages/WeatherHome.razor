@@ -127,10 +127,29 @@ else
                         <tr><th>Pressure</th><td>@FormatDouble(measurement.Fields?.Pressure) hPa</td></tr>
                         <tr><th>Light</th><td>@FormatDouble(measurement.Fields?.Lux) lux</td></tr>
                         <tr><th>Wind</th><td>@FormatDouble(measurement.Fields?.WindSpeed) m/s (@measurement.Fields?.WindDirectionCardinal)</td></tr>
-                        <tr><th>Rain</th><td>@FormatDouble(measurement.Fields?.Rain) mm</td></tr>
+                        <tr><th>Rain Rate</th><td>@FormatRainPerSecond(measurement.Fields?.Rain) mm/sec</td></tr>
                         <tr><th>Location</th><td>@measurement.Tags?.Location</td></tr>
                         <tr><th>Sensor</th><td>@measurement.Tags?.SensorType</td></tr>
                     </table>
+                </div>
+            </div>
+
+            <div class="card mt-3" style="max-width: 400px;">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">Real-time Rainfall</h3>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-6">@FormatRainPerSecond(measurement.Fields?.Rain) mm/sec</div>
+                    <p class="text-muted mb-1">Live tip gauge rate from the Weather HAT</p>
+                    <small class="text-muted d-block">@FormatRainPerMinute(measurement.Fields?.Rain) mm/min · @FormatRainPerHour(measurement.Fields?.Rain) mm/hr</small>
+                    @if ((measurement.Fields?.Rain ?? 0) > 0)
+                    {
+                        <span class="badge bg-success mt-3">Precipitation detected</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary mt-3">No precipitation</span>
+                    }
                 </div>
             </div>
         </div>
@@ -181,7 +200,7 @@ else
                             </div>
 
                             <div class="row mb-4">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="card bg-light">
                                         <div class="card-body text-center">
                                             <h5>Temperature</h5>
@@ -205,7 +224,7 @@ else
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="card bg-light">
                                         <div class="card-body text-center">
                                             <h5>Pressure</h5>
@@ -226,27 +245,6 @@ else
                                                     <span class="badge bg-secondary">Stable</span>
                                                 }
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-light">
-                                        <div class="card-body text-center">
-                                            <h5>Rainfall</h5>
-                                            <div class="display-6">@FormatDouble(recentAnalysisResult.TotalRainfall) mm</div>
-                                            <div>Over the last @analysisHours hour(s)</div>
-                                            @if (recentAnalysisResult.TotalRainfall > 0)
-                                            {
-                                                <div class="mt-2">
-                                                    <span class="badge bg-primary">Precipitation detected</span>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="mt-2">
-                                                    <span class="badge bg-secondary">No rain</span>
-                                                </div>
-                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -333,7 +331,7 @@ else
                         else
                         {
                             <div class="row mb-4">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="card bg-light">
                                         <div class="card-body text-center">
                                             <h5>Temperature</h5>
@@ -357,7 +355,7 @@ else
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="card bg-light">
                                         <div class="card-body text-center">
                                             <h5>Pressure</h5>
@@ -378,16 +376,6 @@ else
                                                     <span class="badge bg-secondary">Stable</span>
                                                 }
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-light">
-                                        <div class="card-body text-center">
-                                            <h5>Rainfall</h5>
-                                            <div class="display-6">@FormatDouble(analysisResult.TotalRainfall) mm</div>
-                                            <div>Rainy Days: @analysisResult.RainyDaysCount</div>
-                                            <div>Analysis Period: @ConvertToUserTimeZone(analysisResult.StartDate).ToString("MMM d") - @ConvertToUserTimeZone(analysisResult.EndDate).ToString("MMM d")</div>
                                         </div>
                                     </div>
                                 </div>
@@ -530,7 +518,7 @@ else
     private string FormatDateTimeForUser(DateTime utcDateTime)
     {
         var localDateTime = ConvertToUserTimeZone(utcDateTime);
-        return localDateTime.ToString("g"); // General date/time pattern (short)
+        return localDateTime.ToString("g");
     }
 
     private string FormatDateTimeForUserWithTimezone(DateTime utcDateTime)
@@ -703,6 +691,32 @@ else
         StateHasChanged();
     }
     
+    private string FormatRainPerSecond(double? rate)
+    {
+        return FormatRainRateInternal(rate, 1, "0.000");
+    }
+
+    private string FormatRainPerMinute(double? rate)
+    {
+        return FormatRainRateInternal(rate, 60, "0.00");
+    }
+
+    private string FormatRainPerHour(double? rate)
+    {
+        return FormatRainRateInternal(rate, 3600, "0.00");
+    }
+
+    private string FormatRainRateInternal(double? rate, double multiplier, string format)
+    {
+        if (!rate.HasValue)
+        {
+            return "N/A";
+        }
+
+        var scaled = rate.Value * multiplier;
+        return scaled.ToString(format);
+    }
+
     private string FormatDouble(double? value)
     {
         if (value == null)
