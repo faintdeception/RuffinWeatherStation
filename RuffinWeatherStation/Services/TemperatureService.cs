@@ -242,20 +242,57 @@ namespace RuffinWeatherStation.Services
                     // Calculate rainfall totals
                     result.TotalRainfall = dailyData.Sum(d => d.Fields.Rain.Sum);
                     result.RainyDaysCount = dailyData.Count(d => d.Fields.Rain.Sum > 0.1);
+                    result.AverageDailyRainfall = dailyData.Average(d => d.Fields.Rain.Sum);
+                    result.MaxDailyRainfall = dailyData.Max(d => d.Fields.Rain.Sum);
                     
                     // Set the analysis period
                     result.StartDate = dailyData.Min(d => d.TimestampMs);
                     result.EndDate = dailyData.Max(d => d.TimestampMs);
                     
+                    var orderedDaily = dailyData.OrderBy(d => d.TimestampMs).ToList();
+
                     // Calculate trends - is temperature rising or falling?
-                    var firstDayAvg = dailyData.OrderBy(d => d.TimestampMs).First().Fields.Temperature.Avg;
-                    var lastDayAvg = dailyData.OrderBy(d => d.TimestampMs).Last().Fields.Temperature.Avg;
+                    var firstDayAvg = orderedDaily.First().Fields.Temperature.Avg;
+                    var lastDayAvg = orderedDaily.Last().Fields.Temperature.Avg;
                     result.TemperatureTrend = lastDayAvg - firstDayAvg;
                     
                     // Calculate pressure trend
-                    var firstDayPressure = dailyData.OrderBy(d => d.TimestampMs).First().Fields.Pressure.Avg;
-                    var lastDayPressure = dailyData.OrderBy(d => d.TimestampMs).Last().Fields.Pressure.Avg;
+                    var firstDayPressure = orderedDaily.First().Fields.Pressure.Avg;
+                    var lastDayPressure = orderedDaily.Last().Fields.Pressure.Avg;
                     result.PressureTrend = lastDayPressure - firstDayPressure;
+
+                    // Calculate rainfall trend information
+                    var firstDayRain = orderedDaily.First().Fields.Rain.Sum;
+                    var lastDayRain = orderedDaily.Last().Fields.Rain.Sum;
+                    result.RainTrend = lastDayRain - firstDayRain;
+
+                    int currentDryStreak = 0;
+                    int longestDryStreak = 0;
+                    foreach (var day in orderedDaily)
+                    {
+                        if (day.Fields.Rain.Sum <= 0.1)
+                        {
+                            currentDryStreak++;
+                            if (currentDryStreak > longestDryStreak)
+                            {
+                                longestDryStreak = currentDryStreak;
+                            }
+                        }
+                        else
+                        {
+                            currentDryStreak = 0;
+                        }
+                    }
+
+                    result.LongestDrySpellDays = longestDryStreak;
+                    result.DailyRainfall = orderedDaily
+                        .Select(d => new RainfallDataPoint
+                        {
+                            Timestamp = d.TimestampMs,
+                            Total = d.Fields.Rain.Sum,
+                            MaxRate = d.Fields.Rain.Max
+                        })
+                        .ToList();
                 }
                 
                 if (hourlyData != null && hourlyData.Any())
@@ -495,6 +532,10 @@ namespace RuffinWeatherStation.Services
         // Rainfall stats
         public double TotalRainfall { get; set; }
         public int RainyDaysCount { get; set; }
+        public double AverageDailyRainfall { get; set; }
+        public double MaxDailyRainfall { get; set; }
+        public double RainTrend { get; set; }
+        public int LongestDrySpellDays { get; set; }
         
         // Analysis period
         public DateTime StartDate { get; set; }
@@ -503,6 +544,7 @@ namespace RuffinWeatherStation.Services
         // Chart data
         public List<TemperatureDataPoint>? HourlyTemperatures { get; set; }
         public List<DataPoint>? HourlyPressures { get; set; }
+        public List<RainfallDataPoint>? DailyRainfall { get; set; }
         
         // Additional properties for short-term analysis
         public double SampleRate { get; set; }  // Average minutes between samples
@@ -526,5 +568,12 @@ namespace RuffinWeatherStation.Services
     {
         public DateTime Timestamp { get; set; }
         public double Value { get; set; }
+    }
+
+    public class RainfallDataPoint
+    {
+        public DateTime Timestamp { get; set; }
+        public double Total { get; set; }
+        public double MaxRate { get; set; }
     }
 }

@@ -381,6 +381,85 @@ else
                                 </div>
                             </div>
                             
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5>Rainfall</h5>
+                                            <div class="display-6">@analysisResult.TotalRainfall.ToString("0.0") mm</div>
+                                            <div>Total rainfall across the period</div>
+                                            @{
+                                                var analyzedDays = analysisResult.DailyRainfall?.Count ?? analysisPeriod;
+                                            }
+                                            <div class="row text-center mt-3">
+                                                <div class="col-sm-3 col-6 mb-3 mb-sm-0">
+                                                    <div class="fw-semibold">@FormatDouble(analysisResult.AverageDailyRainfall) mm</div>
+                                                    <small class="text-muted">Average per day</small>
+                                                </div>
+                                                <div class="col-sm-3 col-6 mb-3 mb-sm-0">
+                                                    <div class="fw-semibold">@FormatDouble(analysisResult.MaxDailyRainfall) mm</div>
+                                                    <small class="text-muted">Wettest day</small>
+                                                </div>
+                                                <div class="col-sm-3 col-6 mb-3 mb-sm-0">
+                                                    <div class="fw-semibold">@analysisResult.RainyDaysCount / @analyzedDays</div>
+                                                    <small class="text-muted">Days with rain</small>
+                                                </div>
+                                                <div class="col-sm-3 col-6">
+                                                    <div class="fw-semibold">@analysisResult.LongestDrySpellDays day@(analysisResult.LongestDrySpellDays == 1 ? "" : "s")</div>
+                                                    <small class="text-muted">Longest dry spell</small>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                @if (analysisResult.RainTrend > 0.5)
+                                                {
+                                                    <span class="badge bg-primary">Rainfall increasing (+@FormatDouble(analysisResult.RainTrend) mm)</span>
+                                                }
+                                                else if (analysisResult.RainTrend < -0.5)
+                                                {
+                                                    <span class="badge bg-warning text-dark">Rainfall decreasing (-@FormatDouble(Math.Abs(analysisResult.RainTrend)) mm)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Rainfall trend stable</span>
+                                                }
+                                            </div>
+
+                                            <div class="mt-4">
+                                                @if (analysisResult.DailyRainfall != null && analysisResult.DailyRainfall.Any())
+                                                {
+                                                    <RadzenChart>
+                                                        <RadzenColumnSeries Data="@analysisResult.DailyRainfall"
+                                                                            CategoryProperty="Timestamp"
+                                                                            ValueProperty="Total"
+                                                                            Title="Daily rainfall (mm)"
+                                                                            Fill="rgba(30, 136, 229, 0.7)">
+                                                        </RadzenColumnSeries>
+                                                        <RadzenLineSeries Data="@analysisResult.DailyRainfall"
+                                                                          CategoryProperty="Timestamp"
+                                                                          ValueProperty="MaxRate"
+                                                                          Title="Peak rate (mm)"
+                                                                          LineType="LineType.Dashed"
+                                                                          StrokeWidth="2">
+                                                            <RadzenMarkers MarkerType="MarkerType.Square" Size="4" />
+                                                        </RadzenLineSeries>
+                                                        <RadzenCategoryAxis Formatter="@FormatTimestamp"></RadzenCategoryAxis>
+                                                        <RadzenValueAxis>
+                                                            <RadzenGridLines Visible="true" />
+                                                            <RadzenAxisTitle Text="Rainfall (mm)" />
+                                                        </RadzenValueAxis>
+                                                        <RadzenLegend Position="LegendPosition.Top" />
+                                                    </RadzenChart>
+                                                }
+                                                else
+                                                {
+                                                    <p>No rainfall data available for this period.</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <h4>Temperature Trends</h4>
                             <div class="mb-4">
                                 @if (analysisResult.HourlyTemperatures != null && analysisResult.HourlyTemperatures.Any())
