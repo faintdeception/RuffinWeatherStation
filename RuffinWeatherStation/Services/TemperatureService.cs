@@ -24,7 +24,6 @@ namespace RuffinWeatherStation.Services
         private const int RECENT_CACHE_MINUTES = 30;
         private const int DAILY_CACHE_MINUTES = 60;
         private const int HOURLY_CACHE_MINUTES = 45;
-        private const int PREDICTION_CACHE_MINUTES = 60;
 
         public TemperatureService(HttpClient httpClient, IJSRuntime jsRuntime)
         {
@@ -484,30 +483,23 @@ namespace RuffinWeatherStation.Services
 
         public async Task<WeatherPrediction?> GetLatestPredictionAsync()
         {
-            return await GetCachedDataAsync<WeatherPrediction>(
-                "latest_prediction", 
-                PREDICTION_CACHE_MINUTES,
-                async () => {
-                    try
-                    {
-                        // Fetch the raw JSON response for debugging
-                        var response = await _httpClient.GetAsync("api/weather/prediction/latest");
-                        var json = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"WeatherPrediction JSON: {json}");
+            try
+            {
+                var response = await _httpClient.GetAsync("api/weather/prediction/latest");
+                var json = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"WeatherPrediction JSON: {json}");
 
-                        // Deserialize as before
-                        return JsonSerializer.Deserialize<WeatherPrediction>(json, new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true,
-                            Converters = { new DateTimeConverter() }
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Error fetching latest prediction: {ex.Message}");
-                        return null;
-                    }
+                return JsonSerializer.Deserialize<WeatherPrediction>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    Converters = { new DateTimeConverter() }
                 });
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error fetching latest prediction: {ex.Message}");
+                return null;
+            }
         }
     }
 
