@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Weather station icon">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#77c8ff" />
+      <stop offset="100%" stop-color="#2f6ea5" />
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffe08a" />
+      <stop offset="100%" stop-color="#ffb300" />
+    </linearGradient>
+  </defs>
+
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#sky)" />
+
+  <circle cx="20" cy="20" r="8" fill="url(#sun)" />
+
+  <g stroke="#ffd36a" stroke-width="2" stroke-linecap="round">
+    <line x1="20" y1="8" x2="20" y2="4" />
+    <line x1="20" y1="36" x2="20" y2="32" />
+    <line x1="8" y1="20" x2="4" y2="20" />
+    <line x1="36" y1="20" x2="32" y2="20" />
+    <line x1="11.5" y1="11.5" x2="8.5" y2="8.5" />
+    <line x1="28.5" y1="28.5" x2="31.5" y2="31.5" />
+    <line x1="11.5" y1="28.5" x2="8.5" y2="31.5" />
+    <line x1="28.5" y1="11.5" x2="31.5" y2="8.5" />
+  </g>
+
+  <g fill="#f3f8ff">
+    <ellipse cx="39" cy="30" rx="11" ry="7" />
+    <ellipse cx="30" cy="31" rx="7" ry="5" />
+    <ellipse cx="47" cy="32" rx="7" ry="5" />
+  </g>
+
+  <g fill="#64b5f6">
+    <path d="M31 42c0 1.66-1.34 3-3 3s-3-1.34-3-3c0-2.1 3-5.7 3-5.7s3 3.6 3 5.7z" />
+    <path d="M41 44c0 1.38-1.12 2.5-2.5 2.5S36 45.38 36 44c0-1.75 2.5-4.75 2.5-4.75S41 42.25 41 44z" />
+    <path d="M50 42c0 1.1-.9 2-2 2s-2-.9-2-2c0-1.4 2-3.8 2-3.8s2 2.4 2 3.8z" />
+  </g>
+
+  <g fill="#1f2a35">
+    <rect x="53" y="26" width="3" height="20" rx="1.2" />
+    <rect x="48" y="46" width="13" height="3" rx="1.2" />
+    <rect x="50" y="35" width="7" height="2.4" rx="1" fill="#f5f7fa" />
+    <rect x="50" y="31" width="7" height="2.4" rx="1" fill="#f5f7fa" />
+  </g>
+</svg>

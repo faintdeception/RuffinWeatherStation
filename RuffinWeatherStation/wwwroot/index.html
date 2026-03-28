@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="css/weather-dashboard.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="alternate icon" type="image/png" href="favicon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
     <link href="RuffinWeatherStation.styles.css" rel="stylesheet" />
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/default-base.css">
 </head>
@@ -28,6 +30,27 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
+    <script>
+        (function () {
+            var canonicalHost = "ruffinweather.today";
+            var host = window.location.hostname.toLowerCase();
+
+            var shouldRedirect = host === "ruffinweather.com"
+                || host === "www.ruffinweather.com"
+                || host === "www.ruffinweather.today"
+                || host.endsWith(".azurestaticapps.net");
+
+            if (!shouldRedirect) {
+                return;
+            }
+
+            var targetUrl = "https://" + canonicalHost + window.location.pathname + window.location.search + window.location.hash;
+
+            if (window.location.href !== targetUrl) {
+                window.location.replace(targetUrl);
+            }
+        })();
+    </script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
 </body>
