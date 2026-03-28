@@ -81,8 +81,26 @@ public class GardenPlantProfileService
                 warnings.Add($"{prefix} has incomplete primary window; both windowStartMonthDay and windowEndMonthDay are required.");
             }
 
+            var hasSecondaryWindowStart = !string.IsNullOrWhiteSpace(profile.SecondaryWindowStartMonthDay);
+            var hasSecondaryWindowEnd = !string.IsNullOrWhiteSpace(profile.SecondaryWindowEndMonthDay);
+            if (hasSecondaryWindowStart ^ hasSecondaryWindowEnd)
+            {
+                warnings.Add($"{prefix} has incomplete secondary window; both secondaryWindowStartMonthDay and secondaryWindowEndMonthDay are required.");
+            }
+
             ValidateMonthDayPair(profile.WindowStartMonthDay, profile.WindowEndMonthDay, prefix, "primary", warnings);
+            ValidateMonthDayPair(profile.SecondaryWindowStartMonthDay, profile.SecondaryWindowEndMonthDay, prefix, "secondary", warnings);
             ValidateMonthDayPair(profile.HarvestWindowStartMonthDay, profile.HarvestWindowEndMonthDay, prefix, "harvest", warnings);
+
+            if (!string.IsNullOrWhiteSpace(profile.LatestPlantMonthDay) && !TryParseMonthDay(profile.LatestPlantMonthDay, out _))
+            {
+                warnings.Add($"{prefix} has invalid latestPlantMonthDay '{profile.LatestPlantMonthDay}'. Expected MM-dd.");
+            }
+
+            if (profile.SupportsSuccessionPlanting && !string.IsNullOrWhiteSpace(profile.WindowStartMonthDay) && !string.IsNullOrWhiteSpace(profile.WindowEndMonthDay))
+            {
+                warnings.Add($"{prefix} is marked supportsSuccessionPlanting=true but also has a fixed primary window. Verify this intent.");
+            }
 
             var action = profile.ActionType?.Trim().ToLowerInvariant() ?? "plant";
             if (action is not ("plant" or "buy" or "harvest" or "prep"))

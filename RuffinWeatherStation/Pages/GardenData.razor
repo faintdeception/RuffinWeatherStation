@@ -2,6 +2,8 @@
 @inject TemperatureService TemperatureService
 @inject GardenDataService GardenDataService
 @inject GardenPlantProfileService GardenPlantProfileService
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
 
 <h1>Garden Data</h1>
 
@@ -158,6 +160,36 @@ else
                             <div class="col-md-8 col-12">
                                 <strong>Why:</strong> @seasonRegimeWhy
                             </div>
+                            @if (seasonForecastData.Count > 0)
+                            {
+                                <div class="col-12">
+                                    <small class="text-muted"><strong>Forecast overlay:</strong> @seasonForecastOverlaySummary</small>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="season-signal-summary mb-3" aria-label="Season signal counts from recent days">
+                            <button type="button"
+                                    class="badge season-signal-pill warm @(showWarmSignalSeries ? string.Empty : "is-off")"
+                                    aria-pressed="@showWarmSignalSeries"
+                                    title="Toggle warm threshold and warm signal markers"
+                                    @onclick="ToggleWarmSignalSeriesAsync">
+                                Warm hits: @seasonWarmSignalHits / @seasonSignalWindowDays
+                            </button>
+                            <button type="button"
+                                    class="badge season-signal-pill cold @(showColdSignalSeries ? string.Empty : "is-off")"
+                                    aria-pressed="@showColdSignalSeries"
+                                    title="Toggle cold threshold and cold signal markers"
+                                    @onclick="ToggleColdSignalSeriesAsync">
+                                Cold hits: @seasonColdSignalHits / @seasonSignalWindowDays
+                            </button>
+                            <button type="button"
+                                    class="badge season-signal-pill swing @(showSwingSignalSeries ? string.Empty : "is-off")"
+                                    aria-pressed="@showSwingSignalSeries"
+                                    title="Toggle large-swing signal markers"
+                                    @onclick="ToggleSwingSignalSeriesAsync">
+                                Swing days: @seasonLargeSwingSignalHits / @seasonSignalWindowDays
+                            </button>
                         </div>
 
                         <RadzenChart class="season-trend-chart" @key="SeasonChartRenderKey">
@@ -173,6 +205,77 @@ else
                                               Title="Daily Low (C)"
                                               LineType="LineType.Dashed"
                                               StrokeWidth="2" />
+                            <RadzenLineSeries Data="@seasonTrendData"
+                                              CategoryProperty="Date"
+                                              ValueProperty="AverageC"
+                                              Title="Daily Avg (C)"
+                                              LineType="LineType.Dotted"
+                                              StrokeWidth="2" />
+                            <RadzenLineSeries Data="@seasonTrendData"
+                                              CategoryProperty="Date"
+                                              ValueProperty="RollingAverageC"
+                                              Title="5-Day Rolling Avg (C)"
+                                              LineType="LineType.Solid"
+                                              StrokeWidth="4" />
+                            @if (showWarmSignalSeries)
+                            {
+                                <RadzenLineSeries Data="@seasonTrendData"
+                                                  CategoryProperty="Date"
+                                                  ValueProperty="WarmDayThresholdC"
+                                                  Title="Warm Day Threshold (20.00C)"
+                                                  LineType="LineType.Dotted"
+                                                  StrokeWidth="1" />
+                                <RadzenLineSeries Data="@seasonTrendData"
+                                                  CategoryProperty="Date"
+                                                  ValueProperty="WarmDayMarkerC"
+                                                  Title="Warm Signal Days"
+                                                  LineType="LineType.Dotted"
+                                                  StrokeWidth="0"
+                                                  MarkerType="MarkerType.Circle" />
+                            }
+                            @if (showColdSignalSeries)
+                            {
+                                <RadzenLineSeries Data="@seasonTrendData"
+                                                  CategoryProperty="Date"
+                                                  ValueProperty="ColdNightThresholdC"
+                                                  Title="Cold Night Threshold (2.22C)"
+                                                  LineType="LineType.Dotted"
+                                                  StrokeWidth="1" />
+                                <RadzenLineSeries Data="@seasonTrendData"
+                                                  CategoryProperty="Date"
+                                                  ValueProperty="ColdNightMarkerC"
+                                                  Title="Cold Signal Nights"
+                                                  LineType="LineType.Dotted"
+                                                  StrokeWidth="0"
+                                                  MarkerType="MarkerType.Diamond" />
+                            }
+                            @if (showSwingSignalSeries)
+                            {
+                                <RadzenLineSeries Data="@seasonTrendData"
+                                                  CategoryProperty="Date"
+                                                  ValueProperty="LargeSwingMarkerC"
+                                                  Title="Large Swing Days"
+                                                  LineType="LineType.Dotted"
+                                                  StrokeWidth="0"
+                                                  MarkerType="MarkerType.Triangle" />
+                            }
+                            @if (seasonForecastData.Count > 0)
+                            {
+                                <RadzenLineSeries Data="@seasonForecastData"
+                                                  CategoryProperty="Date"
+                                                  ValueProperty="ForecastHighC"
+                                                  Title="Forecast High (12-24h)"
+                                                  LineType="LineType.Dashed"
+                                                  StrokeWidth="3"
+                                                  MarkerType="MarkerType.Triangle" />
+                                <RadzenLineSeries Data="@seasonForecastData"
+                                                  CategoryProperty="Date"
+                                                  ValueProperty="ForecastLowC"
+                                                  Title="Forecast Low (12-24h)"
+                                                  LineType="LineType.Dashed"
+                                                  StrokeWidth="3"
+                                                  MarkerType="MarkerType.Square" />
+                            }
                             <RadzenCategoryAxis Formatter="@FormatSeasonDateLabel" />
                             <RadzenValueAxis>
                                 <RadzenGridLines Visible="true" />
@@ -235,18 +338,22 @@ else
                                     {
                                         <div class="col-lg-4 col-md-6">
                                             <div class="p-3 border rounded h-100">
+                                                <div class="season-card-header @card.SeasonHeaderClass" aria-label="@($"{card.SeasonLabel} category")">
+                                                    <span class="season-emoji" aria-hidden="true">@card.SeasonEmoji</span>
+                                                    <span class="season-label">@card.SeasonLabel</span>
+                                                </div>
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                                     <div>
                                                         <h5 class="mb-0">@card.DisplayName</h5>
                                                         <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
                                                     </div>
-                                                    <span class="badge @card.BadgeClass">@card.StatusLabel</span>
+                                                    <span class="badge status-badge @card.BadgeClass">@card.StatusLabel</span>
                                                 </div>
 
                                                 <div class="small mb-2">
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
-                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
+                                                    <div><strong>Night streak:</strong> @FormatNightStreakForDisplay(card.CurrentNightStreak, card.RequiredConsecutiveNights, card.SupportsSuccessionPlanting) nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
                                                     @{
                                                         var streakPercent = GetNightStreakPercent(card.CurrentNightStreak, card.RequiredConsecutiveNights);
                                                         var streakAriaLabel = $"Night streak progress for {card.DisplayName}: {card.CurrentNightStreak} out of {card.RequiredConsecutiveNights} nights ({streakPercent} percent).";
@@ -301,18 +408,22 @@ else
                                     {
                                         <div class="col-lg-4 col-md-6">
                                             <div class="p-3 border rounded h-100">
+                                                <div class="season-card-header @card.SeasonHeaderClass" aria-label="@($"{card.SeasonLabel} category")">
+                                                    <span class="season-emoji" aria-hidden="true">@card.SeasonEmoji</span>
+                                                    <span class="season-label">@card.SeasonLabel</span>
+                                                </div>
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                                     <div>
                                                         <h5 class="mb-0">@card.DisplayName</h5>
                                                         <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
                                                     </div>
-                                                    <span class="badge @card.BadgeClass">@card.StatusLabel</span>
+                                                    <span class="badge status-badge @card.BadgeClass">@card.StatusLabel</span>
                                                 </div>
 
                                                 <div class="small mb-2">
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
-                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
+                                                    <div><strong>Night streak:</strong> @FormatNightStreakForDisplay(card.CurrentNightStreak, card.RequiredConsecutiveNights, card.SupportsSuccessionPlanting) nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
                                                     @{
                                                         var streakPercent = GetNightStreakPercent(card.CurrentNightStreak, card.RequiredConsecutiveNights);
                                                         var streakAriaLabel = $"Night streak progress for {card.DisplayName}: {card.CurrentNightStreak} out of {card.RequiredConsecutiveNights} nights ({streakPercent} percent).";
@@ -367,18 +478,22 @@ else
                                     {
                                         <div class="col-lg-4 col-md-6">
                                             <div class="p-3 border rounded h-100">
+                                                <div class="season-card-header @card.SeasonHeaderClass" aria-label="@($"{card.SeasonLabel} category")">
+                                                    <span class="season-emoji" aria-hidden="true">@card.SeasonEmoji</span>
+                                                    <span class="season-label">@card.SeasonLabel</span>
+                                                </div>
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                                     <div>
                                                         <h5 class="mb-0">@card.DisplayName</h5>
                                                         <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
                                                     </div>
-                                                    <span class="badge @card.BadgeClass">@card.StatusLabel</span>
+                                                    <span class="badge status-badge @card.BadgeClass">@card.StatusLabel</span>
                                                 </div>
 
                                                 <div class="small mb-2">
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
-                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
+                                                    <div><strong>Night streak:</strong> @FormatNightStreakForDisplay(card.CurrentNightStreak, card.RequiredConsecutiveNights, card.SupportsSuccessionPlanting) nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
                                                     @{
                                                         var streakPercent = GetNightStreakPercent(card.CurrentNightStreak, card.RequiredConsecutiveNights);
                                                         var streakAriaLabel = $"Night streak progress for {card.DisplayName}: {card.CurrentNightStreak} out of {card.RequiredConsecutiveNights} nights ({streakPercent} percent).";
@@ -553,12 +668,32 @@ else
 }
 
 <style>
+    :root {
+        --season-warm-bg: #fff2d6;
+        --season-warm-fg: #5a3600;
+        --season-warm-border: #c78218;
+
+        --season-cool-bg: #e6f4ff;
+        --season-cool-fg: #0b3b57;
+        --season-cool-border: #2d82b7;
+
+        --season-fall-bg: #ffeade;
+        --season-fall-fg: #5e2800;
+        --season-fall-border: #b8612a;
+
+        --season-general-bg: #edf1f5;
+        --season-general-fg: #1f2933;
+        --season-general-border: #697786;
+
+        --status-text: #15212b;
+    }
+
     .garden-rain-chart {
         height: 260px;
     }
 
     .season-trend-chart {
-        height: 260px;
+        height: 320px;
     }
 
     .night-streak-progress {
@@ -580,13 +715,140 @@ else
         text-align: right;
     }
 
+    .season-card-header {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1;
+        border-radius: 999px;
+        padding: 0.35rem 0.65rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .season-emoji {
+        font-size: 0.85rem;
+    }
+
+    .season-warm {
+        background: var(--season-warm-bg);
+        color: var(--season-warm-fg);
+        border: 1px solid var(--season-warm-border);
+    }
+
+    .season-cool {
+        background: var(--season-cool-bg);
+        color: var(--season-cool-fg);
+        border: 1px solid var(--season-cool-border);
+    }
+
+    .season-fall {
+        background: var(--season-fall-bg);
+        color: var(--season-fall-fg);
+        border: 1px solid var(--season-fall-border);
+    }
+
+    .season-general {
+        background: var(--season-general-bg);
+        color: var(--season-general-fg);
+        border: 1px solid var(--season-general-border);
+    }
+
+    .status-badge {
+        font-weight: 700;
+        border-width: 1px;
+        border-style: solid;
+        color: var(--status-text);
+        background: #f6f8fa;
+    }
+
+    .status-action {
+        border-left-width: 0.35rem;
+        border-left-style: solid;
+    }
+
+    .status-soon {
+        border-left-width: 0.35rem;
+        border-left-style: dashed;
+    }
+
+    .status-dormant {
+        border-left-width: 0.35rem;
+        border-left-style: dotted;
+    }
+
+    .status-badge.season-tone-warm {
+        border-color: var(--season-warm-border);
+        border-left-color: var(--season-warm-fg);
+        background: var(--season-warm-bg);
+    }
+
+    .status-badge.season-tone-cool {
+        border-color: var(--season-cool-border);
+        border-left-color: var(--season-cool-fg);
+        background: var(--season-cool-bg);
+    }
+
+    .status-badge.season-tone-fall {
+        border-color: var(--season-fall-border);
+        border-left-color: var(--season-fall-fg);
+        background: var(--season-fall-bg);
+    }
+
+    .status-badge.season-tone-general {
+        border-color: var(--season-general-border);
+        border-left-color: var(--season-general-fg);
+        background: var(--season-general-bg);
+    }
+
+    .season-signal-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+    }
+
+    .season-signal-pill {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #12202b;
+        border: 1px solid transparent;
+        cursor: pointer;
+        background-clip: padding-box;
+    }
+
+    .season-signal-pill:focus-visible {
+        outline: 2px solid #0b3b57;
+        outline-offset: 2px;
+    }
+
+    .season-signal-pill.is-off {
+        opacity: 0.55;
+        filter: saturate(0.35);
+    }
+
+    .season-signal-pill.warm {
+        background: #fff4de;
+        border-color: #c98a17;
+    }
+
+    .season-signal-pill.cold {
+        background: #e9f5ff;
+        border-color: #2f7ea8;
+    }
+
+    .season-signal-pill.swing {
+        background: #f4edff;
+        border-color: #6f53aa;
+    }
+
     @@media (max-width: 768px) {
         .garden-rain-chart {
             height: 220px;
         }
 
         .season-trend-chart {
-            height: 220px;
+            height: 260px;
         }
     }
 </style>
@@ -604,6 +866,7 @@ else
     private const double warmStableLowThresholdC = 10.00;
     private const double coolingPatternTrendThresholdC = -1.39;
     private const double springStabilizingTrendThresholdC = 1.11;
+    private const string seasonSignalToggleStorageKey = "gardenData.seasonSignalToggles.v1";
 
     private bool isLoading = true;
     private string? errorMessage;
@@ -625,6 +888,16 @@ else
     private string temperatureTrendSummary = "Unknown";
     private bool showDormantCards;
     private List<SeasonTrendPoint> seasonTrendData = new();
+    private List<SeasonForecastPoint> seasonForecastData = new();
+    private WeatherPrediction? seasonForecast;
+    private string seasonForecastOverlaySummary = "No forecast overlay available.";
+    private int seasonWarmSignalHits;
+    private int seasonColdSignalHits;
+    private int seasonLargeSwingSignalHits;
+    private int seasonSignalWindowDays;
+    private bool showWarmSignalSeries = true;
+    private bool showColdSignalSeries = true;
+    private bool showSwingSignalSeries = true;
     private string seasonRegimeLabel = "Unknown";
     private string seasonRegimeWhy = "Not enough data.";
     private int seasonRegimeConfidence;
@@ -636,13 +909,16 @@ else
             isLoading = true;
             errorMessage = null;
 
+            await LoadSeasonSignalToggleSettingsAsync();
+
             var rainfallTask = TemperatureService.GetAnalysisAsync(recentRainfallDays, rainOnly: true);
             var dailyTask = TemperatureService.GetDailyMeasurementsAsync(dailyMeasurementLookbackDays);
             var referenceTask = GardenDataService.GetGardenReferenceAsync();
             var plantProfilesTask = GardenPlantProfileService.GetProfilesAsync();
             var alertsTask = GardenDataService.GetAlertsSummaryAsync(days: 7);
+            var forecastTask = TemperatureService.GetLatestPredictionAsync();
 
-            await Task.WhenAll(rainfallTask, dailyTask, referenceTask, plantProfilesTask, alertsTask);
+            await Task.WhenAll(rainfallTask, dailyTask, referenceTask, plantProfilesTask, alertsTask, forecastTask);
 
             rainfallAnalysis = rainfallTask.Result;
             recentDailyMeasurements = dailyTask.Result;
@@ -651,6 +927,7 @@ else
             plantProfileWarnings = plantProfilesTask.Result.Warnings;
             plantProfilesLoadError = plantProfilesTask.Result.ErrorMessage;
             nwsAlertSummary = alertsTask.Result;
+            seasonForecast = forecastTask.Result;
 
             if (gardenReference == null)
             {
@@ -661,6 +938,7 @@ else
             CalculatePlanningWindows();
             CalculateTemperaturePattern();
             CalculateSeasonRegime();
+            BuildSeasonForecastOverlay();
             BuildPlantReadinessCards();
         }
         catch (Exception ex)
@@ -670,6 +948,70 @@ else
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task ToggleWarmSignalSeriesAsync()
+    {
+        showWarmSignalSeries = !showWarmSignalSeries;
+        await SaveSeasonSignalToggleSettingsAsync();
+    }
+
+    private async Task ToggleColdSignalSeriesAsync()
+    {
+        showColdSignalSeries = !showColdSignalSeries;
+        await SaveSeasonSignalToggleSettingsAsync();
+    }
+
+    private async Task ToggleSwingSignalSeriesAsync()
+    {
+        showSwingSignalSeries = !showSwingSignalSeries;
+        await SaveSeasonSignalToggleSettingsAsync();
+    }
+
+    private async Task LoadSeasonSignalToggleSettingsAsync()
+    {
+        try
+        {
+            var rawJson = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", seasonSignalToggleStorageKey);
+            if (string.IsNullOrWhiteSpace(rawJson))
+            {
+                return;
+            }
+
+            var settings = JsonSerializer.Deserialize<SeasonSignalToggleSettings>(rawJson);
+            if (settings == null)
+            {
+                return;
+            }
+
+            showWarmSignalSeries = settings.ShowWarmSignalSeries;
+            showColdSignalSeries = settings.ShowColdSignalSeries;
+            showSwingSignalSeries = settings.ShowSwingSignalSeries;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Could not load season signal toggles from localStorage: {ex.Message}");
+        }
+    }
+
+    private async Task SaveSeasonSignalToggleSettingsAsync()
+    {
+        try
+        {
+            var settings = new SeasonSignalToggleSettings
+            {
+                ShowWarmSignalSeries = showWarmSignalSeries,
+                ShowColdSignalSeries = showColdSignalSeries,
+                ShowSwingSignalSeries = showSwingSignalSeries
+            };
+
+            var rawJson = JsonSerializer.Serialize(settings);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", seasonSignalToggleStorageKey, rawJson);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Could not save season signal toggles to localStorage: {ex.Message}");
         }
     }
 
@@ -740,25 +1082,57 @@ else
             seasonRegimeLabel = "Insufficient Data";
             seasonRegimeWhy = "No recent daily measurements available.";
             seasonRegimeConfidence = 0;
+            seasonWarmSignalHits = 0;
+            seasonColdSignalHits = 0;
+            seasonLargeSwingSignalHits = 0;
+            seasonSignalWindowDays = 0;
             return;
         }
 
-        seasonTrendData = recentDailyMeasurements
+        var ordered = recentDailyMeasurements
             .OrderBy(d => d.TimestampMs)
             .TakeLast(seasonVisualizationDays)
-            .Select(d => new SeasonTrendPoint
-            {
-                Date = d.TimestampMs,
-                HighC = d.Fields.Temperature.Max,
-                LowC = d.Fields.Temperature.Min
-            })
             .ToList();
+
+        seasonTrendData = new List<SeasonTrendPoint>(ordered.Count);
+        for (var i = 0; i < ordered.Count; i++)
+        {
+            var source = ordered[i];
+            var averageC = (source.Fields.Temperature.Max + source.Fields.Temperature.Min) / 2.0;
+
+            var rollingWindowStart = Math.Max(0, i - 4);
+            var rollingWindow = ordered
+                .Skip(rollingWindowStart)
+                .Take(i - rollingWindowStart + 1)
+                .Select(d => (d.Fields.Temperature.Max + d.Fields.Temperature.Min) / 2.0)
+                .ToList();
+
+            var rollingAverageC = rollingWindow.Average();
+
+            seasonTrendData.Add(new SeasonTrendPoint
+            {
+                Date = source.TimestampMs,
+                HighC = source.Fields.Temperature.Max,
+                LowC = source.Fields.Temperature.Min,
+                AverageC = averageC,
+                RollingAverageC = rollingAverageC,
+                WarmDayThresholdC = falseSpringWarmDayThresholdC,
+                ColdNightThresholdC = falseSpringColdNightThresholdC,
+                WarmDayMarkerC = source.Fields.Temperature.Max >= falseSpringWarmDayThresholdC ? source.Fields.Temperature.Max : null,
+                ColdNightMarkerC = source.Fields.Temperature.Min <= falseSpringColdNightThresholdC ? source.Fields.Temperature.Min : null,
+                LargeSwingMarkerC = (source.Fields.Temperature.Max - source.Fields.Temperature.Min) >= falseSpringSwingThresholdC ? averageC : null
+            });
+        }
 
         if (seasonTrendData.Count < 5)
         {
             seasonRegimeLabel = "Insufficient Data";
             seasonRegimeWhy = "Need at least 5 daily points for stable season detection.";
             seasonRegimeConfidence = 20;
+            seasonWarmSignalHits = 0;
+            seasonColdSignalHits = 0;
+            seasonLargeSwingSignalHits = 0;
+            seasonSignalWindowDays = seasonTrendData.Count;
             return;
         }
 
@@ -770,6 +1144,11 @@ else
         var lastAvg = window.Last().AverageC;
         var avgTrend = lastAvg - firstAvg;
         var warmStableDays = window.Count(p => p.HighC >= warmStableHighThresholdC && p.LowC >= warmStableLowThresholdC);
+
+        seasonWarmSignalHits = warmHighDays;
+        seasonColdSignalHits = coldNightDays;
+        seasonLargeSwingSignalHits = largeSwingDays;
+        seasonSignalWindowDays = window.Count;
 
         if (warmHighDays >= 3 && coldNightDays >= 3)
         {
@@ -808,6 +1187,46 @@ else
         seasonRegimeWhy = "Mixed daily highs/lows indicate seasonal transition without a dominant regime yet.";
     }
 
+    private void BuildSeasonForecastOverlay()
+    {
+        seasonForecastData.Clear();
+        seasonForecastOverlaySummary = "No forecast overlay available.";
+
+        if (seasonForecast == null || seasonForecast.HasError)
+        {
+            return;
+        }
+
+        var anchor = seasonForecast.CreatedAt == default ? DateTime.Now : seasonForecast.CreatedAt.ToLocalTime();
+
+        if (seasonForecast.Prediction12h?.Temperature != null)
+        {
+            seasonForecastData.Add(new SeasonForecastPoint
+            {
+                Date = anchor.AddHours(12),
+                ForecastHighC = seasonForecast.Prediction12h.Temperature.Max,
+                ForecastLowC = seasonForecast.Prediction12h.Temperature.Min
+            });
+        }
+
+        if (seasonForecast.Prediction24h?.Temperature != null)
+        {
+            seasonForecastData.Add(new SeasonForecastPoint
+            {
+                Date = anchor.AddHours(24),
+                ForecastHighC = seasonForecast.Prediction24h.Temperature.Max,
+                ForecastLowC = seasonForecast.Prediction24h.Temperature.Min
+            });
+        }
+
+        if (seasonForecastData.Count == 0)
+        {
+            return;
+        }
+
+        seasonForecastOverlaySummary = $"Generated {FormatUtcDateTime(seasonForecast.CreatedAt)} with confidence {seasonForecast.ConfidencePercentage}.";
+    }
+
     private void BuildPlantReadinessCards()
     {
         plantReadinessCards.Clear();
@@ -822,6 +1241,7 @@ else
 
         foreach (var profile in plantProfiles)
         {
+            var seasonTone = ResolveSeasonTone(profile.Categories);
             var targetTransplantDate = profile.DaysAfterLastFrostToTransplant.HasValue
                 ? gardenReference.AverageLastFrostDate.AddDays(profile.DaysAfterLastFrostToTransplant.Value)
                 : (DateOnly?)null;
@@ -840,7 +1260,26 @@ else
             var leadDays = Math.Max(0, profile.LeadDays ?? 14);
             var statusLeadDays = Math.Min(soonStatusHorizonDays, leadDays);
 
-            var (hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart) = EvaluateMonthDayWindow(today, profile.WindowStartMonthDay, profile.WindowEndMonthDay, statusLeadDays);
+            var primaryWindow = EvaluateMonthDayWindow(today, profile.WindowStartMonthDay, profile.WindowEndMonthDay, statusLeadDays);
+            var secondaryWindow = EvaluateMonthDayWindow(today, profile.SecondaryWindowStartMonthDay, profile.SecondaryWindowEndMonthDay, statusLeadDays);
+            var hasWindow = primaryWindow.HasWindow || secondaryWindow.HasWindow;
+            var isInWindow = primaryWindow.IsInWindow || secondaryWindow.IsInWindow;
+            var isWindowSoon = !isInWindow && (primaryWindow.IsWindowSoon || secondaryWindow.IsWindowSoon);
+            var daysUntilWindowStart = GetEarliestDaysUntil(primaryWindow.DaysUntilStart, secondaryWindow.DaysUntilStart);
+            var activeWindowLabel = ResolveWindowLabel(
+                primaryWindow.IsInWindow,
+                secondaryWindow.IsInWindow,
+                profile.WindowStartMonthDay,
+                profile.SecondaryWindowStartMonthDay);
+            var upcomingWindowLabel = ResolveWindowLabel(
+                primaryWindow.IsWindowSoon,
+                secondaryWindow.IsWindowSoon,
+                profile.WindowStartMonthDay,
+                profile.SecondaryWindowStartMonthDay,
+                primaryWindow.DaysUntilStart,
+                secondaryWindow.DaysUntilStart);
+            var (hasLatestPlantDate, isPastLatestPlantDate, daysUntilLatestPlantDate) = EvaluateLatestPlantDate(today, profile.LatestPlantMonthDay);
+            var isPastPlantingWindow = !hasWindow && hasLatestPlantDate && isPastLatestPlantDate && !profile.SupportsSuccessionPlanting;
 
             var hasDateRule = targetTransplantDate.HasValue;
             var targetDateValue = targetTransplantDate.GetValueOrDefault();
@@ -850,19 +1289,19 @@ else
             var isDateSoon = hasDateRule && !isDateReady && daysUntilTargetDate.HasValue && daysUntilTargetDate.Value <= soonStatusHorizonDays;
             var isStreakReady = nightStreak >= requiredNights;
 
-            var isRelevantNow = hasWindow ? (isInWindow || isWindowSoon) : (isDateReady || isDateSoon);
+            var isRelevantNow = (hasWindow ? (isInWindow || isWindowSoon) : (isDateReady || isDateSoon)) && !isPastPlantingWindow;
             var isActionNow = isRelevantNow && isStreakReady && (!hasWindow || isInWindow) && isDateReady;
-            var hasTimingRule = hasWindow || hasDateRule;
+            var hasTimingRule = hasWindow || hasDateRule || hasLatestPlantDate;
             var streakSupportsSoon = !hasTimingRule && IsNearStreak(requiredNights, nightStreak);
-            var isSoon = !isActionNow && (isRelevantNow || streakSupportsSoon);
+            var isSoon = !isActionNow && !isPastPlantingWindow && (isRelevantNow || streakSupportsSoon);
 
             var statusLabel = isActionNow ? "Action now" : isSoon ? "Soon" : "Dormant";
-            var badgeClass = GetStatusBadgeClass(statusLabel);
+            var badgeClass = GetStatusBadgeClass(statusLabel, seasonTone);
 
-            var ruleExplanation = BuildRuleExplanation(requiredNights, nightStreak, useCoolingLogic, nightThresholdC);
-            var timingExplanation = BuildTimingExplanation(hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart, hasDateRule, daysUntilTargetDate);
+            var ruleExplanation = BuildRuleExplanation(requiredNights, nightStreak, useCoolingLogic, nightThresholdC, profile.SupportsSuccessionPlanting);
+            var timingExplanation = BuildTimingExplanation(hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart, activeWindowLabel, upcomingWindowLabel, hasDateRule, daysUntilTargetDate, hasLatestPlantDate, isPastPlantingWindow, daysUntilLatestPlantDate);
 
-            var guidance = BuildGuidance(statusLabel, targetTransplantDate, requiredNights, nightStreak, useCoolingLogic, nightThresholdC, timingExplanation);
+            var guidance = BuildGuidance(statusLabel, targetTransplantDate, requiredNights, nightStreak, useCoolingLogic, nightThresholdC, timingExplanation, profile.SupportsSuccessionPlanting, isPastPlantingWindow);
             var actionTypeLabel = ResolveActionTypeLabel(profile.ActionType, useCoolingLogic, hasWindow, isInWindow, isWindowSoon);
 
             var harvestLeadDays = Math.Max(0, profile.HarvestLeadDays ?? leadDays);
@@ -879,7 +1318,7 @@ else
                 if (harvestRank < primaryRank)
                 {
                     statusLabel = harvestStatus;
-                    badgeClass = GetStatusBadgeClass(statusLabel);
+                    badgeClass = GetStatusBadgeClass(statusLabel, seasonTone);
                     actionTypeLabel = "Harvest";
                     ruleExplanation = "Harvest window rule is driving this card.";
                     timingExplanation = harvestTiming;
@@ -897,12 +1336,17 @@ else
 
             computedCards.Add(new PlantReadinessCard
             {
+                SeasonHeaderClass = ResolveSeasonHeaderClass(profile.Categories),
+                SeasonLabel = ResolveSeasonLabel(profile.Categories),
+                SeasonEmoji = ResolveSeasonEmoji(profile.Categories),
+                SeasonTone = seasonTone,
                 DisplayName = profile.DisplayName,
                 CategoriesLabel = FormatCategories(profile.Categories),
                 ActionTypeLabel = actionTypeLabel,
                 RequiredConsecutiveNights = requiredNights,
                 CurrentNightStreak = nightStreak,
                 NightTempThresholdC = nightThresholdC,
+                SupportsSuccessionPlanting = profile.SupportsSuccessionPlanting,
                 StreakOperatorLabel = useCoolingLogic ? "<=" : ">=",
                 TargetTransplantDate = targetTransplantDate,
                 IndoorStartDate = indoorStartDate,
@@ -967,6 +1411,82 @@ else
         };
     }
 
+    private static string ResolveSeasonHeaderClass(List<string>? categories)
+    {
+        return ResolveSeasonTone(categories) switch
+        {
+            "warm" => "season-warm",
+            "cool" => "season-cool",
+            "fall" => "season-fall",
+            _ => "season-general"
+        };
+    }
+
+    private static string ResolveSeasonLabel(List<string>? categories)
+    {
+        if (ContainsCategory(categories, "warm season"))
+        {
+            return "Warm Season";
+        }
+
+        if (ContainsCategory(categories, "cool season"))
+        {
+            return "Cool Season";
+        }
+
+        if (ContainsCategory(categories, "bulb") || ContainsCategory(categories, "perennial"))
+        {
+            return "Fall Planting";
+        }
+
+        return "General";
+    }
+
+    private static string ResolveSeasonEmoji(List<string>? categories)
+    {
+        if (ContainsCategory(categories, "warm season"))
+        {
+            return "☀️";
+        }
+
+        if (ContainsCategory(categories, "cool season"))
+        {
+            return "🥬";
+        }
+
+        if (ContainsCategory(categories, "bulb") || ContainsCategory(categories, "perennial"))
+        {
+            return "🍂";
+        }
+
+        return "🌿";
+    }
+
+    private static string ResolveSeasonTone(List<string>? categories)
+    {
+        if (ContainsCategory(categories, "warm season"))
+        {
+            return "warm";
+        }
+
+        if (ContainsCategory(categories, "cool season"))
+        {
+            return "cool";
+        }
+
+        if (ContainsCategory(categories, "bulb") || ContainsCategory(categories, "perennial"))
+        {
+            return "fall";
+        }
+
+        return "general";
+    }
+
+    private static bool ContainsCategory(List<string>? categories, string value)
+    {
+        return categories?.Any(c => c.Contains(value, StringComparison.OrdinalIgnoreCase)) == true;
+    }
+
     private int CalculateNightStreak(double thresholdC, bool useCoolingLogic)
     {
         if (recentDailyMeasurements == null || recentDailyMeasurements.Count == 0)
@@ -992,9 +1512,15 @@ else
         return streak;
     }
 
-    private static string BuildGuidance(string statusLabel, DateOnly? targetDate, int requiredNights, int currentNights, bool useCoolingLogic, double thresholdC, string timingExplanation)
+    private static string BuildGuidance(string statusLabel, DateOnly? targetDate, int requiredNights, int currentNights, bool useCoolingLogic, double thresholdC, string timingExplanation, bool supportsSuccessionPlanting, bool isPastPlantingWindow)
     {
         var directionText = useCoolingLogic ? "at or below" : "at or above";
+        var streakDisplay = FormatCurrentNightsForGuidance(currentNights, requiredNights, supportsSuccessionPlanting);
+
+        if (isPastPlantingWindow)
+        {
+            return "Primary planting window has closed for this season.";
+        }
 
         if (statusLabel.Equals("Action now", StringComparison.OrdinalIgnoreCase))
         {
@@ -1003,7 +1529,7 @@ else
 
         if (statusLabel.Equals("Soon", StringComparison.OrdinalIgnoreCase))
         {
-            return $"Monitor this plant closely. Need {requiredNights}-night streak {directionText} {thresholdC:F2}C ({ToFahrenheit(thresholdC):F0}F) (currently {currentNights}). {timingExplanation}";
+            return $"Monitor this plant closely. Need {requiredNights}-night streak {directionText} {thresholdC:F2}C ({ToFahrenheit(thresholdC):F0}F) (currently {streakDisplay}). {timingExplanation}";
         }
 
         return $"Outside active window right now. Next target timing is around {FormatGuidanceDate(targetDate)}.";
@@ -1085,40 +1611,73 @@ else
         };
     }
 
-    private static string GetStatusBadgeClass(string status)
+    private static string GetStatusBadgeClass(string status, string seasonTone)
     {
-        return status switch
+        var statusClass = status switch
         {
-            "Action now" => "text-bg-success",
-            "Soon" => "text-bg-warning",
-            _ => "text-bg-secondary"
+            "Action now" => "status-action",
+            "Soon" => "status-soon",
+            _ => "status-dormant"
         };
+
+        return $"{statusClass} season-tone-{seasonTone}";
     }
 
-    private static string BuildRuleExplanation(int requiredNights, int currentNights, bool useCoolingLogic, double thresholdC)
+    private static string BuildRuleExplanation(int requiredNights, int currentNights, bool useCoolingLogic, double thresholdC, bool supportsSuccessionPlanting)
     {
         var operatorText = useCoolingLogic ? "<=" : ">=";
-        return $"Night streak {currentNights}/{requiredNights} where night min {operatorText} {thresholdC:F2}C ({ToFahrenheit(thresholdC):F0}F).";
+        var streakDisplay = FormatNightStreakForDisplay(currentNights, requiredNights, supportsSuccessionPlanting);
+        return $"Night streak {streakDisplay} where night min {operatorText} {thresholdC:F2}C ({ToFahrenheit(thresholdC):F0}F).";
     }
 
-    private static string BuildTimingExplanation(bool hasWindow, bool isInWindow, bool isWindowSoon, int? daysUntilWindowStart, bool hasDateRule, int? daysUntilTargetDate)
+    private static string BuildTimingExplanation(bool hasWindow, bool isInWindow, bool isWindowSoon, int? daysUntilWindowStart, string? activeWindowLabel, string? upcomingWindowLabel, bool hasDateRule, int? daysUntilTargetDate, bool hasLatestPlantDate, bool isPastPlantingWindow, int? daysUntilLatestPlantDate)
     {
+        if (isPastPlantingWindow)
+        {
+            return "Primary planting window has closed for this season.";
+        }
+
         if (hasWindow)
         {
             if (isInWindow)
             {
+                if (!string.IsNullOrWhiteSpace(activeWindowLabel))
+                {
+                    return $"Inside {activeWindowLabel}.";
+                }
+
                 return "Inside configured seasonal window.";
             }
 
             if (isWindowSoon && daysUntilWindowStart.HasValue)
             {
+                if (!string.IsNullOrWhiteSpace(upcomingWindowLabel))
+                {
+                    return $"{upcomingWindowLabel} opens in {daysUntilWindowStart.Value} day(s).";
+                }
+
                 return $"Window opens in {daysUntilWindowStart.Value} day(s).";
             }
 
             if (daysUntilWindowStart.HasValue)
             {
+                if (!string.IsNullOrWhiteSpace(upcomingWindowLabel))
+                {
+                    return $"{upcomingWindowLabel} opens in {daysUntilWindowStart.Value} day(s).";
+                }
+
                 return $"Window opens in {daysUntilWindowStart.Value} day(s).";
             }
+        }
+
+        if (hasLatestPlantDate && daysUntilLatestPlantDate.HasValue)
+        {
+            if (daysUntilLatestPlantDate.Value == 0)
+            {
+                return "Last recommended planting day is today.";
+            }
+
+            return $"Primary planting window closes in {daysUntilLatestPlantDate.Value} day(s).";
         }
 
         if (hasDateRule && daysUntilTargetDate.HasValue)
@@ -1132,6 +1691,110 @@ else
         }
 
         return "No strict date window configured.";
+    }
+
+    private static (bool HasLatestDate, bool IsPastLatestDate, int? DaysUntilLatestDate) EvaluateLatestPlantDate(DateOnly today, string? latestPlantMonthDay)
+    {
+        if (!TryParseMonthDay(latestPlantMonthDay, today.Year, out var latestDate))
+        {
+            return (false, false, null);
+        }
+
+        if (today <= latestDate)
+        {
+            return (true, false, latestDate.DayNumber - today.DayNumber);
+        }
+
+        return (true, true, null);
+    }
+
+    private static int? GetEarliestDaysUntil(int? firstDaysUntil, int? secondDaysUntil)
+    {
+        if (!firstDaysUntil.HasValue)
+        {
+            return secondDaysUntil;
+        }
+
+        if (!secondDaysUntil.HasValue)
+        {
+            return firstDaysUntil;
+        }
+
+        return Math.Min(firstDaysUntil.Value, secondDaysUntil.Value);
+    }
+
+    private static string? ResolveWindowLabel(bool primaryState, bool secondaryState, string? primaryWindowStartMonthDay, string? secondaryWindowStartMonthDay, int? primaryDaysUntil = null, int? secondaryDaysUntil = null)
+    {
+        if (primaryState && !secondaryState)
+        {
+            return GetSeasonLabel(primaryWindowStartMonthDay);
+        }
+
+        if (secondaryState && !primaryState)
+        {
+            return GetSeasonLabel(secondaryWindowStartMonthDay);
+        }
+
+        if (primaryState && secondaryState)
+        {
+            if (primaryDaysUntil.HasValue && secondaryDaysUntil.HasValue)
+            {
+                return primaryDaysUntil.Value <= secondaryDaysUntil.Value
+                    ? GetSeasonLabel(primaryWindowStartMonthDay)
+                    : GetSeasonLabel(secondaryWindowStartMonthDay);
+            }
+
+            return "Seasonal window";
+        }
+
+        return null;
+    }
+
+    private static string GetSeasonLabel(string? startMonthDay)
+    {
+        if (!TryGetMonthFromMonthDay(startMonthDay, out var month))
+        {
+            return "Seasonal window";
+        }
+
+        return month >= 7 ? "Fall window" : "Spring window";
+    }
+
+    private static bool TryGetMonthFromMonthDay(string? monthDay, out int month)
+    {
+        month = 0;
+        if (string.IsNullOrWhiteSpace(monthDay))
+        {
+            return false;
+        }
+
+        var parts = monthDay.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+        {
+            return false;
+        }
+
+        return int.TryParse(parts[0], out month);
+    }
+
+    private static string FormatNightStreakForDisplay(int currentNights, int requiredNights, bool supportsSuccessionPlanting)
+    {
+        if (requiredNights <= 0 || supportsSuccessionPlanting || currentNights <= requiredNights)
+        {
+            return $"{currentNights}/{requiredNights}";
+        }
+
+        return $"{requiredNights}+/{requiredNights}";
+    }
+
+    private static string FormatCurrentNightsForGuidance(int currentNights, int requiredNights, bool supportsSuccessionPlanting)
+    {
+        if (requiredNights <= 0 || supportsSuccessionPlanting || currentNights <= requiredNights)
+        {
+            return currentNights.ToString();
+        }
+
+        return $"{requiredNights}+";
     }
 
     private static string BuildHarvestTimingExplanation(bool isInWindow, bool isSoon, int? daysUntilStart)
@@ -1269,12 +1932,17 @@ else
 
     private class PlantReadinessCard
     {
+        public string SeasonHeaderClass { get; set; } = string.Empty;
+        public string SeasonLabel { get; set; } = string.Empty;
+        public string SeasonEmoji { get; set; } = string.Empty;
+        public string SeasonTone { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string CategoriesLabel { get; set; } = string.Empty;
         public string ActionTypeLabel { get; set; } = string.Empty;
         public int RequiredConsecutiveNights { get; set; }
         public int CurrentNightStreak { get; set; }
         public double NightTempThresholdC { get; set; }
+        public bool SupportsSuccessionPlanting { get; set; }
         public double NightTempThresholdF => ToFahrenheit(NightTempThresholdC);
         public string StreakOperatorLabel { get; set; } = string.Empty;
         public DateOnly? TargetTransplantDate { get; set; }
@@ -1292,6 +1960,26 @@ else
         public DateTime Date { get; set; }
         public double HighC { get; set; }
         public double LowC { get; set; }
-        public double AverageC => (HighC + LowC) / 2.0;
+        public double AverageC { get; set; }
+        public double RollingAverageC { get; set; }
+        public double WarmDayThresholdC { get; set; }
+        public double ColdNightThresholdC { get; set; }
+        public double? WarmDayMarkerC { get; set; }
+        public double? ColdNightMarkerC { get; set; }
+        public double? LargeSwingMarkerC { get; set; }
+    }
+
+    private class SeasonForecastPoint
+    {
+        public DateTime Date { get; set; }
+        public double ForecastHighC { get; set; }
+        public double ForecastLowC { get; set; }
+    }
+
+    private class SeasonSignalToggleSettings
+    {
+        public bool ShowWarmSignalSeries { get; set; } = true;
+        public bool ShowColdSignalSeries { get; set; } = true;
+        public bool ShowSwingSignalSeries { get; set; } = true;
     }
 }

@@ -10,10 +10,18 @@ public class GardenPlantProfile
     public string ActionType { get; set; } = "plant";
     public string? WindowStartMonthDay { get; set; }
     public string? WindowEndMonthDay { get; set; }
+    [JsonPropertyName("secondaryWindowStartMonthDay")]
+    public string? SecondaryWindowStartMonthDay { get; set; }
+    [JsonPropertyName("secondaryWindowEndMonthDay")]
+    public string? SecondaryWindowEndMonthDay { get; set; }
     public int? LeadDays { get; set; }
     public string? HarvestWindowStartMonthDay { get; set; }
     public string? HarvestWindowEndMonthDay { get; set; }
     public int? HarvestLeadDays { get; set; }
+    [JsonPropertyName("latestPlantMonthDay")]
+    public string? LatestPlantMonthDay { get; set; }
+    [JsonPropertyName("supportsSuccessionPlanting")]
+    public bool SupportsSuccessionPlanting { get; set; }
 
     [JsonPropertyName("minNightTempC")]
     public double? MinNightTempC { get; set; }
