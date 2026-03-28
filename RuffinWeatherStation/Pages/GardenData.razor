@@ -144,6 +144,11 @@ else
                     <h3 class="mb-0">Plant Readiness (JSON Rules)</h3>
                 </div>
                 <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="showDormantCardsToggle" @bind="showDormantCards" />
+                        <label class="form-check-label" for="showDormantCardsToggle">Show dormant cards (debug)</label>
+                    </div>
+
                     @if (!string.IsNullOrWhiteSpace(plantProfilesLoadError))
                     {
                         <div class="alert alert-warning mb-0">@plantProfilesLoadError</div>
@@ -155,14 +160,14 @@ else
                     else
                     {
                         <div class="row gy-3">
-                            @foreach (var card in plantReadinessCards)
+                            @foreach (var card in GetVisiblePlantReadinessCards())
                             {
                                 <div class="col-lg-4 col-md-6">
                                     <div class="p-3 border rounded h-100">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <div>
                                                 <h5 class="mb-0">@card.DisplayName</h5>
-                                                <small class="text-muted">@card.CategoriesLabel</small>
+                                                <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
                                             </div>
                                             <span class="badge @card.BadgeClass">@card.StatusLabel</span>
                                         </div>
@@ -172,6 +177,16 @@ else
                                             <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
                                             <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdF.ToString("F0")F</div>
                                         </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
+                                        {
+                                            <div class="small text-muted mb-1"><strong>Rule:</strong> @card.RuleExplanation</div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(card.TimingExplanation))
+                                        {
+                                            <div class="small text-muted mb-2"><strong>Timing:</strong> @card.TimingExplanation</div>
+                                        }
 
                                         <p class="mb-1">@card.Guidance</p>
                                         @if (!string.IsNullOrWhiteSpace(card.Notes))
@@ -342,6 +357,7 @@ else
     private DateOnly hoseWindowEnd;
     private int recentFrostDays;
     private string temperatureTrendSummary = "Unknown";
+    private bool showDormantCards;
 
     protected override async Task OnInitializedAsync()
     {
@@ -438,6 +454,9 @@ else
             return;
         }
 
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var computedCards = new List<PlantReadinessCard>();
+
         foreach (var profile in plantProfiles)
         {
             var targetTransplantDate = profile.DaysAfterLastFrostToTransplant.HasValue
@@ -455,19 +474,37 @@ else
 
             var nightStreak = CalculateNightStreak(nightThresholdF, useCoolingLogic);
             var requiredNights = Math.Max(0, profile.RequiredConsecutiveNights);
+            var leadDays = Math.Max(0, profile.LeadDays ?? 14);
 
-            var isDateReady = !targetTransplantDate.HasValue || DateOnly.FromDateTime(DateTime.Today) >= targetTransplantDate.Value;
+            var (hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart) = EvaluateMonthDayWindow(today, profile.WindowStartMonthDay, profile.WindowEndMonthDay, leadDays);
+
+            var hasDateRule = targetTransplantDate.HasValue;
+            var targetDateValue = targetTransplantDate.GetValueOrDefault();
+            var daysUntilTargetDate = hasDateRule ? targetDateValue.DayNumber - today.DayNumber : (int?)null;
+
+            var isDateReady = !hasDateRule || today >= targetDateValue;
+            var isDateSoon = hasDateRule && !isDateReady && daysUntilTargetDate.HasValue && daysUntilTargetDate.Value <= leadDays;
             var isStreakReady = nightStreak >= requiredNights;
 
-            var statusLabel = isDateReady && isStreakReady ? "Ready" : "Hold";
-            var badgeClass = isDateReady && isStreakReady ? "text-bg-success" : "text-bg-secondary";
+            var isRelevantNow = hasWindow ? (isInWindow || isWindowSoon) : (isDateReady || isDateSoon);
+            var isActionNow = isRelevantNow && isStreakReady && (!hasWindow || isInWindow) && isDateReady;
+            var isSoon = !isActionNow && (isRelevantNow || IsNearStreak(requiredNights, nightStreak));
 
-            var guidance = BuildGuidance(isDateReady, isStreakReady, targetTransplantDate, requiredNights, nightStreak, useCoolingLogic, nightThresholdF);
+            var statusLabel = isActionNow ? "Action now" : isSoon ? "Soon" : "Dormant";
+            var badgeClass = isActionNow ? "text-bg-success" : isSoon ? "text-bg-warning" : "text-bg-secondary";
 
-            plantReadinessCards.Add(new PlantReadinessCard
+            var ruleExplanation = BuildRuleExplanation(requiredNights, nightStreak, useCoolingLogic, nightThresholdF);
+            var timingExplanation = BuildTimingExplanation(hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart, hasDateRule, daysUntilTargetDate);
+
+            var guidance = BuildGuidance(statusLabel, targetTransplantDate, requiredNights, nightStreak, useCoolingLogic, nightThresholdF, timingExplanation);
+
+            computedCards.Add(new PlantReadinessCard
             {
                 DisplayName = profile.DisplayName,
                 CategoriesLabel = FormatCategories(profile.Categories),
+                ActionTypeLabel = string.IsNullOrWhiteSpace(profile.ActionType)
+                    ? "Plant"
+                    : char.ToUpperInvariant(profile.ActionType.Trim()[0]) + profile.ActionType.Trim()[1..].ToLowerInvariant(),
                 RequiredConsecutiveNights = requiredNights,
                 CurrentNightStreak = nightStreak,
                 NightTempThresholdF = nightThresholdF,
@@ -476,10 +513,24 @@ else
                 IndoorStartDate = indoorStartDate,
                 StatusLabel = statusLabel,
                 BadgeClass = badgeClass,
+                RuleExplanation = ruleExplanation,
+                TimingExplanation = timingExplanation,
                 Guidance = guidance,
                 Notes = profile.Notes
             });
         }
+
+        plantReadinessCards = computedCards
+            .OrderBy(c => GetStatusRank(c.StatusLabel))
+            .ThenBy(c => c.DisplayName)
+            .ToList();
+    }
+
+    private IEnumerable<PlantReadinessCard> GetVisiblePlantReadinessCards()
+    {
+        return showDormantCards
+            ? plantReadinessCards
+            : plantReadinessCards.Where(c => !c.StatusLabel.Equals("Dormant", StringComparison.OrdinalIgnoreCase));
     }
 
     private int CalculateNightStreak(double thresholdF, bool useCoolingLogic)
@@ -507,26 +558,136 @@ else
         return streak;
     }
 
-    private static string BuildGuidance(bool isDateReady, bool isStreakReady, DateOnly? targetDate, int requiredNights, int currentNights, bool useCoolingLogic, double thresholdF)
+    private static string BuildGuidance(string statusLabel, DateOnly? targetDate, int requiredNights, int currentNights, bool useCoolingLogic, double thresholdF, string timingExplanation)
     {
         var directionText = useCoolingLogic ? "at or below" : "at or above";
 
-        if (isDateReady && isStreakReady)
+        if (statusLabel.Equals("Action now", StringComparison.OrdinalIgnoreCase))
         {
-            return "Conditions look favorable for transplanting now.";
+            return "Conditions look favorable to act now.";
         }
 
-        if (!isDateReady && !isStreakReady)
+        if (statusLabel.Equals("Soon", StringComparison.OrdinalIgnoreCase))
         {
-            return $"Wait until at least {FormatGuidanceDate(targetDate)} and build a {requiredNights}-night streak {directionText} {thresholdF:F0}F (currently {currentNights}).";
+            return $"Monitor this plant closely. Need {requiredNights}-night streak {directionText} {thresholdF:F0}F (currently {currentNights}). {timingExplanation}";
         }
 
-        if (!isDateReady)
+        return $"Outside active window right now. Next target timing is around {FormatGuidanceDate(targetDate)}.";
+    }
+
+    private static (bool HasWindow, bool IsInWindow, bool IsWindowSoon, int? DaysUntilStart) EvaluateMonthDayWindow(DateOnly today, string? startMonthDay, string? endMonthDay, int leadDays)
+    {
+        if (!TryParseMonthDay(startMonthDay, today.Year, out var start) || !TryParseMonthDay(endMonthDay, today.Year, out var end))
         {
-            return $"Night-temperature signal looks favorable, but calendar timing suggests waiting until {FormatGuidanceDate(targetDate)}.";
+            return (false, false, false, null);
         }
 
-        return $"Calendar timing is open, but hold until streak reaches {requiredNights} night(s) {directionText} {thresholdF:F0}F.";
+        var inWindow = IsDateWithinRange(today, start, end);
+        if (inWindow)
+        {
+            return (true, true, false, 0);
+        }
+
+        var nextStart = GetNextOccurrence(today, startMonthDay!);
+        var daysUntil = nextStart.DayNumber - today.DayNumber;
+        var isSoon = daysUntil >= 0 && daysUntil <= leadDays;
+        return (true, false, isSoon, daysUntil);
+    }
+
+    private static DateOnly GetNextOccurrence(DateOnly today, string monthDay)
+    {
+        if (!TryParseMonthDay(monthDay, today.Year, out var thisYearDate))
+        {
+            return today;
+        }
+
+        if (thisYearDate >= today)
+        {
+            return thisYearDate;
+        }
+
+        return TryParseMonthDay(monthDay, today.Year + 1, out var nextYearDate) ? nextYearDate : today;
+    }
+
+    private static bool IsDateWithinRange(DateOnly date, DateOnly start, DateOnly end)
+    {
+        if (start <= end)
+        {
+            return date >= start && date <= end;
+        }
+
+        return date >= start || date <= end;
+    }
+
+    private static bool TryParseMonthDay(string? monthDay, int year, out DateOnly date)
+    {
+        date = default;
+        if (string.IsNullOrWhiteSpace(monthDay))
+        {
+            return false;
+        }
+
+        var composed = $"{year}-{monthDay}";
+        return DateOnly.TryParseExact(composed, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out date);
+    }
+
+    private static bool IsNearStreak(int requiredNights, int currentNights)
+    {
+        if (requiredNights <= 0)
+        {
+            return true;
+        }
+
+        return currentNights >= Math.Max(0, requiredNights - 2);
+    }
+
+    private static int GetStatusRank(string status)
+    {
+        return status switch
+        {
+            "Action now" => 0,
+            "Soon" => 1,
+            _ => 2
+        };
+    }
+
+    private static string BuildRuleExplanation(int requiredNights, int currentNights, bool useCoolingLogic, double thresholdF)
+    {
+        var operatorText = useCoolingLogic ? "<=" : ">=";
+        return $"Night streak {currentNights}/{requiredNights} where night min {operatorText} {thresholdF:F0}F.";
+    }
+
+    private static string BuildTimingExplanation(bool hasWindow, bool isInWindow, bool isWindowSoon, int? daysUntilWindowStart, bool hasDateRule, int? daysUntilTargetDate)
+    {
+        if (hasWindow)
+        {
+            if (isInWindow)
+            {
+                return "Inside configured seasonal window.";
+            }
+
+            if (isWindowSoon && daysUntilWindowStart.HasValue)
+            {
+                return $"Window opens in {daysUntilWindowStart.Value} day(s).";
+            }
+
+            if (daysUntilWindowStart.HasValue)
+            {
+                return $"Window opens in {daysUntilWindowStart.Value} day(s).";
+            }
+        }
+
+        if (hasDateRule && daysUntilTargetDate.HasValue)
+        {
+            if (daysUntilTargetDate.Value <= 0)
+            {
+                return "Date target has opened.";
+            }
+
+            return $"Date target opens in {daysUntilTargetDate.Value} day(s).";
+        }
+
+        return "No strict date window configured.";
     }
 
     private static string FormatGuidanceDate(DateOnly? date)
@@ -593,6 +754,7 @@ else
     {
         public string DisplayName { get; set; } = string.Empty;
         public string CategoriesLabel { get; set; } = string.Empty;
+        public string ActionTypeLabel { get; set; } = string.Empty;
         public int RequiredConsecutiveNights { get; set; }
         public int CurrentNightStreak { get; set; }
         public double NightTempThresholdF { get; set; }
@@ -601,6 +763,8 @@ else
         public DateOnly? IndoorStartDate { get; set; }
         public string StatusLabel { get; set; } = string.Empty;
         public string BadgeClass { get; set; } = string.Empty;
+        public string RuleExplanation { get; set; } = string.Empty;
+        public string TimingExplanation { get; set; } = string.Empty;
         public string Guidance { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
     }

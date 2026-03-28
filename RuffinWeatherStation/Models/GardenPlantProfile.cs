@@ -7,6 +7,10 @@ public class GardenPlantProfile
     public string PlantId { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
     public List<string> Categories { get; set; } = new();
+    public string ActionType { get; set; } = "plant";
+    public string? WindowStartMonthDay { get; set; }
+    public string? WindowEndMonthDay { get; set; }
+    public int? LeadDays { get; set; }
 
     [JsonPropertyName("minNightTempF")]
     public double? MinNightTempF { get; set; }
