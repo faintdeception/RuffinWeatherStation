@@ -202,7 +202,10 @@ namespace RuffinWeatherStation.Api.Services
         public async Task<AllTimeRecordsResponse> GetAllTimeHighlightsAsync(string location)
         {
             var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
-            var fields = new[] { "temperature", "wind_speed", "humidity" };
+            var dailyRainfallFieldCandidates = new[] { "rain_daily_total", "daily_rainfall", "rainfall", "rain", "rain_sum", "precipitation" };
+            var fields = new[] { "temperature", "wind_speed" }
+                .Concat(dailyRainfallFieldCandidates)
+                .ToArray();
 
             var filter = Builders<AllTimeRecordDocument>.Filter.And(
                 Builders<AllTimeRecordDocument>.Filter.Eq(r => r.Location, normalizedLocation),
@@ -229,17 +232,31 @@ namespace RuffinWeatherStation.Api.Services
                 };
             }
 
+            AllTimeRecordEntry? ToFirstAvailableEntry(IEnumerable<string> fieldCandidates)
+            {
+                foreach (var field in fieldCandidates)
+                {
+                    var entry = ToEntry(field);
+                    if (entry != null)
+                    {
+                        return entry;
+                    }
+                }
+
+                return null;
+            }
+
             var temperature = ToEntry("temperature");
             var windSpeed = ToEntry("wind_speed");
-            var humidity = ToEntry("humidity");
+            var dailyRainfall = ToFirstAvailableEntry(dailyRainfallFieldCandidates);
 
             return new AllTimeRecordsResponse
             {
-                HasData = temperature != null || windSpeed != null || humidity != null,
+                HasData = temperature != null || windSpeed != null || dailyRainfall != null,
                 Location = normalizedLocation,
                 Temperature = temperature,
                 WindSpeed = windSpeed,
-                Humidity = humidity
+                DailyRainfall = dailyRainfall
             };
         }
 

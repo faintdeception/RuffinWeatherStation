@@ -60,7 +60,7 @@ namespace RuffinWeatherStation.Api.Models
         [JsonPropertyName("wind_speed")]
         public AllTimeRecordEntry? WindSpeed { get; set; }
 
-        [JsonPropertyName("humidity")]
-        public AllTimeRecordEntry? Humidity { get; set; }
+        [JsonPropertyName("daily_rainfall")]
+        public AllTimeRecordEntry? DailyRainfall { get; set; }
     }
 }

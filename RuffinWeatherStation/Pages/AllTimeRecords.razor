@@ -94,17 +94,17 @@ else
         <div class="col-12 col-md-4">
             <div class="card h-100">
                 <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Highest Humidity</h3>
+                    <h3 class="mb-0">Highest Daily Rainfall</h3>
                 </div>
                 <div class="card-body">
-                    @if (records.Humidity != null)
+                    @if (records.DailyRainfall != null)
                     {
-                        <div class="display-6">@records.Humidity.Value.ToString("F1")%</div>
-                        <p class="mt-2 mb-0">Recorded: @FormatRecordDate(records.Humidity.Date)</p>
+                        <div class="display-6">@records.DailyRainfall.Value.ToString("F1") mm</div>
+                        <p class="mt-2 mb-0">Recorded: @FormatRecordDate(records.DailyRainfall.Date)</p>
                     }
                     else
                     {
-                        <p class="mb-0 text-muted">No humidity record found.</p>
+                        <p class="mb-0 text-muted">No daily rainfall record found.</p>
                     }
                 </div>
             </div>
