@@ -196,18 +196,19 @@ namespace RuffinWeatherStation.Services
                 });
         }
 
-        public async Task<List<DailyMeasurement>?> GetDailyMeasurementsAsync(int days = 7)
+        public async Task<List<DailyMeasurement>?> GetDailyMeasurementsAsync(int days = 7, bool rainOnly = false)
         {
             return await GetCachedDataAsync<List<DailyMeasurement>>(
-                $"daily_measurements_{days}", 
+                $"daily_measurements_{days}_{(rainOnly ? "rain_only" : "all")}", 
                 DAILY_CACHE_MINUTES,
                 async () => {
                     try
                     {
                         DateTime startDate = DateTime.UtcNow.AddDays(-days);
                         string formattedDate = startDate.ToString("yyyy-MM-dd");
-                        
-                        return await _httpClient.GetFromJsonAsync<List<DailyMeasurement>>($"api/weather/daily?startDate={formattedDate}");
+                        string rainOnlyQuery = rainOnly ? "&rainOnly=true" : string.Empty;
+
+                        return await _httpClient.GetFromJsonAsync<List<DailyMeasurement>>($"api/weather/daily?startDate={formattedDate}{rainOnlyQuery}");
                     }
                     catch (Exception ex)
                     {
@@ -217,14 +218,14 @@ namespace RuffinWeatherStation.Services
                 });
         }
 
-        public async Task<WeatherAnalysisResult> AnalyzeWeatherTrendsAsync(int days = 7)
+        public async Task<WeatherAnalysisResult> AnalyzeWeatherTrendsAsync(int days = 7, bool rainOnly = false)
         {
             var result = new WeatherAnalysisResult();
             
             try
             {
                 // Get daily and hourly measurements
-                var dailyData = await GetDailyMeasurementsAsync(days);
+                var dailyData = await GetDailyMeasurementsAsync(days, rainOnly);
                 var hourlyData = await GetHourlyMeasurementsAsync(days);
                 
                 if (dailyData != null && dailyData.Any())
@@ -499,10 +500,10 @@ namespace RuffinWeatherStation.Services
             return await AnalyzeRecentMeasurementsAsync(hours);
         }
 
-        public async Task<WeatherAnalysisResult> GetAnalysisAsync(int days)
+        public async Task<WeatherAnalysisResult> GetAnalysisAsync(int days, bool rainOnly = false)
         {
             // Call the existing method that already implements this functionality
-            return await AnalyzeWeatherTrendsAsync(days);
+            return await AnalyzeWeatherTrendsAsync(days, rainOnly);
         }
 
         public async Task<WeatherPrediction?> GetLatestPredictionAsync()

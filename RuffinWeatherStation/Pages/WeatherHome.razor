@@ -807,7 +807,7 @@ else
         try
         {
             recentRainfallErrorMessage = null;
-            recentRainfallAnalysis = await TemperatureService.GetAnalysisAsync(recentRainfallDays);
+            recentRainfallAnalysis = await TemperatureService.GetAnalysisAsync(recentRainfallDays, rainOnly: true);
 
             if (recentRainfallAnalysis?.DailyRainfall != null)
             {
