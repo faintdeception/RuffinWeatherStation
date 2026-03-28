@@ -2,7 +2,7 @@
   {
     "plantId": "tomato",
     "displayName": "Tomato",
-    "category": "Warm Season",
+    "categories": ["Warm Season", "Annual"],
     "minNightTempF": 55,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": 10,
@@ -12,7 +12,7 @@
   {
     "plantId": "pepper",
     "displayName": "Pepper",
-    "category": "Warm Season",
+    "categories": ["Warm Season", "Annual"],
     "minNightTempF": 60,
     "requiredConsecutiveNights": 7,
     "daysAfterLastFrostToTransplant": 21,
@@ -22,7 +22,7 @@
   {
     "plantId": "basil",
     "displayName": "Basil",
-    "category": "Warm Season",
+    "categories": ["Warm Season", "Annual"],
     "minNightTempF": 55,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": 7,
@@ -32,7 +32,7 @@
   {
     "plantId": "zinnia",
     "displayName": "Zinnia",
-    "category": "Warm Season Annual",
+    "categories": ["Warm Season", "Annual"],
     "minNightTempF": 50,
     "requiredConsecutiveNights": 3,
     "daysAfterLastFrostToTransplant": 0,
@@ -42,7 +42,7 @@
   {
     "plantId": "cockscomb",
     "displayName": "Cockscomb (Celosia)",
-    "category": "Warm Season Annual",
+    "categories": ["Warm Season", "Annual"],
     "minNightTempF": 55,
     "requiredConsecutiveNights": 3,
     "daysAfterLastFrostToTransplant": 7,
@@ -52,7 +52,7 @@
   {
     "plantId": "dill",
     "displayName": "Dill",
-    "category": "Cool Season Annual",
+    "categories": ["Cool Season", "Annual"],
     "minNightTempF": 35,
     "requiredConsecutiveNights": 2,
     "daysAfterLastFrostToTransplant": -21,
@@ -62,7 +62,7 @@
   {
     "plantId": "lettuce",
     "displayName": "Lettuce",
-    "category": "Cool Season",
+    "categories": ["Cool Season"],
     "minNightTempF": 45,
     "requiredConsecutiveNights": 3,
     "daysAfterLastFrostToTransplant": -28,
@@ -72,7 +72,7 @@
   {
     "plantId": "onion",
     "displayName": "Onion (Sets)",
-    "category": "Cool Season",
+    "categories": ["Cool Season"],
     "minNightTempF": 32,
     "requiredConsecutiveNights": 0,
     "daysAfterLastFrostToTransplant": -42,
@@ -82,7 +82,7 @@
   {
     "plantId": "cannabis",
     "displayName": "Cannabis",
-    "category": "Warm Season",
+    "categories": ["Warm Season", "Annual"],
     "minNightTempF": 55,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": 14,
@@ -92,7 +92,7 @@
   {
     "plantId": "daffodil",
     "displayName": "Daffodil",
-    "category": "Bulb",
+    "categories": ["Bulb", "Perennial"],
     "minNightTempF": 60,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": null,
@@ -102,7 +102,7 @@
   {
     "plantId": "allium",
     "displayName": "Allium",
-    "category": "Bulb",
+    "categories": ["Bulb", "Perennial"],
     "minNightTempF": 55,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": null,
@@ -112,7 +112,7 @@
   {
     "plantId": "crocus",
     "displayName": "Species Crocus",
-    "category": "Bulb",
+    "categories": ["Bulb", "Perennial"],
     "minNightTempF": 55,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": null,
