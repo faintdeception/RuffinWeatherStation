@@ -77,7 +77,9 @@ try
                 "http://localhost:5259",
                 "https://localhost:7159",
                 "http://localhost:5204",
-                "https://ruffin-weather-app.azurestaticapps.net"
+                "https://ruffin-weather-app.azurestaticapps.net",
+                "https://ruffinweather.today",
+                "https://ruffinweather.com"
             };
             
             policy.SetIsOriginAllowed(origin => 
