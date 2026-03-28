@@ -8,10 +8,19 @@ public class GardenPlantProfile
     public string DisplayName { get; set; } = string.Empty;
     public List<string> Categories { get; set; } = new();
 
-    [JsonPropertyName("requiredConsequtiveNights")]
+    [JsonPropertyName("minNightTempF")]
+    public double? MinNightTempF { get; set; }
+
+    [JsonPropertyName("requiredConsecutiveNights")]
     public int RequiredConsecutiveNights { get; set; }
 
-    public int DaysAfterLastFrostToTransplant { get; set; }
-    public int DaysBeforeLastFrostToStartIndoors { get; set; }
+    [JsonPropertyName("requiredConsequtiveNights")]
+    public int RequiredConsecutiveNightsLegacy
+    {
+        set => RequiredConsecutiveNights = value;
+    }
+
+    public int? DaysAfterLastFrostToTransplant { get; set; }
+    public int? DaysBeforeLastFrostToStartIndoors { get; set; }
     public string Notes { get; set; } = string.Empty;
 }

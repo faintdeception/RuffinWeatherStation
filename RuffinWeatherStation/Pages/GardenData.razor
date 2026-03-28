@@ -168,9 +168,9 @@ else
                                         </div>
 
                                         <div class="small mb-2">
-                                            <div><strong>Target transplant date:</strong> @FormatDate(card.TargetTransplantDate)</div>
-                                            <div><strong>Indoor start target:</strong> @FormatDate(card.IndoorStartDate)</div>
-                                            <div><strong>Cool-night streak:</strong> @card.CurrentCoolNightStreak / @card.RequiredConsecutiveNights nights &lt;= @coolNightThresholdF.ToString("F0")F</div>
+                                            <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
+                                            <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
+                                            <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdF.ToString("F0")F</div>
                                         </div>
 
                                         <p class="mb-1">@card.Guidance</p>
@@ -324,7 +324,6 @@ else
 @code {
     private const int recentRainfallDays = 15;
     private const int recentTemperaturePatternDays = 10;
-    private const double coolNightThresholdF = 50;
 
     private bool isLoading = true;
     private string? errorMessage;
@@ -441,26 +440,38 @@ else
 
         foreach (var profile in plantProfiles)
         {
-            var targetTransplantDate = gardenReference.AverageLastFrostDate.AddDays(profile.DaysAfterLastFrostToTransplant);
-            var indoorStartDate = gardenReference.AverageLastFrostDate.AddDays(-profile.DaysBeforeLastFrostToStartIndoors);
+            var targetTransplantDate = profile.DaysAfterLastFrostToTransplant.HasValue
+                ? gardenReference.AverageLastFrostDate.AddDays(profile.DaysAfterLastFrostToTransplant.Value)
+                : (DateOnly?)null;
 
-            var coolNightStreak = CalculateCoolNightStreak(coolNightThresholdF);
-            var requiredNights = Math.Max(1, profile.RequiredConsecutiveNights);
+            var indoorStartDate = profile.DaysBeforeLastFrostToStartIndoors.HasValue
+                ? gardenReference.AverageLastFrostDate.AddDays(-profile.DaysBeforeLastFrostToStartIndoors.Value)
+                : (DateOnly?)null;
 
-            var isDateReady = DateOnly.FromDateTime(DateTime.Today) >= targetTransplantDate;
-            var isStreakReady = coolNightStreak >= requiredNights;
+            var nightThresholdF = profile.MinNightTempF ?? 50;
+            var useCoolingLogic = profile.Categories?.Any(c =>
+                c.Contains("bulb", StringComparison.OrdinalIgnoreCase) ||
+                c.Contains("perennial", StringComparison.OrdinalIgnoreCase)) == true;
+
+            var nightStreak = CalculateNightStreak(nightThresholdF, useCoolingLogic);
+            var requiredNights = Math.Max(0, profile.RequiredConsecutiveNights);
+
+            var isDateReady = !targetTransplantDate.HasValue || DateOnly.FromDateTime(DateTime.Today) >= targetTransplantDate.Value;
+            var isStreakReady = nightStreak >= requiredNights;
 
             var statusLabel = isDateReady && isStreakReady ? "Ready" : "Hold";
             var badgeClass = isDateReady && isStreakReady ? "text-bg-success" : "text-bg-secondary";
 
-            var guidance = BuildGuidance(isDateReady, isStreakReady, targetTransplantDate, requiredNights, coolNightStreak);
+            var guidance = BuildGuidance(isDateReady, isStreakReady, targetTransplantDate, requiredNights, nightStreak, useCoolingLogic, nightThresholdF);
 
             plantReadinessCards.Add(new PlantReadinessCard
             {
                 DisplayName = profile.DisplayName,
                 CategoriesLabel = FormatCategories(profile.Categories),
                 RequiredConsecutiveNights = requiredNights,
-                CurrentCoolNightStreak = coolNightStreak,
+                CurrentNightStreak = nightStreak,
+                NightTempThresholdF = nightThresholdF,
+                StreakOperatorLabel = useCoolingLogic ? "<=" : ">=",
                 TargetTransplantDate = targetTransplantDate,
                 IndoorStartDate = indoorStartDate,
                 StatusLabel = statusLabel,
@@ -471,7 +482,7 @@ else
         }
     }
 
-    private int CalculateCoolNightStreak(double maxNightTempF)
+    private int CalculateNightStreak(double thresholdF, bool useCoolingLogic)
     {
         if (recentDailyMeasurements == null || recentDailyMeasurements.Count == 0)
         {
@@ -482,7 +493,8 @@ else
         foreach (var day in recentDailyMeasurements.OrderByDescending(d => d.TimestampMs))
         {
             var minF = ToFahrenheit(day.Fields.Temperature.Min);
-            if (minF <= maxNightTempF)
+            var matches = useCoolingLogic ? minF <= thresholdF : minF >= thresholdF;
+            if (matches)
             {
                 streak++;
             }
@@ -495,8 +507,10 @@ else
         return streak;
     }
 
-    private static string BuildGuidance(bool isDateReady, bool isStreakReady, DateOnly targetDate, int requiredNights, int currentCoolNights)
+    private static string BuildGuidance(bool isDateReady, bool isStreakReady, DateOnly? targetDate, int requiredNights, int currentNights, bool useCoolingLogic, double thresholdF)
     {
+        var directionText = useCoolingLogic ? "at or below" : "at or above";
+
         if (isDateReady && isStreakReady)
         {
             return "Conditions look favorable for transplanting now.";
@@ -504,15 +518,20 @@ else
 
         if (!isDateReady && !isStreakReady)
         {
-            return $"Wait until at least {targetDate:MMM d, yyyy} and build a {requiredNights}-night cool streak (currently {currentCoolNights}).";
+            return $"Wait until at least {FormatGuidanceDate(targetDate)} and build a {requiredNights}-night streak {directionText} {thresholdF:F0}F (currently {currentNights}).";
         }
 
         if (!isDateReady)
         {
-            return $"Cool-night signal looks favorable, but calendar timing suggests waiting until {targetDate:MMM d, yyyy}.";
+            return $"Night-temperature signal looks favorable, but calendar timing suggests waiting until {FormatGuidanceDate(targetDate)}.";
         }
 
-        return $"Calendar timing is open, but hold until cool-night streak reaches {requiredNights} night(s).";
+        return $"Calendar timing is open, but hold until streak reaches {requiredNights} night(s) {directionText} {thresholdF:F0}F.";
+    }
+
+    private static string FormatGuidanceDate(DateOnly? date)
+    {
+        return date.HasValue ? date.Value.ToString("MMM d, yyyy") : "the recommended window";
     }
 
     private static string FormatCategories(List<string>? categories)
@@ -545,6 +564,11 @@ else
         return value.ToString("MMM d, yyyy");
     }
 
+    private static string FormatNullableDate(DateOnly? value)
+    {
+        return value.HasValue ? FormatDate(value.Value) : "n/a";
+    }
+
     private static string FormatUtcDateTime(DateTime? value)
     {
         return value.HasValue ? value.Value.ToString("yyyy-MM-dd HH:mm 'UTC'") : "n/a";
@@ -570,9 +594,11 @@ else
         public string DisplayName { get; set; } = string.Empty;
         public string CategoriesLabel { get; set; } = string.Empty;
         public int RequiredConsecutiveNights { get; set; }
-        public int CurrentCoolNightStreak { get; set; }
-        public DateOnly TargetTransplantDate { get; set; }
-        public DateOnly IndoorStartDate { get; set; }
+        public int CurrentNightStreak { get; set; }
+        public double NightTempThresholdF { get; set; }
+        public string StreakOperatorLabel { get; set; } = string.Empty;
+        public DateOnly? TargetTransplantDate { get; set; }
+        public DateOnly? IndoorStartDate { get; set; }
         public string StatusLabel { get; set; } = string.Empty;
         public string BadgeClass { get; set; } = string.Empty;
         public string Guidance { get; set; } = string.Empty;
