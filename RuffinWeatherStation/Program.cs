@@ -29,6 +29,7 @@ builder.Services.AddScoped<TemperatureService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<WeatherNoteService>();
 builder.Services.AddScoped<GardenDataService>();
+builder.Services.AddScoped<GardenPlantProfileService>();
 
 // Add Radzen services
 builder.Services.AddScoped<DialogService>();

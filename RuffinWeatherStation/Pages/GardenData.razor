@@ -1,6 +1,7 @@
 @page "/garden-data"
 @inject TemperatureService TemperatureService
 @inject GardenDataService GardenDataService
+@inject GardenPlantProfileService GardenPlantProfileService
 
 <h1>Garden Data</h1>
 
@@ -138,8 +139,116 @@ else
         </div>
 
         <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning-subtle">
+                    <h3 class="mb-0">Plant Readiness (JSON Rules)</h3>
+                </div>
+                <div class="card-body">
+                    @if (plantReadinessCards.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No plant profile data found. Add entries to `wwwroot/data/garden-plants.json`.</p>
+                    }
+                    else
+                    {
+                        <div class="row gy-3">
+                            @foreach (var card in plantReadinessCards)
+                            {
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="p-3 border rounded h-100">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h5 class="mb-0">@card.DisplayName</h5>
+                                                <small class="text-muted">@card.Category</small>
+                                            </div>
+                                            <span class="badge @card.BadgeClass">@card.StatusLabel</span>
+                                        </div>
+
+                                        <div class="small mb-2">
+                                            <div><strong>Target transplant date:</strong> @FormatDate(card.TargetTransplantDate)</div>
+                                            <div><strong>Indoor start target:</strong> @FormatDate(card.IndoorStartDate)</div>
+                                            <div><strong>Warm streak:</strong> @card.CurrentWarmStreak / @card.RequiredWarmStreak days >= @card.RequiredTempF.ToString("F0")F</div>
+                                        </div>
+
+                                        <p class="mb-1">@card.Guidance</p>
+                                        @if (!string.IsNullOrWhiteSpace(card.Notes))
+                                        {
+                                            <small class="text-muted">@card.Notes</small>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger-subtle">
+                    <h3 class="mb-0">Weather Risk Snapshot (NWS)</h3>
+                </div>
+                <div class="card-body">
+                    @if (nwsAlertSummary == null)
+                    {
+                        <p class="text-muted mb-0">No NWS snapshot summary is currently available.</p>
+                    }
+                    else
+                    {
+                        <div class="row gy-2 mb-3">
+                            <div class="col-md-3 col-6"><strong>Total Snapshots:</strong> @nwsAlertSummary.TotalSnapshots</div>
+                            <div class="col-md-3 col-6"><strong>Active:</strong> @nwsAlertSummary.ActiveAlerts</div>
+                            <div class="col-md-3 col-6"><strong>Expired:</strong> @nwsAlertSummary.ExpiredAlerts</div>
+                            <div class="col-md-3 col-6"><strong>Severe/Extreme:</strong> @nwsAlertSummary.SevereOrExtremeAlerts</div>
+                        </div>
+
+                        @if (nwsAlertSummary.ActiveAlerts > 0 || nwsAlertSummary.SevereOrExtremeAlerts > 0)
+                        {
+                            <div class="alert alert-danger">
+                                Elevated weather risk detected in the last @nwsAlertSummary.LookbackDays day(s). Consider securing loose equipment, checking drainage, and preparing protective covers.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-success">
+                                No high-risk NWS patterns detected in the selected lookback period.
+                            </div>
+                        }
+
+                        @if (nwsAlertSummary.RecentAlerts.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Event</th>
+                                            <th>Severity</th>
+                                            <th>Status</th>
+                                            <th>Sent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var alert in nwsAlertSummary.RecentAlerts)
+                                        {
+                                            <tr>
+                                                <td>@alert.Event</td>
+                                                <td>@alert.Severity</td>
+                                                <td>@(alert.IsActive ? "Active" : "Expired")</td>
+                                                <td>@FormatUtcDateTime(alert.SentUtc)</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
             <div class="alert alert-secondary mb-0">
-                Next phase: JSON-backed plant profiles (for crop-specific thresholds) and risk summaries sourced from `nws_snapshots`.
+                Next phase options: add plant-specific mitigation playbooks and live NWS detail drill-down from snapshot IDs.
             </div>
         </div>
     </div>
@@ -165,8 +274,11 @@ else
     private string? errorMessage;
 
     private GardenReferenceData? gardenReference;
+    private NwsAlertSummaryData? nwsAlertSummary;
     private WeatherAnalysisResult? rainfallAnalysis;
     private List<DailyMeasurement>? recentDailyMeasurements;
+    private List<GardenPlantProfile> plantProfiles = new();
+    private List<PlantReadinessCard> plantReadinessCards = new();
 
     private DateOnly seedWindowStart;
     private DateOnly seedWindowEnd;
@@ -185,12 +297,16 @@ else
             var rainfallTask = TemperatureService.GetAnalysisAsync(recentRainfallDays, rainOnly: true);
             var dailyTask = TemperatureService.GetDailyMeasurementsAsync(recentTemperaturePatternDays);
             var referenceTask = GardenDataService.GetGardenReferenceAsync();
+            var plantProfilesTask = GardenPlantProfileService.GetProfilesAsync();
+            var alertsTask = GardenDataService.GetAlertsSummaryAsync(days: 7);
 
-            await Task.WhenAll(rainfallTask, dailyTask, referenceTask);
+            await Task.WhenAll(rainfallTask, dailyTask, referenceTask, plantProfilesTask, alertsTask);
 
             rainfallAnalysis = rainfallTask.Result;
             recentDailyMeasurements = dailyTask.Result;
             gardenReference = referenceTask.Result;
+            plantProfiles = plantProfilesTask.Result;
+            nwsAlertSummary = alertsTask.Result;
 
             if (gardenReference == null)
             {
@@ -200,6 +316,7 @@ else
 
             CalculatePlanningWindows();
             CalculateTemperaturePattern();
+            BuildPlantReadinessCards();
         }
         catch (Exception ex)
         {
@@ -255,6 +372,97 @@ else
         recentFrostDays = ordered.Count(d => d.Fields.Temperature.Min <= 0);
     }
 
+    private void BuildPlantReadinessCards()
+    {
+        plantReadinessCards.Clear();
+
+        if (gardenReference == null || plantProfiles.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var profile in plantProfiles)
+        {
+            var targetTransplantDate = gardenReference.AverageLastFrostDate.AddDays(profile.DaysAfterLastFrostToTransplant);
+            var indoorStartDate = gardenReference.AverageLastFrostDate.AddDays(-profile.DaysBeforeLastFrostToStartIndoors);
+
+            var warmStreak = CalculateWarmStreak(profile.MinSoilTempF);
+            var requiredStreak = Math.Max(1, profile.RequiredConsecutiveDaysAtOrAboveTemp);
+
+            var isDateReady = DateOnly.FromDateTime(DateTime.Today) >= targetTransplantDate;
+            var isStreakReady = warmStreak >= requiredStreak;
+
+            var statusLabel = isDateReady && isStreakReady ? "Ready" : "Hold";
+            var badgeClass = isDateReady && isStreakReady ? "text-bg-success" : "text-bg-secondary";
+
+            var guidance = BuildGuidance(isDateReady, isStreakReady, targetTransplantDate, requiredStreak, warmStreak);
+
+            plantReadinessCards.Add(new PlantReadinessCard
+            {
+                DisplayName = profile.DisplayName,
+                Category = profile.Category,
+                RequiredTempF = profile.MinSoilTempF,
+                RequiredWarmStreak = requiredStreak,
+                CurrentWarmStreak = warmStreak,
+                TargetTransplantDate = targetTransplantDate,
+                IndoorStartDate = indoorStartDate,
+                StatusLabel = statusLabel,
+                BadgeClass = badgeClass,
+                Guidance = guidance,
+                Notes = profile.Notes
+            });
+        }
+    }
+
+    private int CalculateWarmStreak(double minTempF)
+    {
+        if (recentDailyMeasurements == null || recentDailyMeasurements.Count == 0)
+        {
+            return 0;
+        }
+
+        var streak = 0;
+        foreach (var day in recentDailyMeasurements.OrderByDescending(d => d.TimestampMs))
+        {
+            var avgF = ToFahrenheit(day.Fields.Temperature.Avg);
+            if (avgF >= minTempF)
+            {
+                streak++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return streak;
+    }
+
+    private static string BuildGuidance(bool isDateReady, bool isStreakReady, DateOnly targetDate, int requiredStreak, int currentStreak)
+    {
+        if (isDateReady && isStreakReady)
+        {
+            return "Conditions look favorable for transplanting now.";
+        }
+
+        if (!isDateReady && !isStreakReady)
+        {
+            return $"Wait until at least {targetDate:MMM d, yyyy} and build a {requiredStreak}-day warm streak (currently {currentStreak}).";
+        }
+
+        if (!isDateReady)
+        {
+            return $"Temperatures are trending warm enough, but frost-date timing suggests waiting until {targetDate:MMM d, yyyy}.";
+        }
+
+        return $"Calendar timing is open, but hold until warm streak reaches {requiredStreak} day(s).";
+    }
+
+    private static double ToFahrenheit(double celsius)
+    {
+        return 32 + (celsius * 9 / 5);
+    }
+
     private static string FormatDateLabel(object value)
     {
         if (value is DateTime dateTime)
@@ -268,5 +476,25 @@ else
     private static string FormatDate(DateOnly value)
     {
         return value.ToString("MMM d, yyyy");
+    }
+
+    private static string FormatUtcDateTime(DateTime? value)
+    {
+        return value.HasValue ? value.Value.ToString("yyyy-MM-dd HH:mm 'UTC'") : "n/a";
+    }
+
+    private class PlantReadinessCard
+    {
+        public string DisplayName { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public double RequiredTempF { get; set; }
+        public int RequiredWarmStreak { get; set; }
+        public int CurrentWarmStreak { get; set; }
+        public DateOnly TargetTransplantDate { get; set; }
+        public DateOnly IndoorStartDate { get; set; }
+        public string StatusLabel { get; set; } = string.Empty;
+        public string BadgeClass { get; set; } = string.Empty;
+        public string Guidance { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
     }
 }

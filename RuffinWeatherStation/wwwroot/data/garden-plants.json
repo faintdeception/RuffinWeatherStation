@@ -1,0 +1,32 @@
+[
+  {
+    "plantId": "tomato",
+    "displayName": "Tomato",
+    "category": "Warm Season",
+    "minSoilTempF": 50,
+    "requiredConsecutiveDaysAtOrAboveTemp": 5,
+    "daysAfterLastFrostToTransplant": 14,
+    "daysBeforeLastFrostToStartIndoors": 42,
+    "notes": "Transplant after stable warm weather. Air temperature is used as a proxy for soil readiness."
+  },
+  {
+    "plantId": "pepper",
+    "displayName": "Pepper",
+    "category": "Warm Season",
+    "minSoilTempF": 55,
+    "requiredConsecutiveDaysAtOrAboveTemp": 5,
+    "daysAfterLastFrostToTransplant": 21,
+    "daysBeforeLastFrostToStartIndoors": 56,
+    "notes": "Peppers prefer warmer starts than tomatoes. Delay transplanting if nights are cool."
+  },
+  {
+    "plantId": "lettuce",
+    "displayName": "Lettuce",
+    "category": "Cool Season",
+    "minSoilTempF": 40,
+    "requiredConsecutiveDaysAtOrAboveTemp": 3,
+    "daysAfterLastFrostToTransplant": -21,
+    "daysBeforeLastFrostToStartIndoors": 35,
+    "notes": "Can be started and transplanted earlier in cooler windows."
+  }
+]

@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using MongoDB.Bson;
 using RuffinWeatherStation.Api.Models;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace RuffinWeatherStation.Api.Services
         private readonly IMongoCollection<HistoricalDailyRecord> _dailyDateRecords;
         private readonly IMongoCollection<AllTimeRecordDocument> _allTimeRecords;
         private readonly IMongoCollection<WeatherPrediction> _predictions;
+        private readonly IMongoCollection<BsonDocument> _nwsSnapshots;
 
         public WeatherService(IConfiguration configuration)
         {
@@ -68,8 +70,9 @@ namespace RuffinWeatherStation.Api.Services
                 var dailyDateRecordsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:DailyDateRecords") ?? "daily_date_records";
                 var allTimeRecordsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Records") ?? "records";
                 var predictionsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Predictions") ?? "weather_predictions";
+                var nwsSnapshotsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:NwsSnapshots") ?? "nws_snapshots";
                 
-                Console.WriteLine($"[WEATHER SERVICE] Collections: Measurements={measurementsCollection}, Hourly={hourlyCollection}, Daily={dailyCollection}, DailyDateRecords={dailyDateRecordsCollection}, Records={allTimeRecordsCollection}, Predictions={predictionsCollection}");
+                Console.WriteLine($"[WEATHER SERVICE] Collections: Measurements={measurementsCollection}, Hourly={hourlyCollection}, Daily={dailyCollection}, DailyDateRecords={dailyDateRecordsCollection}, Records={allTimeRecordsCollection}, Predictions={predictionsCollection}, NwsSnapshots={nwsSnapshotsCollection}");
                 
                 Console.WriteLine("[WEATHER SERVICE] Creating MongoDB client...");
                 var client = new MongoClient(connectionString);
@@ -84,6 +87,7 @@ namespace RuffinWeatherStation.Api.Services
                 _dailyDateRecords = database.GetCollection<HistoricalDailyRecord>(dailyDateRecordsCollection);
                 _allTimeRecords = database.GetCollection<AllTimeRecordDocument>(allTimeRecordsCollection);
                 _predictions = database.GetCollection<WeatherPrediction>(predictionsCollection);
+                _nwsSnapshots = database.GetCollection<BsonDocument>(nwsSnapshotsCollection);
                 
                 Console.WriteLine("[WEATHER SERVICE] Successfully initialized WeatherService");
                 
@@ -268,6 +272,150 @@ namespace RuffinWeatherStation.Api.Services
                 Console.WriteLine($"[WEATHER SERVICE ERROR] Error fetching recent predictions: {ex.Message}");
                 return new List<WeatherPrediction>();
             }
+        }
+
+        public async Task<NwsAlertSummaryResponse> GetNwsAlertSummaryAsync(int days = 7, string location = "backyard")
+        {
+            var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
+            var lookbackDays = Math.Clamp(days, 1, 30);
+            var lookbackThreshold = DateTime.UtcNow.AddDays(-lookbackDays);
+
+            try
+            {
+                var documents = await _nwsSnapshots
+                    .Find(Builders<BsonDocument>.Filter.Empty)
+                    .Sort(Builders<BsonDocument>.Sort.Descending("_id"))
+                    .Limit(500)
+                    .ToListAsync();
+
+                var alerts = new List<NwsAlertSnapshotSummary>();
+
+                foreach (var doc in documents)
+                {
+                    var sent = GetDateTimeUtc(doc, "sent", "timestamp", "created_at", "properties.sent");
+                    var expires = GetDateTimeUtc(doc, "expires", "ends", "properties.expires", "properties.ends");
+                    var eventName = GetString(doc, "event", "properties.event", "title", "properties.headline") ?? "Unknown Event";
+                    var severity = GetString(doc, "severity", "properties.severity") ?? "Unknown";
+                    var headline = GetString(doc, "headline", "properties.headline", "description") ?? string.Empty;
+                    var snapshotLocation = GetString(doc, "location", "properties.areaDesc", "areaDesc", "area_desc");
+                    var status = GetString(doc, "status", "properties.status") ?? string.Empty;
+
+                    if (!string.IsNullOrWhiteSpace(snapshotLocation) &&
+                        !snapshotLocation.Contains(normalizedLocation, StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(normalizedLocation, "backyard", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    if (sent.HasValue && sent.Value < lookbackThreshold)
+                    {
+                        continue;
+                    }
+
+                    var isActive = !string.Equals(status, "expired", StringComparison.OrdinalIgnoreCase) &&
+                                   (!expires.HasValue || expires.Value >= DateTime.UtcNow);
+
+                    alerts.Add(new NwsAlertSnapshotSummary
+                    {
+                        Event = eventName,
+                        Severity = severity,
+                        Headline = headline,
+                        SentUtc = sent,
+                        ExpiresUtc = expires,
+                        IsActive = isActive
+                    });
+                }
+
+                var severeLevels = new[] { "severe", "extreme" };
+                var severeCount = alerts.Count(a => severeLevels.Contains(a.Severity, StringComparer.OrdinalIgnoreCase));
+
+                return new NwsAlertSummaryResponse
+                {
+                    Location = normalizedLocation,
+                    LookbackDays = lookbackDays,
+                    GeneratedAtUtc = DateTime.UtcNow,
+                    TotalSnapshots = alerts.Count,
+                    ActiveAlerts = alerts.Count(a => a.IsActive),
+                    ExpiredAlerts = alerts.Count(a => !a.IsActive),
+                    SevereOrExtremeAlerts = severeCount,
+                    RecentAlerts = alerts
+                        .OrderByDescending(a => a.SentUtc ?? DateTime.MinValue)
+                        .Take(5)
+                        .ToList()
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WEATHER SERVICE ERROR] Error building NWS alert summary: {ex.Message}");
+                return new NwsAlertSummaryResponse
+                {
+                    Location = normalizedLocation,
+                    LookbackDays = lookbackDays,
+                    GeneratedAtUtc = DateTime.UtcNow
+                };
+            }
+        }
+
+        private static string? GetString(BsonDocument doc, params string[] candidates)
+        {
+            foreach (var candidate in candidates)
+            {
+                if (TryGetBsonValue(doc, candidate, out var value) && value != null && !value.IsBsonNull)
+                {
+                    if (value.IsString)
+                    {
+                        return value.AsString;
+                    }
+
+                    return value.ToString();
+                }
+            }
+
+            return null;
+        }
+
+        private static DateTime? GetDateTimeUtc(BsonDocument doc, params string[] candidates)
+        {
+            foreach (var candidate in candidates)
+            {
+                if (!TryGetBsonValue(doc, candidate, out var value) || value == null || value.IsBsonNull)
+                {
+                    continue;
+                }
+
+                if (value.IsValidDateTime)
+                {
+                    return value.ToUniversalTime();
+                }
+
+                if (value.IsString && DateTime.TryParse(value.AsString, out var parsed))
+                {
+                    return DateTime.SpecifyKind(parsed, DateTimeKind.Utc);
+                }
+            }
+
+            return null;
+        }
+
+        private static bool TryGetBsonValue(BsonDocument doc, string path, out BsonValue value)
+        {
+            value = BsonNull.Value;
+            var current = (BsonValue)doc;
+
+            foreach (var segment in path.Split('.'))
+            {
+                if (current is BsonDocument currentDoc && currentDoc.TryGetValue(segment, out var next))
+                {
+                    current = next;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            value = current;
+            return true;
         }
     }
 }

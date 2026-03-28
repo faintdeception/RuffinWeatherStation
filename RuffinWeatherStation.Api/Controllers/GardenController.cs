@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using RuffinWeatherStation.Api.Models;
+using RuffinWeatherStation.Api.Services;
 using System.Globalization;
 
 namespace RuffinWeatherStation.Api.Controllers;
@@ -11,10 +12,12 @@ public class GardenController : ControllerBase
 {
     private static readonly string FrostDateFormat = "MM-dd";
     private readonly GardenSettings _gardenSettings;
+    private readonly WeatherService _weatherService;
 
-    public GardenController(IOptions<GardenSettings> gardenSettings)
+    public GardenController(IOptions<GardenSettings> gardenSettings, WeatherService weatherService)
     {
         _gardenSettings = gardenSettings.Value;
+        _weatherService = weatherService;
     }
 
     [HttpGet("reference")]
@@ -49,6 +52,16 @@ public class GardenController : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    [HttpGet("alerts-summary")]
+    public async Task<ActionResult<NwsAlertSummaryResponse>> GetAlertsSummary(
+        [FromQuery] int days = 7,
+        [FromQuery] string? location = null)
+    {
+        var fallbackLocation = string.IsNullOrWhiteSpace(_gardenSettings.LocationLabel) ? "backyard" : _gardenSettings.LocationLabel.Trim();
+        var summary = await _weatherService.GetNwsAlertSummaryAsync(days, location ?? fallbackLocation);
+        return Ok(summary);
     }
 
     private static DateOnly ResolveAverageLastFrostDate(string monthDay, int year)

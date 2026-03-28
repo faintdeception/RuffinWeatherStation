@@ -25,4 +25,24 @@ public class GardenDataService
             return null;
         }
     }
+
+    public async Task<NwsAlertSummaryData?> GetAlertsSummaryAsync(int days = 7, string? location = null)
+    {
+        try
+        {
+            var queryParts = new List<string> { $"days={days}" };
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                queryParts.Add($"location={Uri.EscapeDataString(location)}");
+            }
+
+            var query = string.Join("&", queryParts);
+            return await _httpClient.GetFromJsonAsync<NwsAlertSummaryData>($"api/garden/alerts-summary?{query}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading NWS alert summary: {ex.Message}");
+            return null;
+        }
+    }
 }

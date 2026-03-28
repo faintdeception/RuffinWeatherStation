@@ -38,11 +38,15 @@ The app now includes a `Garden Data` page in the left navigation. This page prov
 - Recent rainfall context for planning.
 - Seasonal start reference dates (spring/summer/fall/winter).
 - Average last frost reference date resolved by the API.
+- Plant readiness guidance from JSON profiles.
+- NWS weather-risk snapshot summaries from `nws_snapshots`.
 
 ### API Endpoint
 
 - `GET /api/garden/reference`
 - Optional query: `year` (for example: `/api/garden/reference?year=2026`)
+- `GET /api/garden/alerts-summary`
+- Optional query: `days`, `location` (for example: `/api/garden/alerts-summary?days=7&location=backyard`)
 
 ### Frost Configuration (Environment Variables)
 
@@ -53,7 +57,10 @@ Set these on the API host to override defaults:
 
 Defaults are defined in `RuffinWeatherStation.Api/appsettings.json`.
 
-### Planned Next Phase
+### Plant Profile Data Source
 
-- JSON-backed plant profile rules (for crop-specific recommendations).
-- Garden risk panel sourced from stored NWS snapshots (`nws_snapshots`).
+`Garden Data` now reads plant profiles from:
+
+- `RuffinWeatherStation/wwwroot/data/garden-plants.json`
+
+Each profile supports temperature-streak and frost-offset fields for readiness guidance cards. Current logic uses recent daily air-temperature averages as a proxy for soil-warmth streaks.
