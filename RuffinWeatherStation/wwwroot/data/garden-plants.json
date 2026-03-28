@@ -3,30 +3,120 @@
     "plantId": "tomato",
     "displayName": "Tomato",
     "category": "Warm Season",
-    "minSoilTempF": 50,
-    "requiredConsecutiveDaysAtOrAboveTemp": 5,
-    "daysAfterLastFrostToTransplant": 14,
+    "minNightTempF": 55,
+    "requiredConsecutiveNights": 5,
+    "daysAfterLastFrostToTransplant": 10,
     "daysBeforeLastFrostToStartIndoors": 42,
-    "notes": "Transplant after stable warm weather. Air temperature is used as a proxy for soil readiness."
+    "notes": "Transplant after 5+ nights above 55°F. Harden off for 5–7 days."
   },
   {
     "plantId": "pepper",
     "displayName": "Pepper",
     "category": "Warm Season",
-    "minSoilTempF": 55,
-    "requiredConsecutiveDaysAtOrAboveTemp": 5,
+    "minNightTempF": 60,
+    "requiredConsecutiveNights": 7,
     "daysAfterLastFrostToTransplant": 21,
     "daysBeforeLastFrostToStartIndoors": 56,
-    "notes": "Peppers prefer warmer starts than tomatoes. Delay transplanting if nights are cool."
+    "notes": "Peppers need very warm nights. Delay if nights dip below 60°F."
+  },
+  {
+    "plantId": "basil",
+    "displayName": "Basil",
+    "category": "Warm Season",
+    "minNightTempF": 55,
+    "requiredConsecutiveNights": 5,
+    "daysAfterLastFrostToTransplant": 7,
+    "daysBeforeLastFrostToStartIndoors": 28,
+    "notes": "Extremely frost-sensitive. Plant only after stable warm nights."
+  },
+  {
+    "plantId": "zinnia",
+    "displayName": "Zinnia",
+    "category": "Warm Season Annual",
+    "minNightTempF": 50,
+    "requiredConsecutiveNights": 3,
+    "daysAfterLastFrostToTransplant": 0,
+    "daysBeforeLastFrostToStartIndoors": 21,
+    "notes": "Direct sow or transplant after frost. Prefers warm soil but tolerates cooler nights."
+  },
+  {
+    "plantId": "cockscomb",
+    "displayName": "Cockscomb (Celosia)",
+    "category": "Warm Season Annual",
+    "minNightTempF": 55,
+    "requiredConsecutiveNights": 3,
+    "daysAfterLastFrostToTransplant": 7,
+    "daysBeforeLastFrostToStartIndoors": 28,
+    "notes": "Needs warmth to germinate. Slow starter outdoors."
+  },
+  {
+    "plantId": "dill",
+    "displayName": "Dill",
+    "category": "Cool Season Annual",
+    "minNightTempF": 35,
+    "requiredConsecutiveNights": 2,
+    "daysAfterLastFrostToTransplant": -21,
+    "daysBeforeLastFrostToStartIndoors": null,
+    "notes": "Direct sow early. Tolerates cold nights."
   },
   {
     "plantId": "lettuce",
     "displayName": "Lettuce",
     "category": "Cool Season",
-    "minSoilTempF": 40,
-    "requiredConsecutiveDaysAtOrAboveTemp": 3,
-    "daysAfterLastFrostToTransplant": -21,
+    "minNightTempF": 45,
+    "requiredConsecutiveNights": 3,
+    "daysAfterLastFrostToTransplant": -28,
     "daysBeforeLastFrostToStartIndoors": 35,
-    "notes": "Can be started and transplanted earlier in cooler windows."
+    "notes": "Plant early. Prefers cool nights and germinates best above 45°F."
+  },
+  {
+    "plantId": "onion",
+    "displayName": "Onion (Sets)",
+    "category": "Cool Season",
+    "minNightTempF": 32,
+    "requiredConsecutiveNights": 0,
+    "daysAfterLastFrostToTransplant": -42,
+    "daysBeforeLastFrostToStartIndoors": null,
+    "notes": "Plant as soon as soil is workable. Frost-proof."
+  },
+  {
+    "plantId": "cannabis",
+    "displayName": "Cannabis",
+    "category": "Warm Season",
+    "minNightTempF": 55,
+    "requiredConsecutiveNights": 5,
+    "daysAfterLastFrostToTransplant": 14,
+    "daysBeforeLastFrostToStartIndoors": 28,
+    "notes": "Very sensitive to cold. Prefers stable warm nights."
+  },
+  {
+    "plantId": "daffodil",
+    "displayName": "Daffodil",
+    "category": "Bulb",
+    "minNightTempF": 60,
+    "requiredConsecutiveNights": 5,
+    "daysAfterLastFrostToTransplant": null,
+    "daysBeforeLastFrostToStartIndoors": null,
+    "notes": "Fall-planted. Order when nights drop below 60°F for 5 nights. Plant when nights drop below 50°F."
+  },
+  {
+    "plantId": "allium",
+    "displayName": "Allium",
+    "category": "Bulb",
+    "minNightTempF": 55,
+    "requiredConsecutiveNights": 5,
+    "daysAfterLastFrostToTransplant": null,
+    "daysBeforeLastFrostToStartIndoors": null,
+    "notes": "Fall-planted. Plant when nights drop below 50–55°F."
+  },
+  {
+    "plantId": "crocus",
+    "displayName": "Species Crocus",
+    "category": "Bulb",
+    "minNightTempF": 55,
+    "requiredConsecutiveNights": 5,
+    "daysAfterLastFrostToTransplant": null,
+    "daysBeforeLastFrostToStartIndoors": null,
+    "notes": "Fall-planted. Naturalizes well. Plant when nights drop below 55°F."
   }
 ]
