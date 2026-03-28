@@ -135,15 +135,25 @@ namespace RuffinWeatherStation.Api.Services
                 .ToListAsync();
         }
         
-        public async Task<List<DailyMeasurement>> GetDailyMeasurementsAsync(DateTime? startDate = null)
+        public async Task<List<DailyMeasurement>> GetDailyMeasurementsAsync(DateTime? startDate = null, bool rainOnly = false)
         {
-            var filter = Builders<DailyMeasurement>.Filter.Empty;
+            var filters = new List<FilterDefinition<DailyMeasurement>>();
             
             if (startDate.HasValue)
             {
                 // Filter for measurements on or after the start date
-                filter = Builders<DailyMeasurement>.Filter.Gte(m => m.TimestampMs, startDate.Value);
+                filters.Add(Builders<DailyMeasurement>.Filter.Gte(m => m.TimestampMs, startDate.Value));
             }
+
+            if (rainOnly)
+            {
+                // Match the MongoDB query shape: { "fields.rain.sum": { $gt: 0 } }
+                filters.Add(Builders<DailyMeasurement>.Filter.Gt("fields.rain.sum", 0));
+            }
+
+            var filter = filters.Count > 0
+                ? Builders<DailyMeasurement>.Filter.And(filters)
+                : Builders<DailyMeasurement>.Filter.Empty;
             
             return await _dailyMeasurements.Find(filter)
                 .SortBy(m => m.TimestampMs)

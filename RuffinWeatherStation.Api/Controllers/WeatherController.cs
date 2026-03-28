@@ -51,7 +51,9 @@ namespace RuffinWeatherStation.Api.Controllers
         }
 
         [HttpGet("daily")]
-        public async Task<ActionResult<IEnumerable<DailyMeasurement>>> GetDailyMeasurements([FromQuery] string startDate = null)
+        public async Task<ActionResult<IEnumerable<DailyMeasurement>>> GetDailyMeasurements(
+            [FromQuery] string startDate = null,
+            [FromQuery] bool rainOnly = false)
         {
             DateTime? date = null;
             if (!string.IsNullOrEmpty(startDate) && DateTime.TryParse(startDate, out var parsedDate))
@@ -59,7 +61,7 @@ namespace RuffinWeatherStation.Api.Controllers
                 date = parsedDate;
             }
             
-            var measurements = await _weatherService.GetDailyMeasurementsAsync(date);
+            var measurements = await _weatherService.GetDailyMeasurementsAsync(date, rainOnly);
             return measurements;
         }
 
