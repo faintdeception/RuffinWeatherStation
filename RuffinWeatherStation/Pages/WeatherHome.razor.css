@@ -1,0 +1,17 @@
+.rainfall-chart {
+    height: 220px;
+}
+
+@media (max-width: 768px) {
+    .rainfall-summary .display-6 {
+        font-size: 1.6rem;
+    }
+
+    .rainfall-card-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .rainfall-chart {
+        height: 200px;
+    }
+}

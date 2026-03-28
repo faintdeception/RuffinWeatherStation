@@ -1,0 +1,53 @@
+.wind-gust-card .card-body {
+    padding-top: 1rem;
+}
+
+.wind-rose-shell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.wind-rose-chart {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+}
+
+.wind-rose-ring {
+    fill: none;
+    stroke: rgba(60, 60, 60, 0.18);
+    stroke-width: 1;
+}
+
+.wind-rose-axis {
+    stroke: rgba(60, 60, 60, 0.32);
+    stroke-width: 1;
+}
+
+.wind-rose-label {
+    fill: rgba(40, 40, 40, 0.75);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.wind-gust-petal {
+    fill: rgba(217, 83, 79, 0.78);
+    stroke: rgba(140, 24, 24, 0.85);
+    stroke-width: 1.2;
+}
+
+.wind-rose-center {
+    fill: rgba(45, 45, 45, 0.9);
+}
+
+@media (max-width: 768px) {
+    .wind-rose-chart {
+        max-width: 240px;
+    }
+
+    .wind-rose-details .display-6 {
+        font-size: 1.5rem;
+    }
+}
