@@ -292,38 +292,57 @@ namespace RuffinWeatherStation.Api.Services
 
                 foreach (var doc in documents)
                 {
-                    var sent = GetDateTimeUtc(doc, "sent", "timestamp", "created_at", "properties.sent");
-                    var expires = GetDateTimeUtc(doc, "expires", "ends", "properties.expires", "properties.ends");
-                    var eventName = GetString(doc, "event", "properties.event", "title", "properties.headline") ?? "Unknown Event";
-                    var severity = GetString(doc, "severity", "properties.severity") ?? "Unknown";
-                    var headline = GetString(doc, "headline", "properties.headline", "description") ?? string.Empty;
-                    var snapshotLocation = GetString(doc, "location", "properties.areaDesc", "areaDesc", "area_desc");
-                    var status = GetString(doc, "status", "properties.status") ?? string.Empty;
-
-                    if (!string.IsNullOrWhiteSpace(snapshotLocation) &&
-                        !snapshotLocation.Contains(normalizedLocation, StringComparison.OrdinalIgnoreCase) &&
-                        !string.Equals(normalizedLocation, "backyard", StringComparison.OrdinalIgnoreCase))
+                    foreach (var alertDoc in ExpandAlertDocuments(doc))
                     {
-                        continue;
+                        var sent = GetDateTimeUtc(alertDoc, "sent", "timestamp", "created_at", "properties.sent", "properties.effective");
+                        var expires = GetDateTimeUtc(alertDoc, "expires", "ends", "properties.expires", "properties.ends");
+
+                        var rawEvent = NormalizeValue(GetString(alertDoc, "event", "properties.event", "title"));
+                        var headline = NormalizeValue(GetString(alertDoc, "headline", "properties.headline", "description")) ?? string.Empty;
+                        var rawSeverity = NormalizeValue(GetString(alertDoc, "severity", "properties.severity"));
+                        var urgency = NormalizeValue(GetString(alertDoc, "urgency", "properties.urgency"));
+                        var certainty = NormalizeValue(GetString(alertDoc, "certainty", "properties.certainty"));
+
+                        var eventName = rawEvent;
+                        if (string.IsNullOrWhiteSpace(eventName) && !string.IsNullOrWhiteSpace(headline))
+                        {
+                            eventName = headline.Length > 80 ? headline[..80] + "..." : headline;
+                        }
+
+                        var severity = InferSeverity(rawSeverity, eventName, urgency, certainty);
+                        var snapshotLocation = NormalizeValue(GetString(alertDoc, "location", "properties.areaDesc", "areaDesc", "area_desc"));
+                        var status = NormalizeValue(GetString(alertDoc, "status", "properties.status")) ?? string.Empty;
+
+                        // Skip records that do not carry real alert content.
+                        if (string.IsNullOrWhiteSpace(eventName) && string.IsNullOrWhiteSpace(headline) && string.IsNullOrWhiteSpace(severity))
+                        {
+                            continue;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(snapshotLocation) &&
+                            !snapshotLocation.Contains(normalizedLocation, StringComparison.OrdinalIgnoreCase) &&
+                            !string.Equals(normalizedLocation, "backyard", StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        if (sent.HasValue && sent.Value < lookbackThreshold)
+                        {
+                            continue;
+                        }
+
+                        var isActive = IsAlertActive(status, expires);
+
+                        alerts.Add(new NwsAlertSnapshotSummary
+                        {
+                            Event = string.IsNullOrWhiteSpace(eventName) ? "Unspecified Event" : eventName,
+                            Severity = string.IsNullOrWhiteSpace(severity) ? "Info" : severity,
+                            Headline = headline,
+                            SentUtc = sent,
+                            ExpiresUtc = expires,
+                            IsActive = isActive
+                        });
                     }
-
-                    if (sent.HasValue && sent.Value < lookbackThreshold)
-                    {
-                        continue;
-                    }
-
-                    var isActive = !string.Equals(status, "expired", StringComparison.OrdinalIgnoreCase) &&
-                                   (!expires.HasValue || expires.Value >= DateTime.UtcNow);
-
-                    alerts.Add(new NwsAlertSnapshotSummary
-                    {
-                        Event = eventName,
-                        Severity = severity,
-                        Headline = headline,
-                        SentUtc = sent,
-                        ExpiresUtc = expires,
-                        IsActive = isActive
-                    });
                 }
 
                 var severeLevels = new[] { "severe", "extreme" };
@@ -367,6 +386,15 @@ namespace RuffinWeatherStation.Api.Services
                         return value.AsString;
                     }
 
+                    if (value is BsonArray array)
+                    {
+                        var first = array.FirstOrDefault(v => v != null && !v.IsBsonNull && v.IsString);
+                        if (first != null && first.IsString)
+                        {
+                            return first.AsString;
+                        }
+                    }
+
                     return value.ToString();
                 }
             }
@@ -388,13 +416,127 @@ namespace RuffinWeatherStation.Api.Services
                     return value.ToUniversalTime();
                 }
 
+                if ((value.IsInt64 || value.IsInt32 || value.IsDouble) && TryParseEpochToUtc(value, out var epochDate))
+                {
+                    return epochDate;
+                }
+
                 if (value.IsString && DateTime.TryParse(value.AsString, out var parsed))
                 {
-                    return DateTime.SpecifyKind(parsed, DateTimeKind.Utc);
+                    return parsed.Kind == DateTimeKind.Utc ? parsed : parsed.ToUniversalTime();
                 }
             }
 
             return null;
+        }
+
+        private static bool TryParseEpochToUtc(BsonValue value, out DateTime utcDate)
+        {
+            utcDate = DateTime.MinValue;
+
+            double numeric = value.IsInt64 ? value.AsInt64 : value.IsInt32 ? value.AsInt32 : value.AsDouble;
+
+            try
+            {
+                // Heuristic: values above 1e12 are milliseconds, otherwise seconds.
+                utcDate = numeric > 1_000_000_000_000
+                    ? DateTimeOffset.FromUnixTimeMilliseconds((long)numeric).UtcDateTime
+                    : DateTimeOffset.FromUnixTimeSeconds((long)numeric).UtcDateTime;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static IEnumerable<BsonDocument> ExpandAlertDocuments(BsonDocument snapshot)
+        {
+            yield return snapshot;
+
+            if (snapshot.TryGetValue("features", out var featuresValue) && featuresValue is BsonArray features)
+            {
+                foreach (var feature in features.OfType<BsonDocument>())
+                {
+                    yield return feature;
+                }
+            }
+
+            if (snapshot.TryGetValue("alerts", out var alertsValue) && alertsValue is BsonArray alerts)
+            {
+                foreach (var alert in alerts.OfType<BsonDocument>())
+                {
+                    yield return alert;
+                }
+            }
+        }
+
+        private static string? NormalizeValue(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            var normalized = value.Trim();
+            if (normalized.Equals("unknown", StringComparison.OrdinalIgnoreCase) ||
+                normalized.Equals("n/a", StringComparison.OrdinalIgnoreCase) ||
+                normalized.Equals("null", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return normalized;
+        }
+
+        private static string? InferSeverity(string? severity, string? eventName, string? urgency, string? certainty)
+        {
+            if (!string.IsNullOrWhiteSpace(severity))
+            {
+                return severity;
+            }
+
+            var eventLower = (eventName ?? string.Empty).ToLowerInvariant();
+            if (eventLower.Contains("warning"))
+            {
+                return "Severe";
+            }
+
+            if (eventLower.Contains("watch"))
+            {
+                return "Moderate";
+            }
+
+            if (eventLower.Contains("advisory"))
+            {
+                return "Minor";
+            }
+
+            if (string.Equals(urgency, "Immediate", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(certainty, "Observed", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Severe";
+            }
+
+            return null;
+        }
+
+        private static bool IsAlertActive(string status, DateTime? expiresUtc)
+        {
+            var normalizedStatus = status.Trim().ToLowerInvariant();
+
+            if (normalizedStatus is "expired" or "cancelled" or "canceled")
+            {
+                return false;
+            }
+
+            if (normalizedStatus is "active" or "actual")
+            {
+                return true;
+            }
+
+            // Without explicit status, require a valid future expiry to consider the alert active.
+            return expiresUtc.HasValue && expiresUtc.Value >= DateTime.UtcNow;
         }
 
         private static bool TryGetBsonValue(BsonDocument doc, string path, out BsonValue value)
