@@ -247,6 +247,29 @@ else
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
                                                     <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
+                                                    @{
+                                                        var streakPercent = GetNightStreakPercent(card.CurrentNightStreak, card.RequiredConsecutiveNights);
+                                                        var streakAriaLabel = $"Night streak progress for {card.DisplayName}: {card.CurrentNightStreak} out of {card.RequiredConsecutiveNights} nights ({streakPercent} percent).";
+                                                    }
+                                                    <div class="progress night-streak-progress mt-1"
+                                                         role="progressbar"
+                                                         aria-label="@streakAriaLabel"
+                                                         aria-valuenow="@streakPercent"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100">
+                                                        <div class="progress-bar @GetNightStreakProgressClass(card.StatusLabel)"
+                                                             style="width: @streakPercent%;">
+                                                            @if (streakPercent >= 20)
+                                                            {
+                                                                <span class="night-streak-progress-label">@streakPercent%</span>
+                                                            }
+                                                            <span class="visually-hidden">@streakAriaLabel</span>
+                                                        </div>
+                                                    </div>
+                                                    @if (streakPercent < 20)
+                                                    {
+                                                        <div class="night-streak-progress-caption text-muted">@streakPercent%</div>
+                                                    }
                                                 </div>
 
                                                 @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
@@ -290,6 +313,29 @@ else
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
                                                     <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
+                                                    @{
+                                                        var streakPercent = GetNightStreakPercent(card.CurrentNightStreak, card.RequiredConsecutiveNights);
+                                                        var streakAriaLabel = $"Night streak progress for {card.DisplayName}: {card.CurrentNightStreak} out of {card.RequiredConsecutiveNights} nights ({streakPercent} percent).";
+                                                    }
+                                                    <div class="progress night-streak-progress mt-1"
+                                                         role="progressbar"
+                                                         aria-label="@streakAriaLabel"
+                                                         aria-valuenow="@streakPercent"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100">
+                                                        <div class="progress-bar @GetNightStreakProgressClass(card.StatusLabel)"
+                                                             style="width: @streakPercent%;">
+                                                            @if (streakPercent >= 20)
+                                                            {
+                                                                <span class="night-streak-progress-label">@streakPercent%</span>
+                                                            }
+                                                            <span class="visually-hidden">@streakAriaLabel</span>
+                                                        </div>
+                                                    </div>
+                                                    @if (streakPercent < 20)
+                                                    {
+                                                        <div class="night-streak-progress-caption text-muted">@streakPercent%</div>
+                                                    }
                                                 </div>
 
                                                 @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
@@ -447,6 +493,25 @@ else
 
     .season-trend-chart {
         height: 260px;
+    }
+
+    .night-streak-progress {
+        height: 0.5rem;
+    }
+
+    .night-streak-progress-label {
+        font-size: 0.65rem;
+        line-height: 0.5rem;
+        font-weight: 600;
+        color: #fff;
+        padding-right: 0.25rem;
+    }
+
+    .night-streak-progress-caption {
+        font-size: 0.7rem;
+        line-height: 1;
+        margin-top: 0.15rem;
+        text-align: right;
     }
 
     @@media (max-width: 768px) {
@@ -1015,6 +1080,27 @@ else
         }
 
         return "Harvest window timing not configured.";
+    }
+
+    private static int GetNightStreakPercent(int currentNights, int requiredNights)
+    {
+        if (requiredNights <= 0)
+        {
+            return 100;
+        }
+
+        var rawPercent = (currentNights * 100.0) / requiredNights;
+        return (int)Math.Clamp(Math.Round(rawPercent), 0, 100);
+    }
+
+    private static string GetNightStreakProgressClass(string status)
+    {
+        return status switch
+        {
+            "Action now" => "bg-success",
+            "Soon" => "bg-warning",
+            _ => "bg-secondary"
+        };
     }
 
     private string GetChartRenderKey(string chartName)
