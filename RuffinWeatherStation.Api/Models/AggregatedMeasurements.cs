@@ -1,10 +1,14 @@
 using System;
 using System.Text.Json.Serialization;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace RuffinWeatherStation.Api.Models
 {
     public class HourlyMeasurement
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         [JsonPropertyName("_id")]
         public string? Id { get; set; }
 
@@ -47,6 +51,8 @@ namespace RuffinWeatherStation.Api.Models
 
     public class DailyMeasurement
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         [JsonPropertyName("_id")]
         public string? Id { get; set; }
 
