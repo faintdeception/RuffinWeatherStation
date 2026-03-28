@@ -137,13 +137,12 @@ namespace RuffinWeatherStation.Api.Services
         
         public async Task<List<DailyMeasurement>> GetDailyMeasurementsAsync(DateTime? startDate = null, bool rainOnly = false)
         {
+            // Keep unbounded requests from scanning legacy data that may have schema drift.
+            var effectiveStartDate = startDate ?? DateTime.UtcNow.AddDays(-120);
             var filters = new List<FilterDefinition<DailyMeasurement>>();
-            
-            if (startDate.HasValue)
-            {
-                // Filter for measurements on or after the start date
-                filters.Add(Builders<DailyMeasurement>.Filter.Gte(m => m.TimestampMs, startDate.Value));
-            }
+
+            // Use explicit field paths because stored documents use snake_case keys.
+            filters.Add(Builders<DailyMeasurement>.Filter.Gte("timestamp_ms", effectiveStartDate));
 
             if (rainOnly)
             {
@@ -151,12 +150,10 @@ namespace RuffinWeatherStation.Api.Services
                 filters.Add(Builders<DailyMeasurement>.Filter.Gt("fields.rain.sum", 0));
             }
 
-            var filter = filters.Count > 0
-                ? Builders<DailyMeasurement>.Filter.And(filters)
-                : Builders<DailyMeasurement>.Filter.Empty;
+            var filter = Builders<DailyMeasurement>.Filter.And(filters);
             
             return await _dailyMeasurements.Find(filter)
-                .SortBy(m => m.TimestampMs)
+                .Sort(Builders<DailyMeasurement>.Sort.Ascending("timestamp_ms"))
                 .ToListAsync();
         }
 
