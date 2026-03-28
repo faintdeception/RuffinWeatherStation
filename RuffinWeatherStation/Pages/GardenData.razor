@@ -358,6 +358,72 @@ else
                                     }
                                 </div>
                             }
+
+                            @if (showDormantCards && GetDormantCards().Any())
+                            {
+                                <h5 class="mb-3 mt-4">Dormant (Debug)</h5>
+                                <div class="row gy-3">
+                                    @foreach (var card in GetDormantCards())
+                                    {
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="p-3 border rounded h-100">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <div>
+                                                        <h5 class="mb-0">@card.DisplayName</h5>
+                                                        <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                                    </div>
+                                                    <span class="badge @card.BadgeClass">@card.StatusLabel</span>
+                                                </div>
+
+                                                <div class="small mb-2">
+                                                    <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
+                                                    <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
+                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
+                                                    @{
+                                                        var streakPercent = GetNightStreakPercent(card.CurrentNightStreak, card.RequiredConsecutiveNights);
+                                                        var streakAriaLabel = $"Night streak progress for {card.DisplayName}: {card.CurrentNightStreak} out of {card.RequiredConsecutiveNights} nights ({streakPercent} percent).";
+                                                    }
+                                                    <div class="progress night-streak-progress mt-1"
+                                                         role="progressbar"
+                                                         aria-label="@streakAriaLabel"
+                                                         aria-valuenow="@streakPercent"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100">
+                                                        <div class="progress-bar @GetNightStreakProgressClass(card.StatusLabel)"
+                                                             style="width: @streakPercent%;">
+                                                            @if (streakPercent >= 20)
+                                                            {
+                                                                <span class="night-streak-progress-label">@streakPercent%</span>
+                                                            }
+                                                            <span class="visually-hidden">@streakAriaLabel</span>
+                                                        </div>
+                                                    </div>
+                                                    @if (streakPercent < 20)
+                                                    {
+                                                        <div class="night-streak-progress-caption text-muted">@streakPercent%</div>
+                                                    }
+                                                </div>
+
+                                                @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
+                                                {
+                                                    <div class="small text-muted mb-1"><strong>Rule:</strong> @card.RuleExplanation</div>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(card.TimingExplanation))
+                                                {
+                                                    <div class="small text-muted mb-2"><strong>Timing:</strong> @card.TimingExplanation</div>
+                                                }
+
+                                                <p class="mb-1">@card.Guidance</p>
+                                                @if (!string.IsNullOrWhiteSpace(card.Notes))
+                                                {
+                                                    <small class="text-muted">@card.Notes</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
                         }
                     }
                 </div>
@@ -872,6 +938,12 @@ else
     {
         return GetVisiblePlantReadinessCards()
             .Where(c => c.StatusLabel.Equals("Soon", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IEnumerable<PlantReadinessCard> GetDormantCards()
+    {
+        return GetVisiblePlantReadinessCards()
+            .Where(c => c.StatusLabel.Equals("Dormant", StringComparison.OrdinalIgnoreCase));
     }
 
     private static string ResolveActionTypeLabel(string? actionType, bool useCoolingLogic, bool hasWindow, bool isInWindow, bool isWindowSoon)
