@@ -700,13 +700,42 @@ else
             var isSoon = !isActionNow && (isRelevantNow || IsNearStreak(requiredNights, nightStreak));
 
             var statusLabel = isActionNow ? "Action now" : isSoon ? "Soon" : "Dormant";
-            var badgeClass = isActionNow ? "text-bg-success" : isSoon ? "text-bg-warning" : "text-bg-secondary";
+            var badgeClass = GetStatusBadgeClass(statusLabel);
 
             var ruleExplanation = BuildRuleExplanation(requiredNights, nightStreak, useCoolingLogic, nightThresholdF);
             var timingExplanation = BuildTimingExplanation(hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart, hasDateRule, daysUntilTargetDate);
 
             var guidance = BuildGuidance(statusLabel, targetTransplantDate, requiredNights, nightStreak, useCoolingLogic, nightThresholdF, timingExplanation);
             var actionTypeLabel = ResolveActionTypeLabel(profile.ActionType, useCoolingLogic, hasWindow, isInWindow, isWindowSoon);
+
+            var harvestLeadDays = Math.Max(0, profile.HarvestLeadDays ?? leadDays);
+            var (hasHarvestWindow, isHarvestInWindow, isHarvestSoon, harvestDaysUntilStart) = EvaluateMonthDayWindow(today, profile.HarvestWindowStartMonthDay, profile.HarvestWindowEndMonthDay, harvestLeadDays);
+
+            if (hasHarvestWindow)
+            {
+                var harvestStatus = isHarvestInWindow ? "Action now" : isHarvestSoon ? "Soon" : "Dormant";
+                var harvestTiming = BuildHarvestTimingExplanation(isHarvestInWindow, isHarvestSoon, harvestDaysUntilStart);
+                var harvestRank = GetStatusRank(harvestStatus);
+                var primaryRank = GetStatusRank(statusLabel);
+
+                if (harvestRank < primaryRank)
+                {
+                    statusLabel = harvestStatus;
+                    badgeClass = GetStatusBadgeClass(statusLabel);
+                    actionTypeLabel = "Harvest";
+                    ruleExplanation = "Harvest window rule is driving this card.";
+                    timingExplanation = harvestTiming;
+                    guidance = harvestStatus == "Action now"
+                        ? "Harvest window is open now. Prioritize harvest quality and preservation steps."
+                        : $"Harvest window is approaching. {harvestTiming}";
+                }
+                else if (harvestRank <= 1 && primaryRank <= 1 && !actionTypeLabel.Equals("Harvest", StringComparison.OrdinalIgnoreCase))
+                {
+                    actionTypeLabel = $"{actionTypeLabel} + Harvest";
+                    timingExplanation = $"{timingExplanation} Harvest note: {harvestTiming}";
+                    guidance = "Plant and harvest signals overlap. Stage tasks across the week to avoid crop stress.";
+                }
+            }
 
             computedCards.Add(new PlantReadinessCard
             {
@@ -892,6 +921,16 @@ else
         };
     }
 
+    private static string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Action now" => "text-bg-success",
+            "Soon" => "text-bg-warning",
+            _ => "text-bg-secondary"
+        };
+    }
+
     private static string BuildRuleExplanation(int requiredNights, int currentNights, bool useCoolingLogic, double thresholdF)
     {
         var operatorText = useCoolingLogic ? "<=" : ">=";
@@ -929,6 +968,26 @@ else
         }
 
         return "No strict date window configured.";
+    }
+
+    private static string BuildHarvestTimingExplanation(bool isInWindow, bool isSoon, int? daysUntilStart)
+    {
+        if (isInWindow)
+        {
+            return "Inside configured harvest window.";
+        }
+
+        if (isSoon && daysUntilStart.HasValue)
+        {
+            return $"Harvest window opens in {daysUntilStart.Value} day(s).";
+        }
+
+        if (daysUntilStart.HasValue)
+        {
+            return $"Harvest window opens in {daysUntilStart.Value} day(s).";
+        }
+
+        return "Harvest window timing not configured.";
     }
 
     private static string FormatGuidanceDate(DateOnly? date)
