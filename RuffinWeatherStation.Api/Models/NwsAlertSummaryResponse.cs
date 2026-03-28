@@ -10,14 +10,25 @@ public class NwsAlertSummaryResponse
     public int ExpiredAlerts { get; set; }
     public int SevereOrExtremeAlerts { get; set; }
     public List<NwsAlertSnapshotSummary> RecentAlerts { get; set; } = new();
+    public List<NwsMitigationRecommendation> MitigationRecommendations { get; set; } = new();
 }
 
 public class NwsAlertSnapshotSummary
 {
+    public string AlertId { get; set; } = string.Empty;
     public string Event { get; set; } = string.Empty;
     public string Severity { get; set; } = string.Empty;
     public string Headline { get; set; } = string.Empty;
+    public string AreaDescription { get; set; } = string.Empty;
+    public string SourceUrl { get; set; } = string.Empty;
     public DateTime? SentUtc { get; set; }
     public DateTime? ExpiresUtc { get; set; }
     public bool IsActive { get; set; }
+}
+
+public class NwsMitigationRecommendation
+{
+    public string Category { get; set; } = string.Empty;
+    public string Priority { get; set; } = string.Empty;
+    public string Guidance { get; set; } = string.Empty;
 }

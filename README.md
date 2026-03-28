@@ -40,6 +40,8 @@ The app now includes a `Garden Data` page in the left navigation. This page prov
 - Average last frost reference date resolved by the API.
 - Plant readiness guidance from JSON profiles.
 - NWS weather-risk snapshot summaries from `nws_snapshots`.
+- Mitigation playbook recommendations generated from active alert categories.
+- Drill-down alert links when source URLs are present in snapshots.
 
 ### API Endpoint
 

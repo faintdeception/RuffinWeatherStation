@@ -302,6 +302,9 @@ namespace RuffinWeatherStation.Api.Services
                         var rawSeverity = NormalizeValue(GetString(alertDoc, "severity", "properties.severity"));
                         var urgency = NormalizeValue(GetString(alertDoc, "urgency", "properties.urgency"));
                         var certainty = NormalizeValue(GetString(alertDoc, "certainty", "properties.certainty"));
+                        var alertId = NormalizeValue(GetString(alertDoc, "id", "properties.id", "alert_id")) ?? string.Empty;
+                        var sourceUrl = NormalizeValue(GetString(alertDoc, "@id", "properties.@id", "properties.url", "url", "links.self", "links.web")) ?? string.Empty;
+                        var areaDescription = NormalizeValue(GetString(alertDoc, "properties.areaDesc", "areaDesc", "area_desc")) ?? string.Empty;
 
                         var eventName = rawEvent;
                         if (string.IsNullOrWhiteSpace(eventName) && !string.IsNullOrWhiteSpace(headline))
@@ -335,9 +338,12 @@ namespace RuffinWeatherStation.Api.Services
 
                         alerts.Add(new NwsAlertSnapshotSummary
                         {
+                            AlertId = alertId,
                             Event = string.IsNullOrWhiteSpace(eventName) ? "Unspecified Event" : eventName,
                             Severity = string.IsNullOrWhiteSpace(severity) ? "Info" : severity,
                             Headline = headline,
+                            AreaDescription = areaDescription,
+                            SourceUrl = sourceUrl,
                             SentUtc = sent,
                             ExpiresUtc = expires,
                             IsActive = isActive
@@ -347,6 +353,7 @@ namespace RuffinWeatherStation.Api.Services
 
                 var severeLevels = new[] { "severe", "extreme" };
                 var severeCount = alerts.Count(a => severeLevels.Contains(a.Severity, StringComparer.OrdinalIgnoreCase));
+                var recommendations = BuildMitigationRecommendations(alerts);
 
                 return new NwsAlertSummaryResponse
                 {
@@ -360,7 +367,8 @@ namespace RuffinWeatherStation.Api.Services
                     RecentAlerts = alerts
                         .OrderByDescending(a => a.SentUtc ?? DateTime.MinValue)
                         .Take(5)
-                        .ToList()
+                        .ToList(),
+                    MitigationRecommendations = recommendations
                 };
             }
             catch (Exception ex)
@@ -537,6 +545,73 @@ namespace RuffinWeatherStation.Api.Services
 
             // Without explicit status, require a valid future expiry to consider the alert active.
             return expiresUtc.HasValue && expiresUtc.Value >= DateTime.UtcNow;
+        }
+
+        private static List<NwsMitigationRecommendation> BuildMitigationRecommendations(List<NwsAlertSnapshotSummary> alerts)
+        {
+            var activeAlerts = alerts.Where(a => a.IsActive).ToList();
+            var recommendations = new List<NwsMitigationRecommendation>();
+
+            if (activeAlerts.Count == 0)
+            {
+                return recommendations;
+            }
+
+            void AddRecommendation(string category, string priority, string guidance)
+            {
+                if (recommendations.Any(r => r.Category.Equals(category, StringComparison.OrdinalIgnoreCase) &&
+                                             r.Guidance.Equals(guidance, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return;
+                }
+
+                recommendations.Add(new NwsMitigationRecommendation
+                {
+                    Category = category,
+                    Priority = priority,
+                    Guidance = guidance
+                });
+            }
+
+            foreach (var alert in activeAlerts)
+            {
+                var text = $"{alert.Event} {alert.Headline}".ToLowerInvariant();
+                var severe = alert.Severity.Equals("severe", StringComparison.OrdinalIgnoreCase) ||
+                             alert.Severity.Equals("extreme", StringComparison.OrdinalIgnoreCase);
+
+                if (text.Contains("wildfire") || text.Contains("red flag") || text.Contains("smoke"))
+                {
+                    AddRecommendation("Wildfire", severe ? "High" : "Medium", "Move flammables away from structures, stage hoses, and keep an evacuation-ready tool kit by exits.");
+                    AddRecommendation("Wildfire", severe ? "High" : "Medium", "Pause outdoor burning and mowing during peak wind periods; water vulnerable beds early in the day.");
+                }
+
+                if (text.Contains("freeze") || text.Contains("frost"))
+                {
+                    AddRecommendation("Freeze", "High", "Cover sensitive plants before sunset and disconnect/protect exposed hose bibs and irrigation lines.");
+                }
+
+                if (text.Contains("wind") || text.Contains("gale") || text.Contains("thunderstorm"))
+                {
+                    AddRecommendation("Wind/Storm", severe ? "High" : "Medium", "Secure lightweight pots, trellises, and garden furniture; delay foliar sprays ahead of gusty periods.");
+                }
+
+                if (text.Contains("flood") || text.Contains("flash") || text.Contains("heavy rain"))
+                {
+                    AddRecommendation("Flooding", "High", "Clear drainage paths and avoid watering until soil infiltration recovers to reduce root stress.");
+                }
+
+                if (text.Contains("heat") || text.Contains("excessive heat"))
+                {
+                    AddRecommendation("Heat", severe ? "High" : "Medium", "Prioritize deep early-morning watering, add temporary shade cloth, and postpone transplanting in peak heat windows.");
+                }
+            }
+
+            if (recommendations.Count == 0)
+            {
+                AddRecommendation("General", "Medium", "Review active alerts and postpone non-essential garden work until hazards clear.");
+            }
+
+            return recommendations.Take(6).ToList();
         }
 
         private static bool TryGetBsonValue(BsonDocument doc, string path, out BsonValue value)

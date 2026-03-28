@@ -229,20 +229,61 @@ else
                                             <th>Severity</th>
                                             <th>Status</th>
                                             <th>Sent</th>
+                                            <th>Details</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach (var alert in nwsAlertSummary.RecentAlerts)
                                         {
                                             <tr>
-                                                <td>@alert.Event</td>
+                                                <td>
+                                                    <div>@alert.Event</div>
+                                                    @if (!string.IsNullOrWhiteSpace(alert.AreaDescription))
+                                                    {
+                                                        <small class="text-muted">@alert.AreaDescription</small>
+                                                    }
+                                                </td>
                                                 <td>@alert.Severity</td>
                                                 <td>@(alert.IsActive ? "Active" : "Expired")</td>
                                                 <td>@FormatUtcDateTime(alert.SentUtc)</td>
+                                                <td>
+                                                    @if (!string.IsNullOrWhiteSpace(alert.SourceUrl))
+                                                    {
+                                                        <a href="@alert.SourceUrl" target="_blank" rel="noopener noreferrer">Open</a>
+                                                    }
+                                                    else if (!string.IsNullOrWhiteSpace(alert.AlertId))
+                                                    {
+                                                        <span class="text-muted">@alert.AlertId</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">n/a</span>
+                                                    }
+                                                </td>
                                             </tr>
                                         }
                                     </tbody>
                                 </table>
+                            </div>
+                        }
+
+                        @if (nwsAlertSummary.MitigationRecommendations.Any())
+                        {
+                            <hr />
+                            <h5 class="mb-3">Mitigation Playbook</h5>
+                            <div class="row gy-2">
+                                @foreach (var recommendation in nwsAlertSummary.MitigationRecommendations)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="border rounded p-3 h-100">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <strong>@recommendation.Category</strong>
+                                                <span class="badge @GetPriorityBadgeClass(recommendation.Priority)">@recommendation.Priority</span>
+                                            </div>
+                                            <p class="mb-0">@recommendation.Guidance</p>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         }
                     }
@@ -487,6 +528,21 @@ else
     private static string FormatUtcDateTime(DateTime? value)
     {
         return value.HasValue ? value.Value.ToString("yyyy-MM-dd HH:mm 'UTC'") : "n/a";
+    }
+
+    private static string GetPriorityBadgeClass(string priority)
+    {
+        if (priority.Equals("High", StringComparison.OrdinalIgnoreCase))
+        {
+            return "text-bg-danger";
+        }
+
+        if (priority.Equals("Medium", StringComparison.OrdinalIgnoreCase))
+        {
+            return "text-bg-warning";
+        }
+
+        return "text-bg-secondary";
     }
 
     private class PlantReadinessCard
