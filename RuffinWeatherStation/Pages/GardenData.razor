@@ -196,6 +196,19 @@ else
                         <label class="form-check-label" for="showDormantCardsToggle">Show dormant cards (debug)</label>
                     </div>
 
+                    @if (plantProfileWarnings.Any())
+                    {
+                        <div class="alert alert-warning mb-3">
+                            <strong>Profile validation warnings:</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach (var warning in plantProfileWarnings)
+                                {
+                                    <li>@warning</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
                     @if (!string.IsNullOrWhiteSpace(plantProfilesLoadError))
                     {
                         <div class="alert alert-warning mb-0">@plantProfilesLoadError</div>
@@ -463,6 +476,7 @@ else
     private List<GardenPlantProfile> plantProfiles = new();
     private List<PlantReadinessCard> plantReadinessCards = new();
     private string? plantProfilesLoadError;
+    private List<string> plantProfileWarnings = new();
 
     private DateOnly seedWindowStart;
     private DateOnly seedWindowEnd;
@@ -495,6 +509,7 @@ else
             recentDailyMeasurements = dailyTask.Result;
             gardenReference = referenceTask.Result;
             plantProfiles = plantProfilesTask.Result.Profiles;
+            plantProfileWarnings = plantProfilesTask.Result.Warnings;
             plantProfilesLoadError = plantProfilesTask.Result.ErrorMessage;
             nwsAlertSummary = alertsTask.Result;
 

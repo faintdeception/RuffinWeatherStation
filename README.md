@@ -65,7 +65,28 @@ Defaults are defined in `RuffinWeatherStation.Api/appsettings.json`.
 
 - `RuffinWeatherStation/wwwroot/data/garden-plants.json`
 
-Each profile supports temperature-streak and frost-offset fields for readiness guidance cards. Current logic uses recent daily air-temperature averages as a proxy for soil-warmth streaks.
+Each profile supports plant-decision guidance fields, including:
+
+- `categories`
+- `actionType` (`plant`, `buy`, `harvest`, `prep`)
+- `windowStartMonthDay`, `windowEndMonthDay`, `leadDays`
+- `harvestWindowStartMonthDay`, `harvestWindowEndMonthDay`, `harvestLeadDays`
+- `minNightTempF`, `requiredConsecutiveNights`
+- frost-offset helpers: `daysAfterLastFrostToTransplant`, `daysBeforeLastFrostToStartIndoors`
+
+Current card logic uses recent daily station lows for night-streak checks and supports season-aware transitions like pre-window `Buy` reminders for bulb/perennial paths.
+
+### Plant Profile Validation
+
+Garden profile validation is non-blocking: invalid entries do not crash the page, and warnings are surfaced in the `Plant Readiness` section.
+
+Validation checks include:
+
+- Missing or duplicate `plantId`
+- Invalid month-day format for window fields (expected `MM-dd`)
+- Incomplete windows (start without end or end without start)
+- Suspicious ranges for night thresholds and streak counts
+- Action/type mismatches (for example harvest action without harvest window)
 
 ## SPA Routing (Refresh on Deep Links)
 
