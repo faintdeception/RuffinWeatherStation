@@ -225,12 +225,15 @@ else
                                                   Title="Warm Day Threshold (20.00C)"
                                                   LineType="LineType.Dotted"
                                                   StrokeWidth="1" />
-                                <RadzenLineSeries Data="@seasonTrendData"
-                                                  CategoryProperty="Date"
-                                                  ValueProperty="WarmDayMarkerC"
-                                                  Title="Warm Signal Days"
-                                                  LineType="LineType.Dotted"
-                                                  StrokeWidth="0" />
+                                @if (seasonWarmSignalPoints.Count > 0)
+                                {
+                                    <RadzenLineSeries Data="@seasonWarmSignalPoints"
+                                                      CategoryProperty="Date"
+                                                      ValueProperty="ValueC"
+                                                      Title="Warm Signal Days"
+                                                      LineType="LineType.Dotted"
+                                                      StrokeWidth="0" />
+                                }
                             }
                             @if (showColdSignalSeries)
                             {
@@ -240,18 +243,21 @@ else
                                                   Title="Cold Night Threshold (2.22C)"
                                                   LineType="LineType.Dotted"
                                                   StrokeWidth="1" />
-                                <RadzenLineSeries Data="@seasonTrendData"
-                                                  CategoryProperty="Date"
-                                                  ValueProperty="ColdNightMarkerC"
-                                                  Title="Cold Signal Nights"
-                                                  LineType="LineType.Dotted"
-                                                  StrokeWidth="0" />
+                                @if (seasonColdSignalPoints.Count > 0)
+                                {
+                                    <RadzenLineSeries Data="@seasonColdSignalPoints"
+                                                      CategoryProperty="Date"
+                                                      ValueProperty="ValueC"
+                                                      Title="Cold Signal Nights"
+                                                      LineType="LineType.Dotted"
+                                                      StrokeWidth="0" />
+                                }
                             }
-                            @if (showSwingSignalSeries)
+                            @if (showSwingSignalSeries && seasonSwingSignalPoints.Count > 0)
                             {
-                                <RadzenLineSeries Data="@seasonTrendData"
+                                <RadzenLineSeries Data="@seasonSwingSignalPoints"
                                                   CategoryProperty="Date"
-                                                  ValueProperty="LargeSwingMarkerC"
+                                                  ValueProperty="ValueC"
                                                   Title="Large Swing Days"
                                                   LineType="LineType.Dotted"
                                                   StrokeWidth="0" />
@@ -883,6 +889,9 @@ else
     private string temperatureTrendSummary = "Unknown";
     private bool showDormantCards;
     private List<SeasonTrendPoint> seasonTrendData = new();
+    private List<SeasonSignalPoint> seasonWarmSignalPoints = new();
+    private List<SeasonSignalPoint> seasonColdSignalPoints = new();
+    private List<SeasonSignalPoint> seasonSwingSignalPoints = new();
     private List<SeasonForecastPoint> seasonForecastData = new();
     private WeatherPrediction? seasonForecast;
     private string seasonForecastOverlaySummary = "No forecast overlay available.";
@@ -1071,6 +1080,9 @@ else
     private void CalculateSeasonRegime()
     {
         seasonTrendData.Clear();
+        seasonWarmSignalPoints.Clear();
+        seasonColdSignalPoints.Clear();
+        seasonSwingSignalPoints.Clear();
 
         if (recentDailyMeasurements == null || recentDailyMeasurements.Count == 0)
         {
@@ -1112,11 +1124,35 @@ else
                 AverageC = averageC,
                 RollingAverageC = rollingAverageC,
                 WarmDayThresholdC = falseSpringWarmDayThresholdC,
-                ColdNightThresholdC = falseSpringColdNightThresholdC,
-                WarmDayMarkerC = source.Fields.Temperature.Max >= falseSpringWarmDayThresholdC ? source.Fields.Temperature.Max : null,
-                ColdNightMarkerC = source.Fields.Temperature.Min <= falseSpringColdNightThresholdC ? source.Fields.Temperature.Min : null,
-                LargeSwingMarkerC = (source.Fields.Temperature.Max - source.Fields.Temperature.Min) >= falseSpringSwingThresholdC ? averageC : null
+                ColdNightThresholdC = falseSpringColdNightThresholdC
             });
+
+            if (source.Fields.Temperature.Max >= falseSpringWarmDayThresholdC)
+            {
+                seasonWarmSignalPoints.Add(new SeasonSignalPoint
+                {
+                    Date = source.TimestampMs,
+                    ValueC = source.Fields.Temperature.Max
+                });
+            }
+
+            if (source.Fields.Temperature.Min <= falseSpringColdNightThresholdC)
+            {
+                seasonColdSignalPoints.Add(new SeasonSignalPoint
+                {
+                    Date = source.TimestampMs,
+                    ValueC = source.Fields.Temperature.Min
+                });
+            }
+
+            if ((source.Fields.Temperature.Max - source.Fields.Temperature.Min) >= falseSpringSwingThresholdC)
+            {
+                seasonSwingSignalPoints.Add(new SeasonSignalPoint
+                {
+                    Date = source.TimestampMs,
+                    ValueC = averageC
+                });
+            }
         }
 
         if (seasonTrendData.Count < 5)
@@ -1959,9 +1995,12 @@ else
         public double RollingAverageC { get; set; }
         public double WarmDayThresholdC { get; set; }
         public double ColdNightThresholdC { get; set; }
-        public double? WarmDayMarkerC { get; set; }
-        public double? ColdNightMarkerC { get; set; }
-        public double? LargeSwingMarkerC { get; set; }
+    }
+
+    private class SeasonSignalPoint
+    {
+        public DateTime Date { get; set; }
+        public double ValueC { get; set; }
     }
 
     private class SeasonForecastPoint
