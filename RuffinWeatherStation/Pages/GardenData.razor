@@ -465,6 +465,7 @@ else
     private const int recentTemperaturePatternDays = 10;
     private const int seasonVisualizationDays = 21;
     private const int dailyMeasurementLookbackDays = 21;
+    private const int soonStatusHorizonDays = 30;
 
     private bool isLoading = true;
     private string? errorMessage;
@@ -699,20 +700,23 @@ else
             var nightStreak = CalculateNightStreak(nightThresholdF, useCoolingLogic);
             var requiredNights = Math.Max(0, profile.RequiredConsecutiveNights);
             var leadDays = Math.Max(0, profile.LeadDays ?? 14);
+            var statusLeadDays = Math.Min(soonStatusHorizonDays, leadDays);
 
-            var (hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart) = EvaluateMonthDayWindow(today, profile.WindowStartMonthDay, profile.WindowEndMonthDay, leadDays);
+            var (hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart) = EvaluateMonthDayWindow(today, profile.WindowStartMonthDay, profile.WindowEndMonthDay, statusLeadDays);
 
             var hasDateRule = targetTransplantDate.HasValue;
             var targetDateValue = targetTransplantDate.GetValueOrDefault();
             var daysUntilTargetDate = hasDateRule ? targetDateValue.DayNumber - today.DayNumber : (int?)null;
 
             var isDateReady = !hasDateRule || today >= targetDateValue;
-            var isDateSoon = hasDateRule && !isDateReady && daysUntilTargetDate.HasValue && daysUntilTargetDate.Value <= leadDays;
+            var isDateSoon = hasDateRule && !isDateReady && daysUntilTargetDate.HasValue && daysUntilTargetDate.Value <= soonStatusHorizonDays;
             var isStreakReady = nightStreak >= requiredNights;
 
             var isRelevantNow = hasWindow ? (isInWindow || isWindowSoon) : (isDateReady || isDateSoon);
             var isActionNow = isRelevantNow && isStreakReady && (!hasWindow || isInWindow) && isDateReady;
-            var isSoon = !isActionNow && (isRelevantNow || IsNearStreak(requiredNights, nightStreak));
+            var hasTimingRule = hasWindow || hasDateRule;
+            var streakSupportsSoon = !hasTimingRule && IsNearStreak(requiredNights, nightStreak);
+            var isSoon = !isActionNow && (isRelevantNow || streakSupportsSoon);
 
             var statusLabel = isActionNow ? "Action now" : isSoon ? "Soon" : "Dormant";
             var badgeClass = GetStatusBadgeClass(statusLabel);
@@ -724,7 +728,8 @@ else
             var actionTypeLabel = ResolveActionTypeLabel(profile.ActionType, useCoolingLogic, hasWindow, isInWindow, isWindowSoon);
 
             var harvestLeadDays = Math.Max(0, profile.HarvestLeadDays ?? leadDays);
-            var (hasHarvestWindow, isHarvestInWindow, isHarvestSoon, harvestDaysUntilStart) = EvaluateMonthDayWindow(today, profile.HarvestWindowStartMonthDay, profile.HarvestWindowEndMonthDay, harvestLeadDays);
+            var harvestStatusLeadDays = Math.Min(soonStatusHorizonDays, harvestLeadDays);
+            var (hasHarvestWindow, isHarvestInWindow, isHarvestSoon, harvestDaysUntilStart) = EvaluateMonthDayWindow(today, profile.HarvestWindowStartMonthDay, profile.HarvestWindowEndMonthDay, harvestStatusLeadDays);
 
             if (hasHarvestWindow)
             {
