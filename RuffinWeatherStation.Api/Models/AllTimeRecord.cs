@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace RuffinWeatherStation.Api.Models
 {
+    [BsonIgnoreExtraElements]
     public class AllTimeRecordDocument
     {
         [BsonElement("field")]
