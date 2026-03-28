@@ -39,7 +39,7 @@ else
                             <div><strong>Longest Dry Spell:</strong> @rainfallAnalysis.LongestDrySpellDays day(s)</div>
                         </div>
 
-                        <RadzenChart class="garden-rain-chart">
+                        <RadzenChart class="garden-rain-chart" @key="RainChartRenderKey">
                             <RadzenColumnSeries Data="@rainfallAnalysis.DailyRainfall"
                                                 CategoryProperty="Timestamp"
                                                 ValueProperty="Total"
@@ -160,7 +160,7 @@ else
                             </div>
                         </div>
 
-                        <RadzenChart class="season-trend-chart">
+                        <RadzenChart class="season-trend-chart" @key="SeasonChartRenderKey">
                             <RadzenLineSeries Data="@seasonTrendData"
                                               CategoryProperty="Date"
                                               ValueProperty="HighF"
@@ -1009,6 +1009,15 @@ else
 
         return "Harvest window timing not configured.";
     }
+
+    private string GetChartRenderKey(string chartName)
+    {
+        // Work around Radzen path-key collisions during unrelated rerenders.
+        return $"{chartName}-{showDormantCards}";
+    }
+
+    private string RainChartRenderKey => GetChartRenderKey("rain");
+    private string SeasonChartRenderKey => GetChartRenderKey("season");
 
     private static string FormatGuidanceDate(DateOnly? date)
     {
