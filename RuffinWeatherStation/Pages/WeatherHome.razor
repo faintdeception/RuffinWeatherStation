@@ -798,6 +798,18 @@ else
                         AccumulatedRain = runningTotal
                     });
                 }
+
+                // Ensure each chart category bucket is unique to prevent duplicate SVG path keys in Radzen column rendering.
+                rainfallData = rainfallData
+                    .GroupBy(r => r.Timestamp)
+                    .OrderBy(g => g.Key)
+                    .Select(g => new TodayRainfallDataPoint
+                    {
+                        Timestamp = g.Key,
+                        RainIncrement = g.Sum(x => x.RainIncrement),
+                        AccumulatedRain = g.Max(x => x.AccumulatedRain)
+                    })
+                    .ToList();
             }
             
             // Update the next cache refresh time estimation
@@ -822,7 +834,14 @@ else
             if (recentRainfallAnalysis?.DailyRainfall != null)
             {
                 recentRainfallAnalysis.DailyRainfall = recentRainfallAnalysis.DailyRainfall
-                    .OrderBy(d => d.Timestamp)
+                    .GroupBy(d => d.Timestamp)
+                    .OrderBy(g => g.Key)
+                    .Select(g => new RainfallDataPoint
+                    {
+                        Timestamp = g.Key,
+                        Total = g.Sum(x => x.Total),
+                        MaxRate = g.Max(x => x.MaxRate)
+                    })
                     .ToList();
             }
         }

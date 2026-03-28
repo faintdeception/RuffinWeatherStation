@@ -477,6 +477,23 @@ namespace RuffinWeatherStation.Api.Services
                     yield return alert;
                 }
             }
+
+            // Support persisted snapshots that wrap NWS payload under `nws_data`.
+            if (TryGetBsonValue(snapshot, "nws_data.features", out var nestedFeaturesValue) && nestedFeaturesValue is BsonArray nestedFeatures)
+            {
+                foreach (var feature in nestedFeatures.OfType<BsonDocument>())
+                {
+                    yield return feature;
+                }
+            }
+
+            if (TryGetBsonValue(snapshot, "nws_data.alerts", out var nestedAlertsValue) && nestedAlertsValue is BsonArray nestedAlerts)
+            {
+                foreach (var alert in nestedAlerts.OfType<BsonDocument>())
+                {
+                    yield return alert;
+                }
+            }
         }
 
         private static string? NormalizeValue(string? value)
