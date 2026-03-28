@@ -98,5 +98,13 @@ namespace RuffinWeatherStation.Api.Controllers
             var record = await _weatherService.GetHistoricalDailyRecordAsync(parsedDate, normalizedLocation);
             return Ok(record);
         }
+
+        [HttpGet("records/highlights")]
+        public async Task<ActionResult<AllTimeRecordsResponse>> GetAllTimeHighlights([FromQuery] string? location = "backyard")
+        {
+            var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
+            var highlights = await _weatherService.GetAllTimeHighlightsAsync(normalizedLocation);
+            return Ok(highlights);
+        }
     }
 }

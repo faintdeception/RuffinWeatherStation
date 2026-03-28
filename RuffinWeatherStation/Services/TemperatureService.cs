@@ -25,6 +25,7 @@ namespace RuffinWeatherStation.Services
         private const int DAILY_CACHE_MINUTES = 60;
         private const int HOURLY_CACHE_MINUTES = 45;
         private const int HISTORICAL_DAILY_CACHE_MINUTES = 60;
+        private const int ALL_TIME_RECORDS_CACHE_MINUTES = 120;
 
         public TemperatureService(HttpClient httpClient, IJSRuntime jsRuntime)
         {
@@ -490,6 +491,28 @@ namespace RuffinWeatherStation.Services
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"Error fetching historical daily record for {formattedDate}: {ex.Message}");
+                return (null, ex.Message);
+            }
+        }
+
+        public async Task<(AllTimeRecordsResponse? Records, string? ErrorMessage)> GetAllTimeRecordsAsync(string location = "backyard")
+        {
+            var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
+            var cacheKey = $"all_time_records_{normalizedLocation}";
+
+            try
+            {
+                var records = await GetCachedDataAsync<AllTimeRecordsResponse>(
+                    cacheKey,
+                    ALL_TIME_RECORDS_CACHE_MINUTES,
+                    async () => await _httpClient.GetFromJsonAsync<AllTimeRecordsResponse>(
+                        $"api/weather/records/highlights?location={Uri.EscapeDataString(normalizedLocation)}"));
+
+                return (records, null);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error fetching all-time records for {normalizedLocation}: {ex.Message}");
                 return (null, ex.Message);
             }
         }

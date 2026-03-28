@@ -23,6 +23,11 @@
             </a>
         </div>
         <div class="nav-item px-3">
+            <a class="nav-link @(IsCurrentUri("all-time-records") ? "active" : "")" href="all-time-records">
+                <span class="bi bi-trophy" aria-hidden="true"></span> All-Time Records
+            </a>
+        </div>
+        <div class="nav-item px-3">
             <a class="nav-link @(IsCurrentUri("notes") ? "active" : "")" href="notes">
                 <span class="bi bi-journal-text" aria-hidden="true"></span> Weather Notes
             </a>

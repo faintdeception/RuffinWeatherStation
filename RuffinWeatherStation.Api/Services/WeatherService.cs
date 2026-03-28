@@ -13,6 +13,7 @@ namespace RuffinWeatherStation.Api.Services
         private readonly IMongoCollection<HourlyMeasurement> _hourlyMeasurements;
         private readonly IMongoCollection<DailyMeasurement> _dailyMeasurements;
         private readonly IMongoCollection<HistoricalDailyRecord> _dailyDateRecords;
+        private readonly IMongoCollection<AllTimeRecordDocument> _allTimeRecords;
         private readonly IMongoCollection<WeatherPrediction> _predictions;
 
         public WeatherService(IConfiguration configuration)
@@ -65,9 +66,10 @@ namespace RuffinWeatherStation.Api.Services
                 var hourlyCollection = configuration.GetValue<string>("DatabaseSettings:Collections:HourlyMeasurements");
                 var dailyCollection = configuration.GetValue<string>("DatabaseSettings:Collections:DailyMeasurements");
                 var dailyDateRecordsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:DailyDateRecords") ?? "daily_date_records";
+                var allTimeRecordsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Records") ?? "records";
                 var predictionsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Predictions") ?? "weather_predictions";
                 
-                Console.WriteLine($"[WEATHER SERVICE] Collections: Measurements={measurementsCollection}, Hourly={hourlyCollection}, Daily={dailyCollection}, DailyDateRecords={dailyDateRecordsCollection}, Predictions={predictionsCollection}");
+                Console.WriteLine($"[WEATHER SERVICE] Collections: Measurements={measurementsCollection}, Hourly={hourlyCollection}, Daily={dailyCollection}, DailyDateRecords={dailyDateRecordsCollection}, Records={allTimeRecordsCollection}, Predictions={predictionsCollection}");
                 
                 Console.WriteLine("[WEATHER SERVICE] Creating MongoDB client...");
                 var client = new MongoClient(connectionString);
@@ -80,6 +82,7 @@ namespace RuffinWeatherStation.Api.Services
                 _hourlyMeasurements = database.GetCollection<HourlyMeasurement>(hourlyCollection);
                 _dailyMeasurements = database.GetCollection<DailyMeasurement>(dailyCollection);
                 _dailyDateRecords = database.GetCollection<HistoricalDailyRecord>(dailyDateRecordsCollection);
+                _allTimeRecords = database.GetCollection<AllTimeRecordDocument>(allTimeRecordsCollection);
                 _predictions = database.GetCollection<WeatherPrediction>(predictionsCollection);
                 
                 Console.WriteLine("[WEATHER SERVICE] Successfully initialized WeatherService");
@@ -189,6 +192,50 @@ namespace RuffinWeatherStation.Api.Services
                 High = record.High,
                 Low = record.Low,
                 UpdatedAt = record.UpdatedAt
+            };
+        }
+
+        public async Task<AllTimeRecordsResponse> GetAllTimeHighlightsAsync(string location)
+        {
+            var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
+            var fields = new[] { "temperature", "wind_speed", "humidity" };
+
+            var filter = Builders<AllTimeRecordDocument>.Filter.And(
+                Builders<AllTimeRecordDocument>.Filter.Eq(r => r.Location, normalizedLocation),
+                Builders<AllTimeRecordDocument>.Filter.Eq(r => r.RecordType, "highest"),
+                Builders<AllTimeRecordDocument>.Filter.In(r => r.Field, fields)
+            );
+
+            var records = await _allTimeRecords.Find(filter).ToListAsync();
+
+            AllTimeRecordEntry? ToEntry(string field)
+            {
+                var record = records.FirstOrDefault(r => r.Field == field);
+                if (record == null)
+                {
+                    return null;
+                }
+
+                return new AllTimeRecordEntry
+                {
+                    Field = record.Field,
+                    Value = record.Value,
+                    Date = record.Date,
+                    Timestamp = record.Timestamp
+                };
+            }
+
+            var temperature = ToEntry("temperature");
+            var windSpeed = ToEntry("wind_speed");
+            var humidity = ToEntry("humidity");
+
+            return new AllTimeRecordsResponse
+            {
+                HasData = temperature != null || windSpeed != null || humidity != null,
+                Location = normalizedLocation,
+                Temperature = temperature,
+                WindSpeed = windSpeed,
+                Humidity = humidity
             };
         }
 

@@ -1,0 +1,164 @@
+@page "/all-time-records"
+@inject TemperatureService TemperatureService
+
+<PageTitle>All-Time Weather Records</PageTitle>
+
+<h1>All-Time Weather Records</h1>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="mb-1">Highest values we have ever recorded at the weather station.</p>
+        @if (!string.IsNullOrWhiteSpace(location))
+        {
+            <small class="text-muted">Location: @location</small>
+        }
+    </div>
+
+    <button class="btn btn-primary" @onclick="LoadRecordsAsync" disabled="@isLoading">
+        @if (isLoading)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span class="ms-1">Loading...</span>
+        }
+        else
+        {
+            <span class="oi oi-reload" aria-hidden="true"></span>
+            <span class="ms-1">Refresh</span>
+        }
+    </button>
+</div>
+
+@if (isLoading && records == null)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading all-time records...</p>
+    </div>
+}
+else if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-warning" role="alert">
+        @errorMessage
+    </div>
+}
+else if (records == null || !records.HasData)
+{
+    <div class="alert alert-info" role="alert">
+        No all-time record data was found.
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        <div class="col-12 col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Highest Temperature</h3>
+                </div>
+                <div class="card-body">
+                    @if (records.Temperature != null)
+                    {
+                        <div class="display-6">@records.Temperature.Value.ToString("F1")C</div>
+                        <div class="h5 text-muted">@ToFahrenheit(records.Temperature.Value).ToString("F1")F</div>
+                        <p class="mt-2 mb-0">Recorded: @FormatRecordDate(records.Temperature.Date)</p>
+                    }
+                    else
+                    {
+                        <p class="mb-0 text-muted">No temperature record found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Highest Wind Speed</h3>
+                </div>
+                <div class="card-body">
+                    @if (records.WindSpeed != null)
+                    {
+                        <div class="display-6">@records.WindSpeed.Value.ToString("F2") m/s</div>
+                        <p class="mt-2 mb-0">Recorded: @FormatRecordDate(records.WindSpeed.Date)</p>
+                    }
+                    else
+                    {
+                        <p class="mb-0 text-muted">No wind speed record found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Highest Humidity</h3>
+                </div>
+                <div class="card-body">
+                    @if (records.Humidity != null)
+                    {
+                        <div class="display-6">@records.Humidity.Value.ToString("F1")%</div>
+                        <p class="mt-2 mb-0">Recorded: @FormatRecordDate(records.Humidity.Date)</p>
+                    }
+                    else
+                    {
+                        <p class="mb-0 text-muted">No humidity record found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading;
+    private string? errorMessage;
+    private string location = "backyard";
+    private AllTimeRecordsResponse? records;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRecordsAsync();
+    }
+
+    private async Task LoadRecordsAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var (result, error) = await TemperatureService.GetAllTimeRecordsAsync(location);
+            records = result;
+            errorMessage = error;
+
+            if (records != null && !string.IsNullOrWhiteSpace(records.Location))
+            {
+                location = records.Location;
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static double ToFahrenheit(double celsius) => (celsius * 9d / 5d) + 32d;
+
+    private static string FormatRecordDate(string? date)
+    {
+        if (string.IsNullOrWhiteSpace(date))
+        {
+            return "Unknown";
+        }
+
+        if (DateTime.TryParse(date, out var parsedDate))
+        {
+            return parsedDate.ToString("MMM d, yyyy h:mm tt");
+        }
+
+        return date;
+    }
+}
