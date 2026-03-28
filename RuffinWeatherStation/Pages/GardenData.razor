@@ -140,6 +140,53 @@ else
 
         <div class="col-12">
             <div class="card">
+                <div class="card-header bg-info-subtle d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Season Transition Signal</h3>
+                    <span class="badge @GetSeasonRegimeBadgeClass(seasonRegimeLabel)">@seasonRegimeLabel</span>
+                </div>
+                <div class="card-body">
+                    @if (seasonTrendData.Count == 0)
+                    {
+                        <p class="text-muted mb-0">Not enough recent daily data to evaluate seasonal transition patterns.</p>
+                    }
+                    else
+                    {
+                        <div class="row gy-2 mb-3">
+                            <div class="col-md-4 col-12">
+                                <strong>Confidence:</strong> @seasonRegimeConfidence%
+                            </div>
+                            <div class="col-md-8 col-12">
+                                <strong>Why:</strong> @seasonRegimeWhy
+                            </div>
+                        </div>
+
+                        <RadzenChart class="season-trend-chart">
+                            <RadzenLineSeries Data="@seasonTrendData"
+                                              CategoryProperty="Date"
+                                              ValueProperty="HighF"
+                                              Title="Daily High (F)"
+                                              LineType="LineType.Solid"
+                                              StrokeWidth="3" />
+                            <RadzenLineSeries Data="@seasonTrendData"
+                                              CategoryProperty="Date"
+                                              ValueProperty="LowF"
+                                              Title="Daily Low (F)"
+                                              LineType="LineType.Dashed"
+                                              StrokeWidth="2" />
+                            <RadzenCategoryAxis Formatter="@FormatSeasonDateLabel" />
+                            <RadzenValueAxis>
+                                <RadzenGridLines Visible="true" />
+                                <RadzenAxisTitle Text="Temperature (F)" />
+                            </RadzenValueAxis>
+                            <RadzenLegend Position="LegendPosition.Top" />
+                        </RadzenChart>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card">
                 <div class="card-header bg-warning-subtle">
                     <h3 class="mb-0">Plant Readiness (JSON Rules)</h3>
                 </div>
@@ -329,8 +376,16 @@ else
         height: 260px;
     }
 
+    .season-trend-chart {
+        height: 260px;
+    }
+
     @@media (max-width: 768px) {
         .garden-rain-chart {
+            height: 220px;
+        }
+
+        .season-trend-chart {
             height: 220px;
         }
     }
@@ -339,6 +394,8 @@ else
 @code {
     private const int recentRainfallDays = 15;
     private const int recentTemperaturePatternDays = 10;
+    private const int seasonVisualizationDays = 21;
+    private const int dailyMeasurementLookbackDays = 21;
 
     private bool isLoading = true;
     private string? errorMessage;
@@ -358,6 +415,10 @@ else
     private int recentFrostDays;
     private string temperatureTrendSummary = "Unknown";
     private bool showDormantCards;
+    private List<SeasonTrendPoint> seasonTrendData = new();
+    private string seasonRegimeLabel = "Unknown";
+    private string seasonRegimeWhy = "Not enough data.";
+    private int seasonRegimeConfidence;
 
     protected override async Task OnInitializedAsync()
     {
@@ -367,7 +428,7 @@ else
             errorMessage = null;
 
             var rainfallTask = TemperatureService.GetAnalysisAsync(recentRainfallDays, rainOnly: true);
-            var dailyTask = TemperatureService.GetDailyMeasurementsAsync(recentTemperaturePatternDays);
+            var dailyTask = TemperatureService.GetDailyMeasurementsAsync(dailyMeasurementLookbackDays);
             var referenceTask = GardenDataService.GetGardenReferenceAsync();
             var plantProfilesTask = GardenPlantProfileService.GetProfilesAsync();
             var alertsTask = GardenDataService.GetAlertsSummaryAsync(days: 7);
@@ -389,6 +450,7 @@ else
 
             CalculatePlanningWindows();
             CalculateTemperaturePattern();
+            CalculateSeasonRegime();
             BuildPlantReadinessCards();
         }
         catch (Exception ex)
@@ -424,9 +486,23 @@ else
             return;
         }
 
-        var ordered = recentDailyMeasurements.OrderBy(d => d.TimestampMs).ToList();
-        var firstAvg = ordered.First().Fields.Temperature.Avg;
-        var lastAvg = ordered.Last().Fields.Temperature.Avg;
+        var ordered = recentDailyMeasurements
+            .OrderBy(d => d.TimestampMs)
+            .ToList();
+
+        var recentPatternWindow = ordered
+            .TakeLast(recentTemperaturePatternDays)
+            .ToList();
+
+        if (recentPatternWindow.Count == 0)
+        {
+            temperatureTrendSummary = "No daily measurements";
+            recentFrostDays = 0;
+            return;
+        }
+
+        var firstAvg = recentPatternWindow.First().Fields.Temperature.Avg;
+        var lastAvg = recentPatternWindow.Last().Fields.Temperature.Avg;
         var trendDelta = lastAvg - firstAvg;
 
         if (trendDelta > 1.0)
@@ -442,7 +518,84 @@ else
             temperatureTrendSummary = "Stable";
         }
 
-        recentFrostDays = ordered.Count(d => d.Fields.Temperature.Min <= 0);
+        recentFrostDays = recentPatternWindow.Count(d => d.Fields.Temperature.Min <= 0);
+    }
+
+    private void CalculateSeasonRegime()
+    {
+        seasonTrendData.Clear();
+
+        if (recentDailyMeasurements == null || recentDailyMeasurements.Count == 0)
+        {
+            seasonRegimeLabel = "Insufficient Data";
+            seasonRegimeWhy = "No recent daily measurements available.";
+            seasonRegimeConfidence = 0;
+            return;
+        }
+
+        seasonTrendData = recentDailyMeasurements
+            .OrderBy(d => d.TimestampMs)
+            .TakeLast(seasonVisualizationDays)
+            .Select(d => new SeasonTrendPoint
+            {
+                Date = d.TimestampMs,
+                HighF = ToFahrenheit(d.Fields.Temperature.Max),
+                LowF = ToFahrenheit(d.Fields.Temperature.Min)
+            })
+            .ToList();
+
+        if (seasonTrendData.Count < 5)
+        {
+            seasonRegimeLabel = "Insufficient Data";
+            seasonRegimeWhy = "Need at least 5 daily points for stable season detection.";
+            seasonRegimeConfidence = 20;
+            return;
+        }
+
+        var window = seasonTrendData.TakeLast(Math.Min(10, seasonTrendData.Count)).ToList();
+        var warmHighDays = window.Count(p => p.HighF >= 68);
+        var coldNightDays = window.Count(p => p.LowF <= 36);
+        var largeSwingDays = window.Count(p => (p.HighF - p.LowF) >= 28);
+        var firstAvg = window.First().AverageF;
+        var lastAvg = window.Last().AverageF;
+        var avgTrend = lastAvg - firstAvg;
+        var warmStableDays = window.Count(p => p.HighF >= 72 && p.LowF >= 50);
+
+        if (warmHighDays >= 3 && coldNightDays >= 3)
+        {
+            seasonRegimeLabel = "False Spring Signal";
+            seasonRegimeConfidence = Math.Min(95, 45 + (warmHighDays * 6) + (coldNightDays * 6) + (largeSwingDays * 4));
+            seasonRegimeWhy = $"{warmHighDays} warm day(s) >= 68F paired with {coldNightDays} cold night(s) <= 36F in the last {window.Count} days.";
+            return;
+        }
+
+        if (warmStableDays >= 4 && coldNightDays == 0)
+        {
+            seasonRegimeLabel = "Warm Stable";
+            seasonRegimeConfidence = Math.Min(92, 50 + (warmStableDays * 8));
+            seasonRegimeWhy = $"Sustained warmth: {warmStableDays} day(s) with highs >= 72F and lows >= 50F.";
+            return;
+        }
+
+        if (avgTrend <= -2.5 && coldNightDays >= 2)
+        {
+            seasonRegimeLabel = "Cooling Pattern";
+            seasonRegimeConfidence = Math.Min(90, 45 + (coldNightDays * 7) + (int)Math.Abs(avgTrend * 5));
+            seasonRegimeWhy = $"Average temperature trend dropped by {Math.Abs(avgTrend):F1}F with recurring cold nights.";
+            return;
+        }
+
+        if (avgTrend >= 2.0 && coldNightDays <= 1)
+        {
+            seasonRegimeLabel = "Spring Stabilizing";
+            seasonRegimeConfidence = Math.Min(88, 40 + (int)(avgTrend * 8) + ((window.Count - coldNightDays) * 2));
+            seasonRegimeWhy = $"Average temperature trend rose by {avgTrend:F1}F with limited cold-night setbacks.";
+            return;
+        }
+
+        seasonRegimeLabel = "Transitional";
+        seasonRegimeConfidence = 55;
+        seasonRegimeWhy = "Mixed daily highs/lows indicate seasonal transition without a dominant regime yet.";
     }
 
     private void BuildPlantReadinessCards()
@@ -720,6 +873,16 @@ else
         return string.Empty;
     }
 
+    private static string FormatSeasonDateLabel(object value)
+    {
+        if (value is DateTime dateTime)
+        {
+            return dateTime.ToString("MM-dd");
+        }
+
+        return string.Empty;
+    }
+
     private static string FormatDate(DateOnly value)
     {
         return value.ToString("MMM d, yyyy");
@@ -750,6 +913,19 @@ else
         return "text-bg-secondary";
     }
 
+    private static string GetSeasonRegimeBadgeClass(string regime)
+    {
+        return regime switch
+        {
+            "False Spring Signal" => "text-bg-danger",
+            "Spring Stabilizing" => "text-bg-success",
+            "Cooling Pattern" => "text-bg-primary",
+            "Warm Stable" => "text-bg-warning",
+            "Insufficient Data" => "text-bg-secondary",
+            _ => "text-bg-secondary"
+        };
+    }
+
     private class PlantReadinessCard
     {
         public string DisplayName { get; set; } = string.Empty;
@@ -767,5 +943,13 @@ else
         public string TimingExplanation { get; set; } = string.Empty;
         public string Guidance { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
+    }
+
+    private class SeasonTrendPoint
+    {
+        public DateTime Date { get; set; }
+        public double HighF { get; set; }
+        public double LowF { get; set; }
+        public double AverageF => (HighF + LowF) / 2.0;
     }
 }
