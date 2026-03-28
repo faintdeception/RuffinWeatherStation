@@ -238,6 +238,53 @@ else
                 </div>
             </div>
 
+            <div class="card mt-3 wind-gust-card" style="max-width: 400px;">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="mb-0">Latest Wind Rose</h3>
+                    <small class="rainfall-card-subtitle">Strength and direction from the most recent sample</small>
+                </div>
+                <div class="card-body">
+                    @if (measurement?.Fields != null)
+                    {
+                        var latestWindSpeed = GetLatestWindSpeed();
+                        var normalizedDirection = NormalizeWindDirection(measurement.Fields.WindDirection);
+                        var windDirectionCardinal = GetWindDirectionCardinalLabel(measurement.Fields.WindDirectionCardinal, normalizedDirection);
+
+                        <div class="wind-rose-shell">
+                            <svg class="wind-rose-chart" viewBox="0 0 220 220" role="img" aria-label="Wind gust rose chart">
+                                <circle class="wind-rose-ring" cx="110" cy="110" r="88" />
+                                <circle class="wind-rose-ring" cx="110" cy="110" r="60" />
+                                <circle class="wind-rose-ring" cx="110" cy="110" r="32" />
+
+                                <line class="wind-rose-axis" x1="110" y1="18" x2="110" y2="202" />
+                                <line class="wind-rose-axis" x1="18" y1="110" x2="202" y2="110" />
+
+                                <text class="wind-rose-label" x="110" y="12" text-anchor="middle">N</text>
+                                <text class="wind-rose-label" x="210" y="114" text-anchor="middle">E</text>
+                                <text class="wind-rose-label" x="110" y="214" text-anchor="middle">S</text>
+                                <text class="wind-rose-label" x="10" y="114" text-anchor="middle">W</text>
+
+                                <g class="wind-gust-vector" style="transform: rotate(@($"{normalizedDirection:F1}deg")); transform-origin: 110px 110px;">
+                                    <polygon class="wind-gust-petal" points="@GetWindRosePetalPoints(latestWindSpeed)" />
+                                </g>
+
+                                <circle class="wind-rose-center" cx="110" cy="110" r="5" />
+                            </svg>
+
+                            <div class="wind-rose-details text-center mt-2">
+                                <div class="display-6 mb-1">@FormatDouble(latestWindSpeed) m/s</div>
+                                <div class="fw-semibold">From @windDirectionCardinal (@Math.Round(normalizedDirection, 0)°)</div>
+                                <small class="text-muted">Observed @FormatDateTimeForUserWithTimezone(measurement.TimestampMs)</small>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center mb-0">Wind data is not available yet.</p>
+                    }
+                </div>
+            </div>
+
             <div class="card mt-3 today-rainfall-card" style="max-width: 400px;">
                 <div class="card-header bg-info text-white">
                     <h3 class="mb-0">Today's Rainfall Accumulation</h3>
@@ -709,11 +756,63 @@ else
 }
 
 <style>
+    .wind-gust-card .card-body {
+        padding-top: 1rem;
+    }
+
+    .wind-rose-shell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .wind-rose-chart {
+        width: 100%;
+        max-width: 280px;
+        height: auto;
+    }
+
+    .wind-rose-ring {
+        fill: none;
+        stroke: rgba(60, 60, 60, 0.18);
+        stroke-width: 1;
+    }
+
+    .wind-rose-axis {
+        stroke: rgba(60, 60, 60, 0.32);
+        stroke-width: 1;
+    }
+
+    .wind-rose-label {
+        fill: rgba(40, 40, 40, 0.75);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .wind-gust-petal {
+        fill: rgba(217, 83, 79, 0.78);
+        stroke: rgba(140, 24, 24, 0.85);
+        stroke-width: 1.2;
+    }
+
+    .wind-rose-center {
+        fill: rgba(45, 45, 45, 0.9);
+    }
+
     .rainfall-chart {
         height: 220px;
     }
 
     @@media (max-width: 768px) {
+        .wind-rose-chart {
+            max-width: 240px;
+        }
+
+        .wind-rose-details .display-6 {
+            font-size: 1.5rem;
+        }
+
         .rainfall-summary .display-6 {
             font-size: 1.6rem;
         }
@@ -1151,6 +1250,53 @@ else
         }
 
         return value?.ToString() ?? "";
+    }
+
+    private static double GetLatestWindSpeed(TemperatureMeasurement? currentMeasurement)
+    {
+        if (currentMeasurement?.Fields == null)
+            return 0;
+
+        return Math.Max(currentMeasurement.Fields.WindSpeed, 0);
+    }
+
+    private double GetLatestWindSpeed()
+    {
+        return GetLatestWindSpeed(measurement);
+    }
+
+    private static double NormalizeWindDirection(double rawDirection)
+    {
+        var normalized = rawDirection % 360;
+        return normalized < 0 ? normalized + 360 : normalized;
+    }
+
+    private static string GetWindDirectionCardinalLabel(string? currentCardinal, double normalizedDirection)
+    {
+        if (!string.IsNullOrWhiteSpace(currentCardinal))
+            return currentCardinal;
+
+        string[] cardinalDirections = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+        var index = (int)Math.Round(normalizedDirection / 22.5, MidpointRounding.AwayFromZero) % cardinalDirections.Length;
+        return cardinalDirections[index];
+    }
+
+    private static string GetWindRosePetalPoints(double gust)
+    {
+        const double center = 110;
+        const double minRadius = 24;
+        const double maxRadius = 86;
+        const double referenceGust = 25; // m/s cap for petal scaling
+
+        var normalizedGust = Math.Clamp(gust / referenceGust, 0, 1);
+        var radius = minRadius + (normalizedGust * (maxRadius - minRadius));
+        var shoulderOffset = 9 + (normalizedGust * 6);
+        var shoulderY = center - radius + 14;
+        var tipY = center - radius;
+
+        return string.Create(
+            provider: System.Globalization.CultureInfo.InvariantCulture,
+            $"{center:0.0},{center:0.0} {center - shoulderOffset:0.0},{shoulderY:0.0} {center:0.0},{tipY:0.0} {center + shoulderOffset:0.0},{shoulderY:0.0}");
     }
 
     private string FormatRecentRainfallDay(object value)
