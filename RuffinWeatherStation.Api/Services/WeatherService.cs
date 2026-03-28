@@ -278,95 +278,107 @@ namespace RuffinWeatherStation.Api.Services
         {
             var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
             var lookbackDays = Math.Clamp(days, 1, 30);
-            var lookbackThreshold = DateTime.UtcNow.AddDays(-lookbackDays);
 
             try
             {
-                var documents = await _nwsSnapshots
-                    .Find(Builders<BsonDocument>.Filter.Empty)
+                var locationFilter = Builders<BsonDocument>.Filter.Eq("location", normalizedLocation);
+                var latestSnapshot = await _nwsSnapshots
+                    .Find(locationFilter)
                     .Sort(Builders<BsonDocument>.Sort.Descending("_id"))
-                    .Limit(500)
-                    .ToListAsync();
+                    .FirstOrDefaultAsync();
+
+                if (latestSnapshot == null)
+                {
+                    latestSnapshot = await _nwsSnapshots
+                        .Find(Builders<BsonDocument>.Filter.Empty)
+                        .Sort(Builders<BsonDocument>.Sort.Descending("_id"))
+                        .FirstOrDefaultAsync();
+                }
+
+                if (latestSnapshot == null)
+                {
+                    return new NwsAlertSummaryResponse
+                    {
+                        Location = normalizedLocation,
+                        LookbackDays = lookbackDays,
+                        GeneratedAtUtc = DateTime.UtcNow,
+                        TotalSnapshots = 0
+                    };
+                }
+
+                var snapshotFetchedAt = GetDateTimeUtc(latestSnapshot, "created_at", "fetched_at", "timestamp", "nws_data.created_at", "nws_data.fetched_at");
 
                 var alerts = new List<NwsAlertSnapshotSummary>();
 
-                foreach (var doc in documents)
+                foreach (var alertDoc in ExpandAlertDocuments(latestSnapshot))
                 {
-                    foreach (var alertDoc in ExpandAlertDocuments(doc))
+                    var sent = GetDateTimeUtc(alertDoc, "sent", "timestamp", "created_at", "properties.sent", "properties.effective");
+                    var onset = GetDateTimeUtc(alertDoc, "onset", "properties.onset", "effective", "properties.effective");
+                    var expires = GetDateTimeUtc(alertDoc, "expires", "ends", "expiration", "properties.expires", "properties.ends");
+
+                    var rawEvent = NormalizeValue(GetString(alertDoc, "event", "properties.event", "title"));
+                    var headline = NormalizeValue(GetString(alertDoc, "headline", "properties.headline", "title")) ?? string.Empty;
+                    var description = NormalizeValue(GetString(alertDoc, "description", "properties.description")) ?? string.Empty;
+                    var instruction = NormalizeValue(GetString(alertDoc, "instruction", "properties.instruction")) ?? string.Empty;
+                    var rawSeverity = NormalizeValue(GetString(alertDoc, "severity", "properties.severity"));
+                    var urgency = NormalizeValue(GetString(alertDoc, "urgency", "properties.urgency")) ?? "Unknown";
+                    var certainty = NormalizeValue(GetString(alertDoc, "certainty", "properties.certainty")) ?? "Unknown";
+                    var alertId = NormalizeValue(GetString(alertDoc, "id", "properties.id", "alert_id")) ?? string.Empty;
+                    var sourceUrl = NormalizeValue(GetString(alertDoc, "@id", "properties.@id", "properties.url", "url", "links.self", "links.web")) ?? string.Empty;
+
+                    var eventName = rawEvent;
+                    if (string.IsNullOrWhiteSpace(eventName) && !string.IsNullOrWhiteSpace(headline))
                     {
-                        var sent = GetDateTimeUtc(alertDoc, "sent", "timestamp", "created_at", "properties.sent", "properties.effective");
-                        var expires = GetDateTimeUtc(alertDoc, "expires", "ends", "properties.expires", "properties.ends");
-
-                        var rawEvent = NormalizeValue(GetString(alertDoc, "event", "properties.event", "title"));
-                        var headline = NormalizeValue(GetString(alertDoc, "headline", "properties.headline", "description")) ?? string.Empty;
-                        var rawSeverity = NormalizeValue(GetString(alertDoc, "severity", "properties.severity"));
-                        var urgency = NormalizeValue(GetString(alertDoc, "urgency", "properties.urgency"));
-                        var certainty = NormalizeValue(GetString(alertDoc, "certainty", "properties.certainty"));
-                        var alertId = NormalizeValue(GetString(alertDoc, "id", "properties.id", "alert_id")) ?? string.Empty;
-                        var sourceUrl = NormalizeValue(GetString(alertDoc, "@id", "properties.@id", "properties.url", "url", "links.self", "links.web")) ?? string.Empty;
-                        var areaDescription = NormalizeValue(GetString(alertDoc, "properties.areaDesc", "areaDesc", "area_desc")) ?? string.Empty;
-
-                        var eventName = rawEvent;
-                        if (string.IsNullOrWhiteSpace(eventName) && !string.IsNullOrWhiteSpace(headline))
-                        {
-                            eventName = headline.Length > 80 ? headline[..80] + "..." : headline;
-                        }
-
-                        var severity = InferSeverity(rawSeverity, eventName, urgency, certainty);
-                        var snapshotLocation = NormalizeValue(GetString(alertDoc, "location", "properties.areaDesc", "areaDesc", "area_desc"));
-                        var status = NormalizeValue(GetString(alertDoc, "status", "properties.status")) ?? string.Empty;
-
-                        // Skip records that do not carry real alert content.
-                        if (string.IsNullOrWhiteSpace(eventName) && string.IsNullOrWhiteSpace(headline) && string.IsNullOrWhiteSpace(severity))
-                        {
-                            continue;
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(snapshotLocation) &&
-                            !snapshotLocation.Contains(normalizedLocation, StringComparison.OrdinalIgnoreCase) &&
-                            !string.Equals(normalizedLocation, "backyard", StringComparison.OrdinalIgnoreCase))
-                        {
-                            continue;
-                        }
-
-                        if (sent.HasValue && sent.Value < lookbackThreshold)
-                        {
-                            continue;
-                        }
-
-                        var isActive = IsAlertActive(status, expires);
-
-                        alerts.Add(new NwsAlertSnapshotSummary
-                        {
-                            AlertId = alertId,
-                            Event = string.IsNullOrWhiteSpace(eventName) ? "Unspecified Event" : eventName,
-                            Severity = string.IsNullOrWhiteSpace(severity) ? "Info" : severity,
-                            Headline = headline,
-                            AreaDescription = areaDescription,
-                            SourceUrl = sourceUrl,
-                            SentUtc = sent,
-                            ExpiresUtc = expires,
-                            IsActive = isActive
-                        });
+                        eventName = headline.Length > 80 ? headline[..80] + "..." : headline;
                     }
+
+                    var severity = InferSeverity(rawSeverity, eventName, urgency, certainty);
+                    var status = NormalizeValue(GetString(alertDoc, "status", "properties.status")) ?? string.Empty;
+
+                    // Skip records that do not carry real alert content.
+                    if (string.IsNullOrWhiteSpace(eventName) && string.IsNullOrWhiteSpace(headline) && string.IsNullOrWhiteSpace(description))
+                    {
+                        continue;
+                    }
+
+                    var isActive = IsAlertActive(status, expires);
+
+                    alerts.Add(new NwsAlertSnapshotSummary
+                    {
+                        AlertId = alertId,
+                        Event = string.IsNullOrWhiteSpace(eventName) ? "Unspecified Event" : eventName,
+                        Urgency = urgency,
+                        Severity = string.IsNullOrWhiteSpace(severity) ? "Info" : severity,
+                        Certainty = certainty,
+                        Headline = headline,
+                        Description = description,
+                        Instruction = instruction,
+                        SourceUrl = sourceUrl,
+                        OnsetUtc = onset,
+                        SentUtc = sent,
+                        ExpiresUtc = expires,
+                        IsActive = isActive
+                    });
                 }
 
                 var severeLevels = new[] { "severe", "extreme" };
                 var severeCount = alerts.Count(a => severeLevels.Contains(a.Severity, StringComparer.OrdinalIgnoreCase));
                 var recommendations = BuildMitigationRecommendations(alerts);
+                var isSnapshotExpired = alerts.Count > 0 && alerts.All(a => !a.IsActive);
 
                 return new NwsAlertSummaryResponse
                 {
                     Location = normalizedLocation,
                     LookbackDays = lookbackDays,
                     GeneratedAtUtc = DateTime.UtcNow,
-                    TotalSnapshots = alerts.Count,
+                    TotalSnapshots = 1,
+                    SnapshotFetchedAtUtc = snapshotFetchedAt,
+                    IsSnapshotExpired = isSnapshotExpired,
                     ActiveAlerts = alerts.Count(a => a.IsActive),
                     ExpiredAlerts = alerts.Count(a => !a.IsActive),
                     SevereOrExtremeAlerts = severeCount,
                     RecentAlerts = alerts
-                        .OrderByDescending(a => a.SentUtc ?? DateTime.MinValue)
-                        .Take(5)
+                        .OrderByDescending(a => a.OnsetUtc ?? a.SentUtc ?? DateTime.MinValue)
                         .ToList(),
                     MitigationRecommendations = recommendations
                 };
@@ -592,7 +604,7 @@ namespace RuffinWeatherStation.Api.Services
 
             foreach (var alert in activeAlerts)
             {
-                var text = $"{alert.Event} {alert.Headline}".ToLowerInvariant();
+                var text = $"{alert.Event} {alert.Headline} {alert.Description}".ToLowerInvariant();
                 var severe = alert.Severity.Equals("severe", StringComparison.OrdinalIgnoreCase) ||
                              alert.Severity.Equals("extreme", StringComparison.OrdinalIgnoreCase);
 
