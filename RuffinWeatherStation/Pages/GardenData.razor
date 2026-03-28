@@ -206,44 +206,100 @@ else
                     }
                     else
                     {
-                        <div class="row gy-3">
-                            @foreach (var card in GetVisiblePlantReadinessCards())
+                        @if (!GetVisiblePlantReadinessCards().Any())
+                        {
+                            <div class="alert alert-secondary mb-0">
+                                No actionable cards right now. Turn on `Show dormant cards` to inspect inactive entries.
+                            </div>
+                        }
+                        else
+                        {
+                            @if (GetActionNowCards().Any())
                             {
-                                <div class="col-lg-4 col-md-6">
-                                    <div class="p-3 border rounded h-100">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <div>
-                                                <h5 class="mb-0">@card.DisplayName</h5>
-                                                <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                <h5 class="mb-3">Do This Now</h5>
+                                <div class="row gy-3 mb-4">
+                                    @foreach (var card in GetActionNowCards())
+                                    {
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="p-3 border rounded h-100">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <div>
+                                                        <h5 class="mb-0">@card.DisplayName</h5>
+                                                        <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                                    </div>
+                                                    <span class="badge @card.BadgeClass">@card.StatusLabel</span>
+                                                </div>
+
+                                                <div class="small mb-2">
+                                                    <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
+                                                    <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
+                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdF.ToString("F0")F</div>
+                                                </div>
+
+                                                @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
+                                                {
+                                                    <div class="small text-muted mb-1"><strong>Rule:</strong> @card.RuleExplanation</div>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(card.TimingExplanation))
+                                                {
+                                                    <div class="small text-muted mb-2"><strong>Timing:</strong> @card.TimingExplanation</div>
+                                                }
+
+                                                <p class="mb-1">@card.Guidance</p>
+                                                @if (!string.IsNullOrWhiteSpace(card.Notes))
+                                                {
+                                                    <small class="text-muted">@card.Notes</small>
+                                                }
                                             </div>
-                                            <span class="badge @card.BadgeClass">@card.StatusLabel</span>
                                         </div>
-
-                                        <div class="small mb-2">
-                                            <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
-                                            <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
-                                            <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdF.ToString("F0")F</div>
-                                        </div>
-
-                                        @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
-                                        {
-                                            <div class="small text-muted mb-1"><strong>Rule:</strong> @card.RuleExplanation</div>
-                                        }
-
-                                        @if (!string.IsNullOrWhiteSpace(card.TimingExplanation))
-                                        {
-                                            <div class="small text-muted mb-2"><strong>Timing:</strong> @card.TimingExplanation</div>
-                                        }
-
-                                        <p class="mb-1">@card.Guidance</p>
-                                        @if (!string.IsNullOrWhiteSpace(card.Notes))
-                                        {
-                                            <small class="text-muted">@card.Notes</small>
-                                        }
-                                    </div>
+                                    }
                                 </div>
                             }
-                        </div>
+
+                            @if (GetSoonCards().Any())
+                            {
+                                <h5 class="mb-3">Prepare Soon</h5>
+                                <div class="row gy-3">
+                                    @foreach (var card in GetSoonCards())
+                                    {
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="p-3 border rounded h-100">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <div>
+                                                        <h5 class="mb-0">@card.DisplayName</h5>
+                                                        <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                                    </div>
+                                                    <span class="badge @card.BadgeClass">@card.StatusLabel</span>
+                                                </div>
+
+                                                <div class="small mb-2">
+                                                    <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
+                                                    <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
+                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdF.ToString("F0")F</div>
+                                                </div>
+
+                                                @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
+                                                {
+                                                    <div class="small text-muted mb-1"><strong>Rule:</strong> @card.RuleExplanation</div>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(card.TimingExplanation))
+                                                {
+                                                    <div class="small text-muted mb-2"><strong>Timing:</strong> @card.TimingExplanation</div>
+                                                }
+
+                                                <p class="mb-1">@card.Guidance</p>
+                                                @if (!string.IsNullOrWhiteSpace(card.Notes))
+                                                {
+                                                    <small class="text-muted">@card.Notes</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
                     }
                 </div>
             </div>
@@ -650,14 +706,13 @@ else
             var timingExplanation = BuildTimingExplanation(hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart, hasDateRule, daysUntilTargetDate);
 
             var guidance = BuildGuidance(statusLabel, targetTransplantDate, requiredNights, nightStreak, useCoolingLogic, nightThresholdF, timingExplanation);
+            var actionTypeLabel = ResolveActionTypeLabel(profile.ActionType, useCoolingLogic, hasWindow, isInWindow, isWindowSoon);
 
             computedCards.Add(new PlantReadinessCard
             {
                 DisplayName = profile.DisplayName,
                 CategoriesLabel = FormatCategories(profile.Categories),
-                ActionTypeLabel = string.IsNullOrWhiteSpace(profile.ActionType)
-                    ? "Plant"
-                    : char.ToUpperInvariant(profile.ActionType.Trim()[0]) + profile.ActionType.Trim()[1..].ToLowerInvariant(),
+                ActionTypeLabel = actionTypeLabel,
                 RequiredConsecutiveNights = requiredNights,
                 CurrentNightStreak = nightStreak,
                 NightTempThresholdF = nightThresholdF,
@@ -684,6 +739,39 @@ else
         return showDormantCards
             ? plantReadinessCards
             : plantReadinessCards.Where(c => !c.StatusLabel.Equals("Dormant", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IEnumerable<PlantReadinessCard> GetActionNowCards()
+    {
+        return GetVisiblePlantReadinessCards()
+            .Where(c => c.StatusLabel.Equals("Action now", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IEnumerable<PlantReadinessCard> GetSoonCards()
+    {
+        return GetVisiblePlantReadinessCards()
+            .Where(c => c.StatusLabel.Equals("Soon", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string ResolveActionTypeLabel(string? actionType, bool useCoolingLogic, bool hasWindow, bool isInWindow, bool isWindowSoon)
+    {
+        var normalizedAction = string.IsNullOrWhiteSpace(actionType)
+            ? "plant"
+            : actionType.Trim().ToLowerInvariant();
+
+        // For bulbs/perennials, pre-window reminders are usually buying actions.
+        if (normalizedAction == "plant" && useCoolingLogic && hasWindow && isWindowSoon && !isInWindow)
+        {
+            return "Buy";
+        }
+
+        return normalizedAction switch
+        {
+            "buy" => "Buy",
+            "harvest" => "Harvest",
+            "prep" => "Prep",
+            _ => "Plant"
+        };
     }
 
     private int CalculateNightStreak(double thresholdF, bool useCoolingLogic)
