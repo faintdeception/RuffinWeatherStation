@@ -1,0 +1,18 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/api/*",
+      "/_framework/*",
+      "/css/*",
+      "/lib/*",
+      "/data/*",
+      "/favicon.png",
+      "/icon-192.png",
+      "/appsettings.json",
+      "/appsettings.production.json",
+      "/service-worker.js",
+      "/service-worker-assets.js"
+    ]
+  }
+}

@@ -144,9 +144,13 @@ else
                     <h3 class="mb-0">Plant Readiness (JSON Rules)</h3>
                 </div>
                 <div class="card-body">
-                    @if (plantReadinessCards.Count == 0)
+                    @if (!string.IsNullOrWhiteSpace(plantProfilesLoadError))
                     {
-                        <p class="text-muted mb-0">No plant profile data found. Add entries to `wwwroot/data/garden-plants.json`.</p>
+                        <div class="alert alert-warning mb-0">@plantProfilesLoadError</div>
+                    }
+                    else if (plantReadinessCards.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No plant profile entries found. Add entries to `wwwroot/data/garden-plants.json`.</p>
                     }
                     else
                     {
@@ -279,6 +283,7 @@ else
     private List<DailyMeasurement>? recentDailyMeasurements;
     private List<GardenPlantProfile> plantProfiles = new();
     private List<PlantReadinessCard> plantReadinessCards = new();
+    private string? plantProfilesLoadError;
 
     private DateOnly seedWindowStart;
     private DateOnly seedWindowEnd;
@@ -305,7 +310,8 @@ else
             rainfallAnalysis = rainfallTask.Result;
             recentDailyMeasurements = dailyTask.Result;
             gardenReference = referenceTask.Result;
-            plantProfiles = plantProfilesTask.Result;
+            plantProfiles = plantProfilesTask.Result.Profiles;
+            plantProfilesLoadError = plantProfilesTask.Result.ErrorMessage;
             nwsAlertSummary = alertsTask.Result;
 
             if (gardenReference == null)

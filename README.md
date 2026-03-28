@@ -64,3 +64,11 @@ Defaults are defined in `RuffinWeatherStation.Api/appsettings.json`.
 - `RuffinWeatherStation/wwwroot/data/garden-plants.json`
 
 Each profile supports temperature-streak and frost-offset fields for readiness guidance cards. Current logic uses recent daily air-temperature averages as a proxy for soil-warmth streaks.
+
+## SPA Routing (Refresh on Deep Links)
+
+This Blazor WebAssembly app uses client-side routing. To avoid `404` responses when refreshing on routes like `/garden-data` or `/notes`, Azure Static Web Apps must rewrite non-file paths to `index.html`.
+
+This is configured in:
+
+- `RuffinWeatherStation/wwwroot/staticwebapp.config.json`
