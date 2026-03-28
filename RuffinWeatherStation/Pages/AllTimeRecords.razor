@@ -1,13 +1,13 @@
 @page "/all-time-records"
 @inject TemperatureService TemperatureService
 
-<PageTitle>All-Time Weather Records</PageTitle>
+<PageTitle>All-Time Records at This Weather Station</PageTitle>
 
-<h1>All-Time Weather Records</h1>
+<h1>All-Time Records at This Weather Station</h1>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <p class="mb-1">Highest values we have ever recorded at the weather station.</p>
+        <p class="mb-1">Highest values ever recorded at this weather station.</p>
         @if (!string.IsNullOrWhiteSpace(location))
         {
             <small class="text-muted">Location: @location</small>
@@ -34,7 +34,7 @@
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
-        <p class="mt-2">Loading all-time records...</p>
+        <p class="mt-2">Loading all-time records for this weather station...</p>
     </div>
 }
 else if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -46,7 +46,7 @@ else if (!string.IsNullOrWhiteSpace(errorMessage))
 else if (records == null || !records.HasData)
 {
     <div class="alert alert-info" role="alert">
-        No all-time record data was found.
+        No all-time record data was found for this weather station.
     </div>
 }
 else
