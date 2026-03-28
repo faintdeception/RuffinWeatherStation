@@ -4,3 +4,8 @@ GET {{RuffinWeatherStation.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+GET {{RuffinWeatherStation.Api_HostAddress}}/api/weather/historical-daily?date=2026-01-24&location=backyard
+Accept: application/json
+
+###

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using RuffinWeatherStation.Api.Models;
 using RuffinWeatherStation.Api.Services;
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -78,6 +79,22 @@ namespace RuffinWeatherStation.Api.Controllers
         {
             var predictions = await _weatherService.GetRecentPredictionsAsync(count);
             return predictions;
+        }
+
+        [HttpGet("historical-daily")]
+        public async Task<ActionResult<HistoricalDailyRecordResponse>> GetHistoricalDaily(
+            [FromQuery] string date,
+            [FromQuery] string? location = "backyard")
+        {
+            if (string.IsNullOrWhiteSpace(date) ||
+                !DateTime.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+            {
+                return BadRequest(new { message = "Invalid date format. Expected yyyy-MM-dd." });
+            }
+
+            var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
+            var record = await _weatherService.GetHistoricalDailyRecordAsync(parsedDate, normalizedLocation);
+            return Ok(record);
         }
     }
 }

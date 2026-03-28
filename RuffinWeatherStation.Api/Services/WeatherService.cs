@@ -12,6 +12,7 @@ namespace RuffinWeatherStation.Api.Services
         private readonly IMongoCollection<TemperatureMeasurement> _measurements;
         private readonly IMongoCollection<HourlyMeasurement> _hourlyMeasurements;
         private readonly IMongoCollection<DailyMeasurement> _dailyMeasurements;
+        private readonly IMongoCollection<HistoricalDailyRecord> _dailyDateRecords;
         private readonly IMongoCollection<WeatherPrediction> _predictions;
 
         public WeatherService(IConfiguration configuration)
@@ -63,9 +64,10 @@ namespace RuffinWeatherStation.Api.Services
                 var measurementsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Measurements");
                 var hourlyCollection = configuration.GetValue<string>("DatabaseSettings:Collections:HourlyMeasurements");
                 var dailyCollection = configuration.GetValue<string>("DatabaseSettings:Collections:DailyMeasurements");
+                var dailyDateRecordsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:DailyDateRecords") ?? "daily_date_records";
                 var predictionsCollection = configuration.GetValue<string>("DatabaseSettings:Collections:Predictions") ?? "weather_predictions";
                 
-                Console.WriteLine($"[WEATHER SERVICE] Collections: Measurements={measurementsCollection}, Hourly={hourlyCollection}, Daily={dailyCollection}, Predictions={predictionsCollection}");
+                Console.WriteLine($"[WEATHER SERVICE] Collections: Measurements={measurementsCollection}, Hourly={hourlyCollection}, Daily={dailyCollection}, DailyDateRecords={dailyDateRecordsCollection}, Predictions={predictionsCollection}");
                 
                 Console.WriteLine("[WEATHER SERVICE] Creating MongoDB client...");
                 var client = new MongoClient(connectionString);
@@ -77,6 +79,7 @@ namespace RuffinWeatherStation.Api.Services
                 _measurements = database.GetCollection<TemperatureMeasurement>(measurementsCollection);
                 _hourlyMeasurements = database.GetCollection<HourlyMeasurement>(hourlyCollection);
                 _dailyMeasurements = database.GetCollection<DailyMeasurement>(dailyCollection);
+                _dailyDateRecords = database.GetCollection<HistoricalDailyRecord>(dailyDateRecordsCollection);
                 _predictions = database.GetCollection<WeatherPrediction>(predictionsCollection);
                 
                 Console.WriteLine("[WEATHER SERVICE] Successfully initialized WeatherService");
@@ -145,6 +148,41 @@ namespace RuffinWeatherStation.Api.Services
             return await _dailyMeasurements.Find(filter)
                 .SortBy(m => m.TimestampMs)
                 .ToListAsync();
+        }
+
+        public async Task<HistoricalDailyRecordResponse> GetHistoricalDailyRecordAsync(DateTime date, string location)
+        {
+            var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
+            var monthDay = date.ToString("MM-dd");
+
+            var filter = Builders<HistoricalDailyRecord>.Filter.And(
+                Builders<HistoricalDailyRecord>.Filter.Eq(r => r.MonthDay, monthDay),
+                Builders<HistoricalDailyRecord>.Filter.Eq(r => r.Location, normalizedLocation)
+            );
+
+            var record = await _dailyDateRecords.Find(filter).FirstOrDefaultAsync();
+
+            if (record == null)
+            {
+                return new HistoricalDailyRecordResponse
+                {
+                    HasData = false,
+                    RequestedDate = date.ToString("yyyy-MM-dd"),
+                    MonthDay = monthDay,
+                    Location = normalizedLocation
+                };
+            }
+
+            return new HistoricalDailyRecordResponse
+            {
+                HasData = true,
+                RequestedDate = date.ToString("yyyy-MM-dd"),
+                MonthDay = record.MonthDay,
+                Location = record.Location,
+                High = record.High,
+                Low = record.Low,
+                UpdatedAt = record.UpdatedAt
+            };
         }
 
         public async Task<WeatherPrediction> GetLatestPredictionAsync()

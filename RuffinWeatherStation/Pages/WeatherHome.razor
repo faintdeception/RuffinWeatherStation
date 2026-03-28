@@ -101,6 +101,60 @@ else
                 </div>
             </div>
 
+            <div class="card mt-3" style="max-width: 400px;">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Historical High / Low</h3>
+                    <small class="rainfall-card-subtitle">Daily record for selected date</small>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="historicalDateInput">Date</label>
+                        <input id="historicalDateInput"
+                               type="date"
+                               class="form-control"
+                               value="@selectedHistoricalDate.ToString("yyyy-MM-dd")"
+                               @onchange="OnHistoricalDateChanged" />
+                        <small class="text-muted d-block mt-1">Location: @historicalLocation</small>
+                    </div>
+
+                    @if (isHistoricalDailyLoading)
+                    {
+                        <p class="text-muted mb-0">Loading historical record...</p>
+                    }
+                    else if (!string.IsNullOrEmpty(historicalDailyErrorMessage))
+                    {
+                        <div class="alert alert-warning mb-0">@historicalDailyErrorMessage</div>
+                    }
+                    else if (historicalDailyRecord?.HasData == true)
+                    {
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <h6 class="mb-1">High</h6>
+                                <div class="fw-semibold">@FormatDouble(historicalDailyRecord.High?.Value)C</div>
+                                <small class="text-muted">@FormatTemperatureF(historicalDailyRecord.High?.Value)F</small>
+                                <div><small class="text-muted">@FormatHistoricDate(historicalDailyRecord.High?.Date)</small></div>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="mb-1">Low</h6>
+                                <div class="fw-semibold">@FormatDouble(historicalDailyRecord.Low?.Value)C</div>
+                                <small class="text-muted">@FormatTemperatureF(historicalDailyRecord.Low?.Value)F</small>
+                                <div><small class="text-muted">@FormatHistoricDate(historicalDailyRecord.Low?.Date)</small></div>
+                            </div>
+                        </div>
+
+                        <div class="text-muted">
+                            <small>Updated: @(historicalDailyRecord.UpdatedAt.HasValue ? FormatDateTimeForUserWithTimezone(historicalDailyRecord.UpdatedAt.Value) : "N/A")</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            No historical record for this date.
+                        </div>
+                    }
+                </div>
+            </div>
+
             <div class="card mt-3 today-rainfall-card" style="max-width: 400px;">
                 <div class="card-header bg-info text-white">
                     <h3 class="mb-0">Today's Rainfall Accumulation</h3>
@@ -600,6 +654,11 @@ else
     private List<TodayRainfallDataPoint>? rainfallData;
     private WeatherAnalysisResult? recentRainfallAnalysis;
     private string? recentRainfallErrorMessage;
+    private HistoricalDailyRecordResponse? historicalDailyRecord;
+    private string? historicalDailyErrorMessage;
+    private bool isHistoricalDailyLoading = true;
+    private DateTime selectedHistoricalDate = DateTime.Today;
+    private const string historicalLocation = "backyard";
     private const int recentRainfallDays = 15;
     private double accumulatedRainfall = 0;
     private TimeSpan elapsedRainfallTime = TimeSpan.Zero;
@@ -619,6 +678,8 @@ else
         await GetUserTimeZone();
         
         await LoadData();
+
+        await LoadHistoricalDailyRecord();
         
         // Load the prediction data
         await LoadPredictionData();
@@ -759,6 +820,39 @@ else
         {
             recentRainfallErrorMessage = $"Unable to load recent rainfall: {ex.Message}";
             Console.Error.WriteLine(recentRainfallErrorMessage);
+        }
+    }
+
+    private async Task LoadHistoricalDailyRecord()
+    {
+        try
+        {
+            isHistoricalDailyLoading = true;
+            historicalDailyErrorMessage = null;
+
+            var (record, errorMessage) = await TemperatureService.GetHistoricalDailyRecordAsync(selectedHistoricalDate, historicalLocation);
+            historicalDailyRecord = record;
+            historicalDailyErrorMessage = errorMessage;
+        }
+        catch (Exception ex)
+        {
+            historicalDailyErrorMessage = $"Unable to load historical daily record: {ex.Message}";
+            Console.Error.WriteLine(historicalDailyErrorMessage);
+        }
+        finally
+        {
+            isHistoricalDailyLoading = false;
+        }
+    }
+
+    private async Task OnHistoricalDateChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        if (DateTime.TryParse(value, out var parsedDate))
+        {
+            selectedHistoricalDate = parsedDate.Date;
+            await LoadHistoricalDailyRecord();
+            StateHasChanged();
         }
     }
     
@@ -927,6 +1021,17 @@ else
         }
 
         return value?.ToString() ?? "";
+    }
+
+    private string FormatHistoricDate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "N/A";
+
+        if (DateTime.TryParse(value, out var parsedDate))
+            return parsedDate.ToString("MMM d, yyyy");
+
+        return value;
     }
 
     private class TodayRainfallDataPoint
