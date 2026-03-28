@@ -8,11 +8,11 @@
     "harvestWindowStartMonthDay": "07-01",
     "harvestWindowEndMonthDay": "09-30",
     "harvestLeadDays": 14,
-    "minNightTempF": 55,
+    "minNightTempC": 12.78,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": 10,
     "daysBeforeLastFrostToStartIndoors": 42,
-    "notes": "Transplant after 5+ nights above 55°F. Harden off for 5–7 days."
+    "notes": "Transplant after 5+ nights above 12.78C (55F). Harden off for 5-7 days."
   },
   {
     "plantId": "pepper",
@@ -23,11 +23,11 @@
     "harvestWindowStartMonthDay": "08-01",
     "harvestWindowEndMonthDay": "10-15",
     "harvestLeadDays": 14,
-    "minNightTempF": 60,
+    "minNightTempC": 15.56,
     "requiredConsecutiveNights": 7,
     "daysAfterLastFrostToTransplant": 21,
     "daysBeforeLastFrostToStartIndoors": 56,
-    "notes": "Peppers need very warm nights. Delay if nights dip below 60°F."
+    "notes": "Peppers need very warm nights. Delay if nights dip below 15.56C (60F)."
   },
   {
     "plantId": "basil",
@@ -38,7 +38,7 @@
     "harvestWindowStartMonthDay": "06-15",
     "harvestWindowEndMonthDay": "09-30",
     "harvestLeadDays": 10,
-    "minNightTempF": 55,
+    "minNightTempC": 12.78,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": 7,
     "daysBeforeLastFrostToStartIndoors": 28,
@@ -53,7 +53,7 @@
     "harvestWindowStartMonthDay": "06-15",
     "harvestWindowEndMonthDay": "10-01",
     "harvestLeadDays": 10,
-    "minNightTempF": 50,
+    "minNightTempC": 10.00,
     "requiredConsecutiveNights": 3,
     "daysAfterLastFrostToTransplant": 0,
     "daysBeforeLastFrostToStartIndoors": 21,
@@ -65,7 +65,7 @@
     "categories": ["Warm Season", "Annual"],
     "actionType": "plant",
     "leadDays": 10,
-    "minNightTempF": 55,
+    "minNightTempC": 12.78,
     "requiredConsecutiveNights": 3,
     "daysAfterLastFrostToTransplant": 7,
     "daysBeforeLastFrostToStartIndoors": 28,
@@ -77,7 +77,7 @@
     "categories": ["Cool Season", "Annual"],
     "actionType": "plant",
     "leadDays": 7,
-    "minNightTempF": 35,
+    "minNightTempC": 1.67,
     "requiredConsecutiveNights": 2,
     "daysAfterLastFrostToTransplant": -21,
     "daysBeforeLastFrostToStartIndoors": null,
@@ -89,11 +89,11 @@
     "categories": ["Cool Season"],
     "actionType": "plant",
     "leadDays": 7,
-    "minNightTempF": 45,
+    "minNightTempC": 7.22,
     "requiredConsecutiveNights": 3,
     "daysAfterLastFrostToTransplant": -28,
     "daysBeforeLastFrostToStartIndoors": 35,
-    "notes": "Plant early. Prefers cool nights and germinates best above 45°F."
+    "notes": "Plant early. Prefers cool nights and germinates best above 7.22C (45F)."
   },
   {
     "plantId": "onion",
@@ -101,7 +101,7 @@
     "categories": ["Cool Season"],
     "actionType": "plant",
     "leadDays": 7,
-    "minNightTempF": 32,
+    "minNightTempC": 0.00,
     "requiredConsecutiveNights": 0,
     "daysAfterLastFrostToTransplant": -42,
     "daysBeforeLastFrostToStartIndoors": null,
@@ -116,7 +116,7 @@
     "harvestWindowStartMonthDay": "09-01",
     "harvestWindowEndMonthDay": "10-31",
     "harvestLeadDays": 14,
-    "minNightTempF": 55,
+    "minNightTempC": 12.78,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": 14,
     "daysBeforeLastFrostToStartIndoors": 28,
@@ -130,11 +130,11 @@
     "windowStartMonthDay": "09-01",
     "windowEndMonthDay": "11-30",
     "leadDays": 21,
-    "minNightTempF": 60,
+    "minNightTempC": 15.56,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": null,
     "daysBeforeLastFrostToStartIndoors": null,
-    "notes": "Fall-planted. Order when nights drop below 60°F for 5 nights. Plant when nights drop below 50°F."
+    "notes": "Fall-planted. Order when nights drop below 15.56C (60F) for 5 nights. Plant when nights drop below 10.00C (50F)."
   },
   {
     "plantId": "allium",
@@ -144,11 +144,11 @@
     "windowStartMonthDay": "09-10",
     "windowEndMonthDay": "11-20",
     "leadDays": 21,
-    "minNightTempF": 55,
+    "minNightTempC": 12.78,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": null,
     "daysBeforeLastFrostToStartIndoors": null,
-    "notes": "Fall-planted. Plant when nights drop below 50–55°F."
+    "notes": "Fall-planted. Plant when nights drop below 10.00C-12.78C (50F-55F)."
   },
   {
     "plantId": "crocus",
@@ -158,10 +158,10 @@
     "windowStartMonthDay": "09-01",
     "windowEndMonthDay": "11-15",
     "leadDays": 21,
-    "minNightTempF": 55,
+    "minNightTempC": 12.78,
     "requiredConsecutiveNights": 5,
     "daysAfterLastFrostToTransplant": null,
     "daysBeforeLastFrostToStartIndoors": null,
-    "notes": "Fall-planted. Naturalizes well. Plant when nights drop below 55°F."
+    "notes": "Fall-planted. Naturalizes well. Plant when nights drop below 12.78C (55F)."
   }
 ]

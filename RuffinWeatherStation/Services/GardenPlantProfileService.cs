@@ -59,9 +59,9 @@ public class GardenPlantProfileService
                 warnings.Add($"{prefix} has unusually high requiredConsecutiveNights ({profile.RequiredConsecutiveNights}).");
             }
 
-            if (profile.MinNightTempF is <= -40 or >= 120)
+            if (profile.MinNightTempC is <= -40 or >= 49)
             {
-                warnings.Add($"{prefix} has suspicious minNightTempF ({profile.MinNightTempF}).");
+                warnings.Add($"{prefix} has suspicious minNightTempC ({profile.MinNightTempC}).");
             }
 
             if (profile.DaysBeforeLastFrostToStartIndoors is < 0)

@@ -15,8 +15,8 @@ public class GardenPlantProfile
     public string? HarvestWindowEndMonthDay { get; set; }
     public int? HarvestLeadDays { get; set; }
 
-    [JsonPropertyName("minNightTempF")]
-    public double? MinNightTempF { get; set; }
+    [JsonPropertyName("minNightTempC")]
+    public double? MinNightTempC { get; set; }
 
     [JsonPropertyName("requiredConsecutiveNights")]
     public int RequiredConsecutiveNights { get; set; }

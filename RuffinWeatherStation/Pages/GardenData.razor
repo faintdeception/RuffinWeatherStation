@@ -163,20 +163,20 @@ else
                         <RadzenChart class="season-trend-chart" @key="SeasonChartRenderKey">
                             <RadzenLineSeries Data="@seasonTrendData"
                                               CategoryProperty="Date"
-                                              ValueProperty="HighF"
-                                              Title="Daily High (F)"
+                                              ValueProperty="HighC"
+                                              Title="Daily High (C)"
                                               LineType="LineType.Solid"
                                               StrokeWidth="3" />
                             <RadzenLineSeries Data="@seasonTrendData"
                                               CategoryProperty="Date"
-                                              ValueProperty="LowF"
-                                              Title="Daily Low (F)"
+                                              ValueProperty="LowC"
+                                              Title="Daily Low (C)"
                                               LineType="LineType.Dashed"
                                               StrokeWidth="2" />
                             <RadzenCategoryAxis Formatter="@FormatSeasonDateLabel" />
                             <RadzenValueAxis>
                                 <RadzenGridLines Visible="true" />
-                                <RadzenAxisTitle Text="Temperature (F)" />
+                                <RadzenAxisTitle Text="Temperature (C)" />
                             </RadzenValueAxis>
                             <RadzenLegend Position="LegendPosition.Top" />
                         </RadzenChart>
@@ -246,7 +246,7 @@ else
                                                 <div class="small mb-2">
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
-                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdF.ToString("F0")F</div>
+                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
                                                 </div>
 
                                                 @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
@@ -289,7 +289,7 @@ else
                                                 <div class="small mb-2">
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
-                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdF.ToString("F0")F</div>
+                                                    <div><strong>Night streak:</strong> @card.CurrentNightStreak / @card.RequiredConsecutiveNights nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
                                                 </div>
 
                                                 @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
@@ -466,6 +466,13 @@ else
     private const int seasonVisualizationDays = 21;
     private const int dailyMeasurementLookbackDays = 21;
     private const int soonStatusHorizonDays = 30;
+    private const double falseSpringWarmDayThresholdC = 20.00;
+    private const double falseSpringColdNightThresholdC = 2.22;
+    private const double falseSpringSwingThresholdC = 15.56;
+    private const double warmStableHighThresholdC = 22.22;
+    private const double warmStableLowThresholdC = 10.00;
+    private const double coolingPatternTrendThresholdC = -1.39;
+    private const double springStabilizingTrendThresholdC = 1.11;
 
     private bool isLoading = true;
     private string? errorMessage;
@@ -611,8 +618,8 @@ else
             .Select(d => new SeasonTrendPoint
             {
                 Date = d.TimestampMs,
-                HighF = ToFahrenheit(d.Fields.Temperature.Max),
-                LowF = ToFahrenheit(d.Fields.Temperature.Min)
+                HighC = d.Fields.Temperature.Max,
+                LowC = d.Fields.Temperature.Min
             })
             .ToList();
 
@@ -625,19 +632,19 @@ else
         }
 
         var window = seasonTrendData.TakeLast(Math.Min(10, seasonTrendData.Count)).ToList();
-        var warmHighDays = window.Count(p => p.HighF >= 68);
-        var coldNightDays = window.Count(p => p.LowF <= 36);
-        var largeSwingDays = window.Count(p => (p.HighF - p.LowF) >= 28);
-        var firstAvg = window.First().AverageF;
-        var lastAvg = window.Last().AverageF;
+        var warmHighDays = window.Count(p => p.HighC >= falseSpringWarmDayThresholdC);
+        var coldNightDays = window.Count(p => p.LowC <= falseSpringColdNightThresholdC);
+        var largeSwingDays = window.Count(p => (p.HighC - p.LowC) >= falseSpringSwingThresholdC);
+        var firstAvg = window.First().AverageC;
+        var lastAvg = window.Last().AverageC;
         var avgTrend = lastAvg - firstAvg;
-        var warmStableDays = window.Count(p => p.HighF >= 72 && p.LowF >= 50);
+        var warmStableDays = window.Count(p => p.HighC >= warmStableHighThresholdC && p.LowC >= warmStableLowThresholdC);
 
         if (warmHighDays >= 3 && coldNightDays >= 3)
         {
             seasonRegimeLabel = "False Spring Signal";
             seasonRegimeConfidence = Math.Min(95, 45 + (warmHighDays * 6) + (coldNightDays * 6) + (largeSwingDays * 4));
-            seasonRegimeWhy = $"{warmHighDays} warm day(s) >= 68F paired with {coldNightDays} cold night(s) <= 36F in the last {window.Count} days.";
+            seasonRegimeWhy = $"{warmHighDays} warm day(s) >= {falseSpringWarmDayThresholdC:F2}C (68F) paired with {coldNightDays} cold night(s) <= {falseSpringColdNightThresholdC:F2}C (36F) in the last {window.Count} days.";
             return;
         }
 
@@ -645,23 +652,23 @@ else
         {
             seasonRegimeLabel = "Warm Stable";
             seasonRegimeConfidence = Math.Min(92, 50 + (warmStableDays * 8));
-            seasonRegimeWhy = $"Sustained warmth: {warmStableDays} day(s) with highs >= 72F and lows >= 50F.";
+            seasonRegimeWhy = $"Sustained warmth: {warmStableDays} day(s) with highs >= {warmStableHighThresholdC:F2}C (72F) and lows >= {warmStableLowThresholdC:F2}C (50F).";
             return;
         }
 
-        if (avgTrend <= -2.5 && coldNightDays >= 2)
+        if (avgTrend <= coolingPatternTrendThresholdC && coldNightDays >= 2)
         {
             seasonRegimeLabel = "Cooling Pattern";
             seasonRegimeConfidence = Math.Min(90, 45 + (coldNightDays * 7) + (int)Math.Abs(avgTrend * 5));
-            seasonRegimeWhy = $"Average temperature trend dropped by {Math.Abs(avgTrend):F1}F with recurring cold nights.";
+            seasonRegimeWhy = $"Average temperature trend dropped by {Math.Abs(avgTrend):F2}C ({Math.Abs(ToFahrenheit(avgTrend) - 32):F1}F) with recurring cold nights.";
             return;
         }
 
-        if (avgTrend >= 2.0 && coldNightDays <= 1)
+        if (avgTrend >= springStabilizingTrendThresholdC && coldNightDays <= 1)
         {
             seasonRegimeLabel = "Spring Stabilizing";
             seasonRegimeConfidence = Math.Min(88, 40 + (int)(avgTrend * 8) + ((window.Count - coldNightDays) * 2));
-            seasonRegimeWhy = $"Average temperature trend rose by {avgTrend:F1}F with limited cold-night setbacks.";
+            seasonRegimeWhy = $"Average temperature trend rose by {avgTrend:F2}C ({Math.Abs(ToFahrenheit(avgTrend) - 32):F1}F) with limited cold-night setbacks.";
             return;
         }
 
@@ -692,12 +699,12 @@ else
                 ? gardenReference.AverageLastFrostDate.AddDays(-profile.DaysBeforeLastFrostToStartIndoors.Value)
                 : (DateOnly?)null;
 
-            var nightThresholdF = profile.MinNightTempF ?? 50;
+            var nightThresholdC = profile.MinNightTempC ?? 10.00;
             var useCoolingLogic = profile.Categories?.Any(c =>
                 c.Contains("bulb", StringComparison.OrdinalIgnoreCase) ||
                 c.Contains("perennial", StringComparison.OrdinalIgnoreCase)) == true;
 
-            var nightStreak = CalculateNightStreak(nightThresholdF, useCoolingLogic);
+            var nightStreak = CalculateNightStreak(nightThresholdC, useCoolingLogic);
             var requiredNights = Math.Max(0, profile.RequiredConsecutiveNights);
             var leadDays = Math.Max(0, profile.LeadDays ?? 14);
             var statusLeadDays = Math.Min(soonStatusHorizonDays, leadDays);
@@ -721,10 +728,10 @@ else
             var statusLabel = isActionNow ? "Action now" : isSoon ? "Soon" : "Dormant";
             var badgeClass = GetStatusBadgeClass(statusLabel);
 
-            var ruleExplanation = BuildRuleExplanation(requiredNights, nightStreak, useCoolingLogic, nightThresholdF);
+            var ruleExplanation = BuildRuleExplanation(requiredNights, nightStreak, useCoolingLogic, nightThresholdC);
             var timingExplanation = BuildTimingExplanation(hasWindow, isInWindow, isWindowSoon, daysUntilWindowStart, hasDateRule, daysUntilTargetDate);
 
-            var guidance = BuildGuidance(statusLabel, targetTransplantDate, requiredNights, nightStreak, useCoolingLogic, nightThresholdF, timingExplanation);
+            var guidance = BuildGuidance(statusLabel, targetTransplantDate, requiredNights, nightStreak, useCoolingLogic, nightThresholdC, timingExplanation);
             var actionTypeLabel = ResolveActionTypeLabel(profile.ActionType, useCoolingLogic, hasWindow, isInWindow, isWindowSoon);
 
             var harvestLeadDays = Math.Max(0, profile.HarvestLeadDays ?? leadDays);
@@ -764,7 +771,7 @@ else
                 ActionTypeLabel = actionTypeLabel,
                 RequiredConsecutiveNights = requiredNights,
                 CurrentNightStreak = nightStreak,
-                NightTempThresholdF = nightThresholdF,
+                NightTempThresholdC = nightThresholdC,
                 StreakOperatorLabel = useCoolingLogic ? "<=" : ">=",
                 TargetTransplantDate = targetTransplantDate,
                 IndoorStartDate = indoorStartDate,
@@ -823,7 +830,7 @@ else
         };
     }
 
-    private int CalculateNightStreak(double thresholdF, bool useCoolingLogic)
+    private int CalculateNightStreak(double thresholdC, bool useCoolingLogic)
     {
         if (recentDailyMeasurements == null || recentDailyMeasurements.Count == 0)
         {
@@ -833,8 +840,8 @@ else
         var streak = 0;
         foreach (var day in recentDailyMeasurements.OrderByDescending(d => d.TimestampMs))
         {
-            var minF = ToFahrenheit(day.Fields.Temperature.Min);
-            var matches = useCoolingLogic ? minF <= thresholdF : minF >= thresholdF;
+            var minC = day.Fields.Temperature.Min;
+            var matches = useCoolingLogic ? minC <= thresholdC : minC >= thresholdC;
             if (matches)
             {
                 streak++;
@@ -848,7 +855,7 @@ else
         return streak;
     }
 
-    private static string BuildGuidance(string statusLabel, DateOnly? targetDate, int requiredNights, int currentNights, bool useCoolingLogic, double thresholdF, string timingExplanation)
+    private static string BuildGuidance(string statusLabel, DateOnly? targetDate, int requiredNights, int currentNights, bool useCoolingLogic, double thresholdC, string timingExplanation)
     {
         var directionText = useCoolingLogic ? "at or below" : "at or above";
 
@@ -859,7 +866,7 @@ else
 
         if (statusLabel.Equals("Soon", StringComparison.OrdinalIgnoreCase))
         {
-            return $"Monitor this plant closely. Need {requiredNights}-night streak {directionText} {thresholdF:F0}F (currently {currentNights}). {timingExplanation}";
+            return $"Monitor this plant closely. Need {requiredNights}-night streak {directionText} {thresholdC:F2}C ({ToFahrenheit(thresholdC):F0}F) (currently {currentNights}). {timingExplanation}";
         }
 
         return $"Outside active window right now. Next target timing is around {FormatGuidanceDate(targetDate)}.";
@@ -951,10 +958,10 @@ else
         };
     }
 
-    private static string BuildRuleExplanation(int requiredNights, int currentNights, bool useCoolingLogic, double thresholdF)
+    private static string BuildRuleExplanation(int requiredNights, int currentNights, bool useCoolingLogic, double thresholdC)
     {
         var operatorText = useCoolingLogic ? "<=" : ">=";
-        return $"Night streak {currentNights}/{requiredNights} where night min {operatorText} {thresholdF:F0}F.";
+        return $"Night streak {currentNights}/{requiredNights} where night min {operatorText} {thresholdC:F2}C ({ToFahrenheit(thresholdC):F0}F).";
     }
 
     private static string BuildTimingExplanation(bool hasWindow, bool isInWindow, bool isWindowSoon, int? daysUntilWindowStart, bool hasDateRule, int? daysUntilTargetDate)
@@ -1109,7 +1116,8 @@ else
         public string ActionTypeLabel { get; set; } = string.Empty;
         public int RequiredConsecutiveNights { get; set; }
         public int CurrentNightStreak { get; set; }
-        public double NightTempThresholdF { get; set; }
+        public double NightTempThresholdC { get; set; }
+        public double NightTempThresholdF => ToFahrenheit(NightTempThresholdC);
         public string StreakOperatorLabel { get; set; } = string.Empty;
         public DateOnly? TargetTransplantDate { get; set; }
         public DateOnly? IndoorStartDate { get; set; }
@@ -1124,8 +1132,8 @@ else
     private class SeasonTrendPoint
     {
         public DateTime Date { get; set; }
-        public double HighF { get; set; }
-        public double LowF { get; set; }
-        public double AverageF => (HighF + LowF) / 2.0;
+        public double HighC { get; set; }
+        public double LowC { get; set; }
+        public double AverageC => (HighC + LowC) / 2.0;
     }
 }
