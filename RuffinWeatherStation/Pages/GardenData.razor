@@ -162,7 +162,7 @@ else
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <div>
                                                 <h5 class="mb-0">@card.DisplayName</h5>
-                                                <small class="text-muted">@card.Category</small>
+                                                <small class="text-muted">@card.CategoriesLabel</small>
                                             </div>
                                             <span class="badge @card.BadgeClass">@card.StatusLabel</span>
                                         </div>
@@ -170,7 +170,7 @@ else
                                         <div class="small mb-2">
                                             <div><strong>Target transplant date:</strong> @FormatDate(card.TargetTransplantDate)</div>
                                             <div><strong>Indoor start target:</strong> @FormatDate(card.IndoorStartDate)</div>
-                                            <div><strong>Warm streak:</strong> @card.CurrentWarmStreak / @card.RequiredWarmStreak days >= @card.RequiredTempF.ToString("F0")F</div>
+                                            <div><strong>Cool-night streak:</strong> @card.CurrentCoolNightStreak / @card.RequiredConsecutiveNights nights &lt;= @coolNightThresholdF.ToString("F0")F</div>
                                         </div>
 
                                         <p class="mb-1">@card.Guidance</p>
@@ -306,11 +306,6 @@ else
             </div>
         </div>
 
-        <div class="col-12">
-            <div class="alert alert-secondary mb-0">
-                Next phase options: add plant-specific mitigation playbooks and live NWS detail drill-down from snapshot IDs.
-            </div>
-        </div>
     </div>
 }
 
@@ -329,6 +324,7 @@ else
 @code {
     private const int recentRainfallDays = 15;
     private const int recentTemperaturePatternDays = 10;
+    private const double coolNightThresholdF = 50;
 
     private bool isLoading = true;
     private string? errorMessage;
@@ -448,24 +444,23 @@ else
             var targetTransplantDate = gardenReference.AverageLastFrostDate.AddDays(profile.DaysAfterLastFrostToTransplant);
             var indoorStartDate = gardenReference.AverageLastFrostDate.AddDays(-profile.DaysBeforeLastFrostToStartIndoors);
 
-            var warmStreak = CalculateWarmStreak(profile.MinSoilTempF);
-            var requiredStreak = Math.Max(1, profile.RequiredConsecutiveDaysAtOrAboveTemp);
+            var coolNightStreak = CalculateCoolNightStreak(coolNightThresholdF);
+            var requiredNights = Math.Max(1, profile.RequiredConsecutiveNights);
 
             var isDateReady = DateOnly.FromDateTime(DateTime.Today) >= targetTransplantDate;
-            var isStreakReady = warmStreak >= requiredStreak;
+            var isStreakReady = coolNightStreak >= requiredNights;
 
             var statusLabel = isDateReady && isStreakReady ? "Ready" : "Hold";
             var badgeClass = isDateReady && isStreakReady ? "text-bg-success" : "text-bg-secondary";
 
-            var guidance = BuildGuidance(isDateReady, isStreakReady, targetTransplantDate, requiredStreak, warmStreak);
+            var guidance = BuildGuidance(isDateReady, isStreakReady, targetTransplantDate, requiredNights, coolNightStreak);
 
             plantReadinessCards.Add(new PlantReadinessCard
             {
                 DisplayName = profile.DisplayName,
-                Category = profile.Category,
-                RequiredTempF = profile.MinSoilTempF,
-                RequiredWarmStreak = requiredStreak,
-                CurrentWarmStreak = warmStreak,
+                CategoriesLabel = FormatCategories(profile.Categories),
+                RequiredConsecutiveNights = requiredNights,
+                CurrentCoolNightStreak = coolNightStreak,
                 TargetTransplantDate = targetTransplantDate,
                 IndoorStartDate = indoorStartDate,
                 StatusLabel = statusLabel,
@@ -476,7 +471,7 @@ else
         }
     }
 
-    private int CalculateWarmStreak(double minTempF)
+    private int CalculateCoolNightStreak(double maxNightTempF)
     {
         if (recentDailyMeasurements == null || recentDailyMeasurements.Count == 0)
         {
@@ -486,8 +481,8 @@ else
         var streak = 0;
         foreach (var day in recentDailyMeasurements.OrderByDescending(d => d.TimestampMs))
         {
-            var avgF = ToFahrenheit(day.Fields.Temperature.Avg);
-            if (avgF >= minTempF)
+            var minF = ToFahrenheit(day.Fields.Temperature.Min);
+            if (minF <= maxNightTempF)
             {
                 streak++;
             }
@@ -500,7 +495,7 @@ else
         return streak;
     }
 
-    private static string BuildGuidance(bool isDateReady, bool isStreakReady, DateOnly targetDate, int requiredStreak, int currentStreak)
+    private static string BuildGuidance(bool isDateReady, bool isStreakReady, DateOnly targetDate, int requiredNights, int currentCoolNights)
     {
         if (isDateReady && isStreakReady)
         {
@@ -509,15 +504,25 @@ else
 
         if (!isDateReady && !isStreakReady)
         {
-            return $"Wait until at least {targetDate:MMM d, yyyy} and build a {requiredStreak}-day warm streak (currently {currentStreak}).";
+            return $"Wait until at least {targetDate:MMM d, yyyy} and build a {requiredNights}-night cool streak (currently {currentCoolNights}).";
         }
 
         if (!isDateReady)
         {
-            return $"Temperatures are trending warm enough, but frost-date timing suggests waiting until {targetDate:MMM d, yyyy}.";
+            return $"Cool-night signal looks favorable, but calendar timing suggests waiting until {targetDate:MMM d, yyyy}.";
         }
 
-        return $"Calendar timing is open, but hold until warm streak reaches {requiredStreak} day(s).";
+        return $"Calendar timing is open, but hold until cool-night streak reaches {requiredNights} night(s).";
+    }
+
+    private static string FormatCategories(List<string>? categories)
+    {
+        if (categories == null || categories.Count == 0)
+        {
+            return "Uncategorized";
+        }
+
+        return string.Join(", ", categories.Select(c => c.Trim()).Where(c => !string.IsNullOrWhiteSpace(c)).Distinct(StringComparer.OrdinalIgnoreCase));
     }
 
     private static double ToFahrenheit(double celsius)
@@ -563,10 +568,9 @@ else
     private class PlantReadinessCard
     {
         public string DisplayName { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
-        public double RequiredTempF { get; set; }
-        public int RequiredWarmStreak { get; set; }
-        public int CurrentWarmStreak { get; set; }
+        public string CategoriesLabel { get; set; } = string.Empty;
+        public int RequiredConsecutiveNights { get; set; }
+        public int CurrentCoolNightStreak { get; set; }
         public DateOnly TargetTransplantDate { get; set; }
         public DateOnly IndoorStartDate { get; set; }
         public string StatusLabel { get; set; } = string.Empty;
