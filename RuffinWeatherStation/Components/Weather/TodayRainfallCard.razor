@@ -1,0 +1,55 @@
+@using RuffinWeatherStation.Models
+
+<div class="card mt-3 today-rainfall-card" style="max-width: 400px;">
+    <div class="card-header bg-info text-white">
+        <h3 class="mb-0">Today's Rainfall Accumulation</h3>
+        <small class="rainfall-card-subtitle">@DateTime.Now.ToString("D")</small>
+    </div>
+    <div class="card-body">
+        <div class="text-center mb-3 rainfall-summary">
+            <div class="display-6">@AccumulatedRainfall.ToString("F1") mm</div>
+            <p class="mb-1">Total rainfall today</p>
+            <small class="text-muted">Since @(FirstMeasurementTime.HasValue ? FormatDateTimeForUser(FirstMeasurementTime.Value) : "N/A")</small>
+            <div class="text-muted">Elapsed: @Math.Round(ElapsedRainfallTime.TotalHours, 1) hr</div>
+        </div>
+
+        @if (RainfallData != null && RainfallData.Any())
+        {
+            <RadzenChart class="rainfall-chart">
+                <RadzenAreaSeries Data="@RainfallData"
+                                  CategoryProperty="Timestamp"
+                                  ValueProperty="AccumulatedRain"
+                                  Title="Accumulation (mm)"
+                                  Smooth="true"
+                                  Fill="rgba(54, 162, 235, 0.3)"
+                                  StrokeWidth="2">
+                </RadzenAreaSeries>
+                <RadzenColumnSeries Data="@RainfallData"
+                                    CategoryProperty="Timestamp"
+                                    ValueProperty="RainIncrement"
+                                    Title="Increment (mm)"
+                                    Fill="rgba(54, 162, 235, 0.7)">
+                </RadzenColumnSeries>
+                <RadzenCategoryAxis Formatter="@FormatRainfallTimestamp" />
+                <RadzenValueAxis>
+                    <RadzenGridLines Visible="true" />
+                    <RadzenAxisTitle Text="Rainfall (mm)" />
+                </RadzenValueAxis>
+                <RadzenLegend Position="LegendPosition.Top" />
+            </RadzenChart>
+        }
+        else
+        {
+            <p class="text-muted text-center mb-0">No rainfall measurements recorded for today yet.</p>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public double AccumulatedRainfall { get; set; }
+    [Parameter] public DateTime? FirstMeasurementTime { get; set; }
+    [Parameter] public TimeSpan ElapsedRainfallTime { get; set; }
+    [Parameter] public List<TodayRainfallDataPoint>? RainfallData { get; set; }
+    [Parameter] public Func<DateTime, string> FormatDateTimeForUser { get; set; } = value => value.ToString("g");
+    [Parameter] public Func<object, string> FormatRainfallTimestamp { get; set; } = value => value?.ToString() ?? string.Empty;
+}

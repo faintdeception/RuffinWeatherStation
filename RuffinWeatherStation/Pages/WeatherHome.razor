@@ -29,77 +29,13 @@
     </div>
 }
 
-@if (isAlertSummaryLoading)
-{
-    <div class="alert alert-light border mb-4">
-        <strong>Weather Attention Alerts:</strong> Checking latest NWS snapshot...
-    </div>
-}
-else if (!string.IsNullOrWhiteSpace(alertSummaryLoadError))
-{
-    <div class="alert alert-warning mb-4">
-        <strong>Weather Attention Alerts:</strong> @alertSummaryLoadError
-    </div>
-}
-else if (attentionAlerts.Any())
-{
-    <div class="card border-danger mb-4">
-        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Weather Attention Alerts</h4>
-            <span class="badge text-bg-light">@attentionAlerts.Count</span>
-        </div>
-        <div class="card-body">
-            @if (homeAlertSummary?.SnapshotFetchedAtUtc.HasValue == true)
-            {
-                <p class="text-muted mb-2">
-                    Snapshot fetched: @FormatDateTimeForUserWithTimezone(homeAlertSummary.SnapshotFetchedAtUtc.Value)
-                    @if (homeAlertSummary.IsSnapshotExpired)
-                    {
-                        <span class="badge text-bg-secondary ms-2">Snapshot Expired</span>
-                    }
-                    else
-                    {
-                        <span class="badge text-bg-success ms-2">Snapshot Active</span>
-                    }
-                </p>
-            }
-
-            <div class="d-flex flex-column gap-3">
-                @foreach (var alert in attentionAlerts)
-                {
-                    <div class="border rounded p-3">
-                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
-                            <div>
-                                <h5 class="mb-1">@alert.Event</h5>
-                                @if (!string.IsNullOrWhiteSpace(alert.Headline))
-                                {
-                                    <div class="text-muted">@alert.Headline</div>
-                                }
-                            </div>
-                            <div class="d-flex gap-2">
-                                <span class="badge @GetHomeSeverityBadgeClass(alert.Severity)">@alert.Severity</span>
-                                <span class="badge @(alert.IsActive ? "text-bg-success" : "text-bg-secondary")">@(alert.IsActive ? "Active" : "Expired")</span>
-                            </div>
-                        </div>
-
-                        <div class="row gy-2 small">
-                            <div class="col-md-4 col-6"><strong>Urgency:</strong> @alert.Urgency</div>
-                            <div class="col-md-4 col-6"><strong>Certainty:</strong> @alert.Certainty</div>
-                            <div class="col-md-4 col-12"><strong>Onset:</strong> @FormatNullableDateTimeForUserWithTimezone(alert.OnsetUtc)</div>
-                        </div>
-
-                        @if (!string.IsNullOrWhiteSpace(alert.Instruction))
-                        {
-                            <div class="alert alert-warning py-2 mt-2 mb-0">
-                                <strong>Instruction:</strong> @alert.Instruction
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-}
+<AttentionAlertsCard IsLoading="isAlertSummaryLoading"
+                     LoadError="alertSummaryLoadError"
+                     Alerts="attentionAlerts"
+                     Summary="homeAlertSummary"
+                     FormatDateTimeForUserWithTimezone="FormatDateTimeForUserWithTimezone"
+                     FormatNullableDateTimeForUserWithTimezone="FormatNullableDateTimeForUserWithTimezone"
+                     GetSeverityBadgeClass="GetHomeSeverityBadgeClass" />
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
@@ -141,146 +77,35 @@ else
 {
     <div class="row">
         <div class="col-md-4">
-            <div class="card" style="max-width: 400px;">
-                <div class="card-header bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">Temperature</h3>
-                        <div>
-                            <span class="badge @(IsDataStale() ? "bg-warning" : "bg-success")">
-                                @(IsDataStale() ? "Data may be stale" : "Data current")
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="display-1 text-center">@FormatDouble(measurement.Fields?.Temperature)°C</div>
-                    <div class="h4 text-center">@FormatTemperatureF(measurement.Fields?.Temperature)°F</div>
-                    <p class="text-center text-muted">
-                        Last updated: @FormatDateTimeForUserWithTimezone(measurement.TimestampMs)
-                        @if (IsDataStale())
-                        {
-                            <span class="text-warning d-block">Data is @GetDataAge() old</span>
-                        }
-                        @if (nextCacheRefresh.HasValue)
-                        {
-                            <small class="d-block mt-1">Next data refresh in approximately @GetTimeUntilCacheRefresh()</small>
-                        }
-                    </p>
-                    <hr />
-                    <table class="table table-sm">
-                        <tr><th>Humidity</th><td>@FormatDouble(measurement.Fields?.Humidity)%</td></tr>
-                        <tr><th>Dewpoint</th><td>@FormatDouble(measurement.Fields?.Dewpoint)°C</td></tr>
-                        <tr><th>Pressure</th><td>@FormatDouble(measurement.Fields?.Pressure) hPa</td></tr>
-                        <tr><th>Light</th><td>@FormatDouble(measurement.Fields?.Lux) lux</td></tr>
-                        <tr><th>Wind</th><td>@FormatDouble(measurement.Fields?.WindSpeed) m/s (@measurement.Fields?.WindDirectionCardinal)</td></tr>
-                        <tr><th>Rain Today</th><td>@accumulatedRainfall.ToString("F1") mm</td></tr>
-                        <tr><th>Location</th><td>@measurement.Tags?.Location</td></tr>
-                        <tr><th>Sensor</th><td>@measurement.Tags?.SensorType</td></tr>
-                    </table>
-                </div>
-            </div>
+            <TemperatureCard Measurement="measurement"
+                             IsDataStale="IsDataStale()"
+                             DataAge="GetDataAge()"
+                             TimeUntilCacheRefresh="@(nextCacheRefresh.HasValue ? GetTimeUntilCacheRefresh() : null)"
+                             AccumulatedRainfall="accumulatedRainfall"
+                             FormatDouble="FormatDouble"
+                             FormatTemperatureF="FormatTemperatureF"
+                             FormatDateTimeForUserWithTimezone="FormatDateTimeForUserWithTimezone" />
 
-            <div class="card mt-3" style="max-width: 400px;">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Historical High / Low</h3>
-                    <small class="rainfall-card-subtitle">Daily record for selected date</small>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label" for="historicalDateInput">Date</label>
-                        <input id="historicalDateInput"
-                               type="date"
-                               class="form-control"
-                               value="@selectedHistoricalDate.ToString("yyyy-MM-dd")"
-                               @onchange="OnHistoricalDateChanged" />
-                        <small class="text-muted d-block mt-1">Location: @historicalLocation</small>
-                    </div>
-
-                    @if (isHistoricalDailyLoading)
-                    {
-                        <p class="text-muted mb-0">Loading historical record...</p>
-                    }
-                    else if (!string.IsNullOrEmpty(historicalDailyErrorMessage))
-                    {
-                        <div class="alert alert-warning mb-0">@historicalDailyErrorMessage</div>
-                    }
-                    else if (historicalDailyRecord?.HasData == true)
-                    {
-                        <div class="row text-center mb-3">
-                            <div class="col-6">
-                                <h6 class="mb-1">High</h6>
-                                <div class="fw-semibold">@FormatDouble(historicalDailyRecord.High?.Value)C</div>
-                                <small class="text-muted">@FormatTemperatureF(historicalDailyRecord.High?.Value)F</small>
-                                <div><small class="text-muted">@FormatHistoricDate(historicalDailyRecord.High?.Date)</small></div>
-                            </div>
-                            <div class="col-6">
-                                <h6 class="mb-1">Low</h6>
-                                <div class="fw-semibold">@FormatDouble(historicalDailyRecord.Low?.Value)C</div>
-                                <small class="text-muted">@FormatTemperatureF(historicalDailyRecord.Low?.Value)F</small>
-                                <div><small class="text-muted">@FormatHistoricDate(historicalDailyRecord.Low?.Date)</small></div>
-                            </div>
-                        </div>
-
-                        <div class="text-muted">
-                            <small>Updated: @(historicalDailyRecord.UpdatedAt.HasValue ? FormatDateTimeForUserWithTimezone(historicalDailyRecord.UpdatedAt.Value) : "N/A")</small>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info mb-0">
-                            No historical record for this date.
-                        </div>
-                    }
-                </div>
-            </div>
+            <HistoricalDailyCard SelectedDate="selectedHistoricalDate"
+                                 OnDateChanged="OnHistoricalDateChanged"
+                                 Location="historicalLocation"
+                                 IsLoading="isHistoricalDailyLoading"
+                                 ErrorMessage="historicalDailyErrorMessage"
+                                 Record="historicalDailyRecord"
+                                 FormatDouble="FormatDouble"
+                                 FormatTemperatureF="FormatTemperatureF"
+                                 FormatHistoricDate="FormatHistoricDate"
+                                 FormatDateTimeForUserWithTimezone="FormatDateTimeForUserWithTimezone" />
 
             <WindRoseCard Measurement="measurement"
                           ObservedLabel="@(measurement != null ? FormatDateTimeForUserWithTimezone(measurement.TimestampMs) : null)" />
 
-            <div class="card mt-3 today-rainfall-card" style="max-width: 400px;">
-                <div class="card-header bg-info text-white">
-                    <h3 class="mb-0">Today's Rainfall Accumulation</h3>
-                    <small class="rainfall-card-subtitle">@DateTime.Now.ToString("D")</small>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-3 rainfall-summary">
-                        <div class="display-6">@accumulatedRainfall.ToString("F1") mm</div>
-                        <p class="mb-1">Total rainfall today</p>
-                        <small class="text-muted">Since @(firstMeasurementTime.HasValue ? FormatDateTimeForUser(firstMeasurementTime.Value) : "N/A")</small>
-                        <div class="text-muted">Elapsed: @Math.Round(elapsedRainfallTime.TotalHours, 1) hr</div>
-                    </div>
-
-                    @if (rainfallData != null && rainfallData.Any())
-                    {
-                        <RadzenChart class="rainfall-chart">
-                            <RadzenAreaSeries Data="@rainfallData"
-                                              CategoryProperty="Timestamp"
-                                              ValueProperty="AccumulatedRain"
-                                              Title="Accumulation (mm)"
-                                              Smooth="true"
-                                              Fill="rgba(54, 162, 235, 0.3)"
-                                              StrokeWidth="2">
-                            </RadzenAreaSeries>
-                            <RadzenColumnSeries Data="@rainfallData"
-                                                CategoryProperty="Timestamp"
-                                                ValueProperty="RainIncrement"
-                                                Title="Increment (mm)"
-                                                Fill="rgba(54, 162, 235, 0.7)">
-                            </RadzenColumnSeries>
-                            <RadzenCategoryAxis Formatter="@FormatRainfallTimestamp" />
-                            <RadzenValueAxis>
-                                <RadzenGridLines Visible="true" />
-                                <RadzenAxisTitle Text="Rainfall (mm)" />
-                            </RadzenValueAxis>
-                            <RadzenLegend Position="LegendPosition.Top" />
-                        </RadzenChart>
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center mb-0">No rainfall measurements recorded for today yet.</p>
-                    }
-                </div>
-            </div>
+            <TodayRainfallCard AccumulatedRainfall="accumulatedRainfall"
+                               FirstMeasurementTime="firstMeasurementTime"
+                               ElapsedRainfallTime="elapsedRainfallTime"
+                               RainfallData="rainfallData"
+                               FormatDateTimeForUser="FormatDateTimeForUser"
+                               FormatRainfallTimestamp="FormatRainfallTimestamp" />
         </div>
         
         <div class="col-md-8">

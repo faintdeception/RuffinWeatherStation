@@ -1,0 +1,60 @@
+@using RuffinWeatherStation.Models
+
+<div class="card" style="max-width: 400px;">
+    <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Temperature</h3>
+            <div>
+                <span class="badge @(IsDataStale ? "bg-warning" : "bg-success")">
+                    @(IsDataStale ? "Data may be stale" : "Data current")
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Measurement is null)
+        {
+            <p class="text-muted mb-0">No temperature data available.</p>
+        }
+        else
+        {
+            var currentMeasurement = Measurement;
+
+            <div class="display-1 text-center">@FormatDouble(currentMeasurement.Fields?.Temperature)°C</div>
+            <div class="h4 text-center">@FormatTemperatureF(currentMeasurement.Fields?.Temperature)°F</div>
+            <p class="text-center text-muted">
+                Last updated: @FormatDateTimeForUserWithTimezone(currentMeasurement.TimestampMs)
+                @if (IsDataStale)
+                {
+                    <span class="text-warning d-block">Data is @DataAge old</span>
+                }
+                @if (!string.IsNullOrWhiteSpace(TimeUntilCacheRefresh))
+                {
+                    <small class="d-block mt-1">Next data refresh in approximately @TimeUntilCacheRefresh</small>
+                }
+            </p>
+            <hr />
+            <table class="table table-sm">
+                <tr><th>Humidity</th><td>@FormatDouble(currentMeasurement.Fields?.Humidity)%</td></tr>
+                <tr><th>Dewpoint</th><td>@FormatDouble(currentMeasurement.Fields?.Dewpoint)°C</td></tr>
+                <tr><th>Pressure</th><td>@FormatDouble(currentMeasurement.Fields?.Pressure) hPa</td></tr>
+                <tr><th>Light</th><td>@FormatDouble(currentMeasurement.Fields?.Lux) lux</td></tr>
+                <tr><th>Wind</th><td>@FormatDouble(currentMeasurement.Fields?.WindSpeed) m/s (@currentMeasurement.Fields?.WindDirectionCardinal)</td></tr>
+                <tr><th>Rain Today</th><td>@AccumulatedRainfall.ToString("F1") mm</td></tr>
+                <tr><th>Location</th><td>@currentMeasurement.Tags?.Location</td></tr>
+                <tr><th>Sensor</th><td>@currentMeasurement.Tags?.SensorType</td></tr>
+            </table>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public TemperatureMeasurement Measurement { get; set; } = default!;
+    [Parameter] public bool IsDataStale { get; set; }
+    [Parameter] public string DataAge { get; set; } = "unknown";
+    [Parameter] public string? TimeUntilCacheRefresh { get; set; }
+    [Parameter] public double AccumulatedRainfall { get; set; }
+    [Parameter] public Func<double?, string> FormatDouble { get; set; } = _ => "N/A";
+    [Parameter] public Func<double?, string> FormatTemperatureF { get; set; } = _ => "N/A";
+    [Parameter] public Func<DateTime, string> FormatDateTimeForUserWithTimezone { get; set; } = value => value.ToString("g");
+}

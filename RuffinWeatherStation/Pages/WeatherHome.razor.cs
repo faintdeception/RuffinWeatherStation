@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using RuffinWeatherStation.Models;
 using RuffinWeatherStation.Services;
+using RuffinWeatherStation.Utilities;
 
 namespace RuffinWeatherStation.Pages;
 
@@ -78,8 +79,8 @@ public partial class WeatherHome
             if (homeAlertSummary?.RecentAlerts != null)
             {
                 attentionAlerts = homeAlertSummary.RecentAlerts
-                    .Where(IsEyebrowRaisingAlert)
-                    .OrderByDescending(a => GetSeverityRank(a.Severity))
+                    .Where(WeatherDisplayHelpers.IsEyebrowRaisingAlert)
+                    .OrderByDescending(a => WeatherDisplayHelpers.GetSeverityRank(a.Severity))
                     .ThenByDescending(a => a.OnsetUtc ?? a.SentUtc ?? DateTime.MinValue)
                     .Take(4)
                     .ToList();
@@ -458,68 +459,8 @@ public partial class WeatherHome
         return value.HasValue ? FormatDateTimeForUserWithTimezone(value.Value) : "n/a";
     }
 
-    private bool IsEyebrowRaisingAlert(NwsAlertSnapshotData alert)
-    {
-        if (!alert.IsActive)
-        {
-            return false;
-        }
-
-        return GetUrgencyRank(alert.Urgency) >= 2 &&
-               GetSeverityRank(alert.Severity) >= 2 &&
-               GetCertaintyRank(alert.Certainty) >= 1;
-    }
-
-    private static int GetUrgencyRank(string urgency)
-    {
-        return urgency.Trim().ToLowerInvariant() switch
-        {
-            "immediate" => 4,
-            "expected" => 3,
-            "future" => 2,
-            "past" => 1,
-            _ => 0
-        };
-    }
-
-    private static int GetSeverityRank(string severity)
-    {
-        return severity.Trim().ToLowerInvariant() switch
-        {
-            "extreme" => 4,
-            "severe" => 3,
-            "moderate" => 2,
-            "minor" => 1,
-            _ => 0
-        };
-    }
-
-    private static int GetCertaintyRank(string certainty)
-    {
-        return certainty.Trim().ToLowerInvariant() switch
-        {
-            "observed" => 3,
-            "likely" => 2,
-            "possible" => 1,
-            _ => 0
-        };
-    }
-
     private static string GetHomeSeverityBadgeClass(string severity)
     {
-        return GetSeverityRank(severity) switch
-        {
-            4 => "text-bg-dark",
-            3 => "text-bg-danger",
-            2 => "text-bg-warning",
-            _ => "text-bg-secondary"
-        };
-    }
-
-    private class TodayRainfallDataPoint
-    {
-        public DateTime Timestamp { get; set; }
-        public double RainIncrement { get; set; }
-        public double AccumulatedRain { get; set; }
+        return WeatherDisplayHelpers.GetHomeSeverityBadgeClass(severity);
     }
 }
