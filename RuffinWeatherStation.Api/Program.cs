@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using RuffinWeatherStation.Api.Models;
 
 try
 {
@@ -22,6 +23,7 @@ try
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
     builder.Services.AddOpenApi();
     builder.Services.AddControllers();
+    builder.Services.Configure<GardenSettings>(builder.Configuration.GetSection("GardenSettings"));
 
     Console.WriteLine("[STARTUP] Controllers and OpenAPI configured...");
 

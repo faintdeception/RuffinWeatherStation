@@ -1,0 +1,272 @@
+@page "/garden-data"
+@inject TemperatureService TemperatureService
+@inject GardenDataService GardenDataService
+
+<h1>Garden Data</h1>
+
+<p class="text-muted">
+    Garden-focused weather context, seasonal reference dates, and frost timing guidance for planning.
+</p>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-success" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading garden data...</p>
+    </div>
+}
+else if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-warning" role="alert">@errorMessage</div>
+}
+else
+{
+    <div class="row gy-3">
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Recent Rainfall (Last @recentRainfallDays Days)</h3>
+                </div>
+                <div class="card-body">
+                    @if (rainfallAnalysis?.DailyRainfall != null && rainfallAnalysis.DailyRainfall.Any())
+                    {
+                        <div class="mb-3">
+                            <div><strong>Total:</strong> @rainfallAnalysis.TotalRainfall.ToString("F1") mm</div>
+                            <div><strong>Rainy Days:</strong> @rainfallAnalysis.RainyDaysCount / @recentRainfallDays</div>
+                            <div><strong>Longest Dry Spell:</strong> @rainfallAnalysis.LongestDrySpellDays day(s)</div>
+                        </div>
+
+                        <RadzenChart class="garden-rain-chart">
+                            <RadzenColumnSeries Data="@rainfallAnalysis.DailyRainfall"
+                                                CategoryProperty="Timestamp"
+                                                ValueProperty="Total"
+                                                Title="Daily Rain (mm)"
+                                                Fill="rgba(46, 139, 87, 0.75)" />
+                            <RadzenCategoryAxis Formatter="@FormatDateLabel" />
+                            <RadzenValueAxis>
+                                <RadzenGridLines Visible="true" />
+                                <RadzenAxisTitle Text="Rainfall (mm)" />
+                            </RadzenValueAxis>
+                            <RadzenLegend Position="LegendPosition.Top" />
+                        </RadzenChart>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No rainfall history is available for the selected period.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Season And Frost Reference</h3>
+                </div>
+                <div class="card-body">
+                    @if (gardenReference != null)
+                    {
+                        <p class="mb-2"><strong>Location:</strong> @gardenReference.LocationLabel</p>
+                        <p class="mb-3"><strong>Average Last Frost:</strong> @FormatDate(gardenReference.AverageLastFrostDate)</p>
+
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Season</th>
+                                    <th>Start Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Spring</td><td>@FormatDate(gardenReference.SeasonStarts.Spring)</td></tr>
+                                <tr><td>Summer</td><td>@FormatDate(gardenReference.SeasonStarts.Summer)</td></tr>
+                                <tr><td>Fall</td><td>@FormatDate(gardenReference.SeasonStarts.Fall)</td></tr>
+                                <tr><td>Winter</td><td>@FormatDate(gardenReference.SeasonStarts.Winter)</td></tr>
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">Garden reference dates are unavailable right now.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h3 class="mb-0">Planning Windows</h3>
+                </div>
+                <div class="card-body">
+                    @if (gardenReference != null)
+                    {
+                        <div class="row gy-2">
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded h-100">
+                                    <h5 class="mb-2">Seed Starting Window</h5>
+                                    <p class="mb-1">
+                                        @FormatDate(seedWindowStart) to @FormatDate(seedWindowEnd)
+                                    </p>
+                                    <small class="text-muted">Based on average last frost date.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded h-100">
+                                    <h5 class="mb-2">Hose And Equipment Check</h5>
+                                    <p class="mb-1">
+                                        @FormatDate(hoseWindowStart) to @FormatDate(hoseWindowEnd)
+                                    </p>
+                                    <small class="text-muted">Centered around first day of spring.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded h-100">
+                                    <h5 class="mb-2">Recent Temperature Pattern</h5>
+                                    <p class="mb-1">
+                                        Trend: @temperatureTrendSummary
+                                    </p>
+                                    <p class="mb-1">Frost Days (10 days): @recentFrostDays</p>
+                                    <small class="text-muted">Computed from recent daily station aggregates.</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="alert alert-secondary mb-0">
+                Next phase: JSON-backed plant profiles (for crop-specific thresholds) and risk summaries sourced from `nws_snapshots`.
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .garden-rain-chart {
+        height: 260px;
+    }
+
+    @@media (max-width: 768px) {
+        .garden-rain-chart {
+            height: 220px;
+        }
+    }
+</style>
+
+@code {
+    private const int recentRainfallDays = 15;
+    private const int recentTemperaturePatternDays = 10;
+
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    private GardenReferenceData? gardenReference;
+    private WeatherAnalysisResult? rainfallAnalysis;
+    private List<DailyMeasurement>? recentDailyMeasurements;
+
+    private DateOnly seedWindowStart;
+    private DateOnly seedWindowEnd;
+    private DateOnly hoseWindowStart;
+    private DateOnly hoseWindowEnd;
+    private int recentFrostDays;
+    private string temperatureTrendSummary = "Unknown";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            var rainfallTask = TemperatureService.GetAnalysisAsync(recentRainfallDays, rainOnly: true);
+            var dailyTask = TemperatureService.GetDailyMeasurementsAsync(recentTemperaturePatternDays);
+            var referenceTask = GardenDataService.GetGardenReferenceAsync();
+
+            await Task.WhenAll(rainfallTask, dailyTask, referenceTask);
+
+            rainfallAnalysis = rainfallTask.Result;
+            recentDailyMeasurements = dailyTask.Result;
+            gardenReference = referenceTask.Result;
+
+            if (gardenReference == null)
+            {
+                errorMessage = "Unable to load garden reference data from the API.";
+                return;
+            }
+
+            CalculatePlanningWindows();
+            CalculateTemperaturePattern();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load garden data: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CalculatePlanningWindows()
+    {
+        if (gardenReference == null)
+        {
+            return;
+        }
+
+        seedWindowStart = gardenReference.AverageLastFrostDate.AddDays(-42);
+        seedWindowEnd = gardenReference.AverageLastFrostDate.AddDays(-14);
+
+        hoseWindowStart = gardenReference.SeasonStarts.Spring.AddDays(-14);
+        hoseWindowEnd = gardenReference.SeasonStarts.Spring.AddDays(14);
+    }
+
+    private void CalculateTemperaturePattern()
+    {
+        if (recentDailyMeasurements == null || recentDailyMeasurements.Count == 0)
+        {
+            temperatureTrendSummary = "No daily measurements";
+            recentFrostDays = 0;
+            return;
+        }
+
+        var ordered = recentDailyMeasurements.OrderBy(d => d.TimestampMs).ToList();
+        var firstAvg = ordered.First().Fields.Temperature.Avg;
+        var lastAvg = ordered.Last().Fields.Temperature.Avg;
+        var trendDelta = lastAvg - firstAvg;
+
+        if (trendDelta > 1.0)
+        {
+            temperatureTrendSummary = $"Warming ({trendDelta:F1}C)";
+        }
+        else if (trendDelta < -1.0)
+        {
+            temperatureTrendSummary = $"Cooling ({Math.Abs(trendDelta):F1}C)";
+        }
+        else
+        {
+            temperatureTrendSummary = "Stable";
+        }
+
+        recentFrostDays = ordered.Count(d => d.Fields.Temperature.Min <= 0);
+    }
+
+    private static string FormatDateLabel(object value)
+    {
+        if (value is DateTime dateTime)
+        {
+            return dateTime.ToString("MM-dd");
+        }
+
+        return string.Empty;
+    }
+
+    private static string FormatDate(DateOnly value)
+    {
+        return value.ToString("MMM d, yyyy");
+    }
+}

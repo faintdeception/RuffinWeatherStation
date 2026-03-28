@@ -30,3 +30,30 @@ When moving from MongoDB to CosmosDB:
 2. Configure your database connection strings as described above
 3. Run the API project: `dotnet run --project RuffinWeatherStation.Api`
 4. Run the Blazor WebAssembly project: `dotnet run --project RuffinWeatherStation`
+
+## Garden Data
+
+The app now includes a `Garden Data` page in the left navigation. This page provides:
+
+- Recent rainfall context for planning.
+- Seasonal start reference dates (spring/summer/fall/winter).
+- Average last frost reference date resolved by the API.
+
+### API Endpoint
+
+- `GET /api/garden/reference`
+- Optional query: `year` (for example: `/api/garden/reference?year=2026`)
+
+### Frost Configuration (Environment Variables)
+
+Set these on the API host to override defaults:
+
+- `GardenSettings__AverageLastFrostMonthDay` (format: `MM-dd`, example: `04-20`)
+- `GardenSettings__LocationLabel` (example: `front-yard`)
+
+Defaults are defined in `RuffinWeatherStation.Api/appsettings.json`.
+
+### Planned Next Phase
+
+- JSON-backed plant profile rules (for crop-specific recommendations).
+- Garden risk panel sourced from stored NWS snapshots (`nws_snapshots`).
