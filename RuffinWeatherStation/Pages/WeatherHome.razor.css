@@ -1,1 +1,9 @@
 /* WeatherHome styles moved into card components for CSS isolation friendliness. */
+
+/*
+	Intentionally add a soft trailing echo to rainfall bars so the layered look is stylistic,
+	not dependent on duplicate points rendering on top of each other.
+*/
+::deep .rainfall-chart svg [fill*="30, 136, 229"] {
+		filter: drop-shadow(-10px 0 0 rgba(30, 136, 229, 0.28));
+}

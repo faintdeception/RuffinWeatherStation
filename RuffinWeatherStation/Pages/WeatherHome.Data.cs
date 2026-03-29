@@ -143,16 +143,47 @@ public partial class WeatherHome
 
             if (recentRainfallAnalysis?.DailyRainfall != null)
             {
-                recentRainfallAnalysis.DailyRainfall = recentRainfallAnalysis.DailyRainfall
-                    .GroupBy(d => d.Timestamp)
+                // Normalize to one point per displayed day so chart rendering stays deterministic.
+                var normalizedDailyRainfall = recentRainfallAnalysis.DailyRainfall
+                    .GroupBy(d => DateOnly.FromDateTime(ConvertToUserTimeZone(d.Timestamp)))
                     .OrderBy(g => g.Key)
                     .Select(g => new RainfallDataPoint
                     {
-                        Timestamp = g.Key,
+                        Timestamp = g.Min(x => x.Timestamp),
                         Total = g.Sum(x => x.Total),
                         MaxRate = g.Max(x => x.MaxRate)
                     })
                     .ToList();
+
+                recentRainfallAnalysis.DailyRainfall = normalizedDailyRainfall;
+                recentRainfallAnalysis.TotalRainfall = normalizedDailyRainfall.Sum(d => d.Total);
+                recentRainfallAnalysis.RainyDaysCount = normalizedDailyRainfall.Count(d => d.Total > 0.1);
+                recentRainfallAnalysis.AverageDailyRainfall = normalizedDailyRainfall.Any()
+                    ? normalizedDailyRainfall.Average(d => d.Total)
+                    : 0;
+                recentRainfallAnalysis.MaxDailyRainfall = normalizedDailyRainfall.Any()
+                    ? normalizedDailyRainfall.Max(d => d.Total)
+                    : 0;
+
+                int currentDryStreak = 0;
+                int longestDryStreak = 0;
+                foreach (var day in normalizedDailyRainfall)
+                {
+                    if (day.Total <= 0.1)
+                    {
+                        currentDryStreak++;
+                        if (currentDryStreak > longestDryStreak)
+                        {
+                            longestDryStreak = currentDryStreak;
+                        }
+                    }
+                    else
+                    {
+                        currentDryStreak = 0;
+                    }
+                }
+
+                recentRainfallAnalysis.LongestDrySpellDays = longestDryStreak;
             }
         }
         catch (Exception ex)
