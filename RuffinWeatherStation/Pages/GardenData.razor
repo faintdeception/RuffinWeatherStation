@@ -203,25 +203,25 @@ else
                             <RadzenLineSeries Data="@seasonTrendData"
                                               CategoryProperty="Date"
                                               ValueProperty="HighC"
-                                              Title="Daily High (C)"
+                                              Title="Daily High (°C)"
                                               LineType="LineType.Solid"
                                               StrokeWidth="3" />
                             <RadzenLineSeries Data="@seasonTrendData"
                                               CategoryProperty="Date"
                                               ValueProperty="LowC"
-                                              Title="Daily Low (C)"
+                                              Title="Daily Low (°C)"
                                               LineType="LineType.Dashed"
                                               StrokeWidth="2" />
                             <RadzenLineSeries Data="@seasonTrendData"
                                               CategoryProperty="Date"
                                               ValueProperty="AverageC"
-                                              Title="Daily Avg (C)"
+                                              Title="Daily Avg (°C)"
                                               LineType="LineType.Dotted"
                                               StrokeWidth="2" />
                             <RadzenLineSeries Data="@seasonTrendData"
                                               CategoryProperty="Date"
                                               ValueProperty="RollingAverageC"
-                                              Title="5-Day Rolling Avg (C)"
+                                              Title="5-Day Rolling Avg (°C)"
                                               LineType="LineType.Solid"
                                               StrokeWidth="4" />
                             @if (showWarmSignalSeries)
@@ -229,7 +229,7 @@ else
                                 <RadzenLineSeries Data="@seasonTrendData"
                                                   CategoryProperty="Date"
                                                   ValueProperty="WarmDayThresholdC"
-                                                  Title="Warm Day Threshold (20.00C)"
+                                                  Title="Warm Day Threshold (20.00°C)"
                                                   LineType="LineType.Dotted"
                                                   StrokeWidth="1" />
                                 @if (seasonWarmSignalPoints.Count > 0)
@@ -247,7 +247,7 @@ else
                                 <RadzenLineSeries Data="@seasonTrendData"
                                                   CategoryProperty="Date"
                                                   ValueProperty="ColdNightThresholdC"
-                                                  Title="Cold Night Threshold (2.22C)"
+                                                  Title="Cold Night Threshold (2.22°C)"
                                                   LineType="LineType.Dotted"
                                                   StrokeWidth="1" />
                                 @if (seasonColdSignalPoints.Count > 0)
@@ -287,7 +287,7 @@ else
                             <RadzenCategoryAxis Formatter="@FormatSeasonDateLabel" />
                             <RadzenValueAxis>
                                 <RadzenGridLines Visible="true" />
-                                <RadzenAxisTitle Text="Temperature (C)" />
+                                <RadzenAxisTitle Text="Temperature (°C)" />
                             </RadzenValueAxis>
                             <RadzenLegend Position="LegendPosition.Top" />
                         </RadzenChart>
@@ -361,7 +361,7 @@ else
                                                 <div class="small mb-2">
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
-                                                    <div><strong>Night streak:</strong> @FormatNightStreakForDisplay(card.CurrentNightStreak, card.RequiredConsecutiveNights, card.SupportsSuccessionPlanting) nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
+                                                    <div class="science-text"><strong>Night streak:</strong> @FormatNightStreakForDisplay(card.CurrentNightStreak, card.RequiredConsecutiveNights, card.SupportsSuccessionPlanting) nights @card.StreakOperatorLabel @FormatTemperaturePair(card.NightTempThresholdC, "F2", "F0")</div>
                                                     @{
                                                         var streakPercent = GetNightStreakPercent(card.CurrentNightStreak, card.RequiredConsecutiveNights);
                                                         var streakAriaLabel = $"Night streak progress for {card.DisplayName}: {card.CurrentNightStreak} out of {card.RequiredConsecutiveNights} nights ({streakPercent} percent).";
@@ -389,7 +389,7 @@ else
 
                                                 @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
                                                 {
-                                                    <div class="small text-muted mb-1"><strong>Rule:</strong> @card.RuleExplanation</div>
+                                                    <div class="small text-muted mb-1 science-text"><strong>Rule:</strong> @card.RuleExplanation</div>
                                                 }
 
                                                 @if (!string.IsNullOrWhiteSpace(card.TimingExplanation))
@@ -397,7 +397,7 @@ else
                                                     <div class="small text-muted mb-2"><strong>Timing:</strong> @card.TimingExplanation</div>
                                                 }
 
-                                                <p class="mb-1">@card.Guidance</p>
+                                                <p class="mb-1 science-text">@card.Guidance</p>
                                                 @if (!string.IsNullOrWhiteSpace(card.Notes))
                                                 {
                                                     <small class="text-muted">@card.Notes</small>
@@ -431,7 +431,7 @@ else
                                                 <div class="small mb-2">
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
-                                                    <div><strong>Night streak:</strong> @FormatNightStreakForDisplay(card.CurrentNightStreak, card.RequiredConsecutiveNights, card.SupportsSuccessionPlanting) nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
+                                                    <div class="science-text"><strong>Night streak:</strong> @FormatNightStreakForDisplay(card.CurrentNightStreak, card.RequiredConsecutiveNights, card.SupportsSuccessionPlanting) nights @card.StreakOperatorLabel @FormatTemperaturePair(card.NightTempThresholdC, "F2", "F0")</div>
                                                     @{
                                                         var streakPercent = GetNightStreakPercent(card.CurrentNightStreak, card.RequiredConsecutiveNights);
                                                         var streakAriaLabel = $"Night streak progress for {card.DisplayName}: {card.CurrentNightStreak} out of {card.RequiredConsecutiveNights} nights ({streakPercent} percent).";
@@ -459,7 +459,7 @@ else
 
                                                 @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
                                                 {
-                                                    <div class="small text-muted mb-1"><strong>Rule:</strong> @card.RuleExplanation</div>
+                                                    <div class="small text-muted mb-1 science-text"><strong>Rule:</strong> @card.RuleExplanation</div>
                                                 }
 
                                                 @if (!string.IsNullOrWhiteSpace(card.TimingExplanation))
@@ -467,7 +467,7 @@ else
                                                     <div class="small text-muted mb-2"><strong>Timing:</strong> @card.TimingExplanation</div>
                                                 }
 
-                                                <p class="mb-1">@card.Guidance</p>
+                                                <p class="mb-1 science-text">@card.Guidance</p>
                                                 @if (!string.IsNullOrWhiteSpace(card.Notes))
                                                 {
                                                     <small class="text-muted">@card.Notes</small>
@@ -501,7 +501,7 @@ else
                                                 <div class="small mb-2">
                                                     <div><strong>Target transplant date:</strong> @FormatNullableDate(card.TargetTransplantDate)</div>
                                                     <div><strong>Indoor start target:</strong> @FormatNullableDate(card.IndoorStartDate)</div>
-                                                    <div><strong>Night streak:</strong> @FormatNightStreakForDisplay(card.CurrentNightStreak, card.RequiredConsecutiveNights, card.SupportsSuccessionPlanting) nights @card.StreakOperatorLabel @card.NightTempThresholdC.ToString("F2")C (@card.NightTempThresholdF.ToString("F0")F)</div>
+                                                    <div class="science-text"><strong>Night streak:</strong> @FormatNightStreakForDisplay(card.CurrentNightStreak, card.RequiredConsecutiveNights, card.SupportsSuccessionPlanting) nights @card.StreakOperatorLabel @FormatTemperaturePair(card.NightTempThresholdC, "F2", "F0")</div>
                                                     @{
                                                         var streakPercent = GetNightStreakPercent(card.CurrentNightStreak, card.RequiredConsecutiveNights);
                                                         var streakAriaLabel = $"Night streak progress for {card.DisplayName}: {card.CurrentNightStreak} out of {card.RequiredConsecutiveNights} nights ({streakPercent} percent).";
@@ -529,7 +529,7 @@ else
 
                                                 @if (!string.IsNullOrWhiteSpace(card.RuleExplanation))
                                                 {
-                                                    <div class="small text-muted mb-1"><strong>Rule:</strong> @card.RuleExplanation</div>
+                                                    <div class="small text-muted mb-1 science-text"><strong>Rule:</strong> @card.RuleExplanation</div>
                                                 }
 
                                                 @if (!string.IsNullOrWhiteSpace(card.TimingExplanation))
@@ -537,7 +537,7 @@ else
                                                     <div class="small text-muted mb-2"><strong>Timing:</strong> @card.TimingExplanation</div>
                                                 }
 
-                                                <p class="mb-1">@card.Guidance</p>
+                                                <p class="mb-1 science-text">@card.Guidance</p>
                                                 @if (!string.IsNullOrWhiteSpace(card.Notes))
                                                 {
                                                     <small class="text-muted">@card.Notes</small>
@@ -1234,7 +1234,7 @@ else
         {
             seasonRegimeLabel = "False Spring Signal";
             seasonRegimeConfidence = Math.Min(95, 45 + (warmHighDays * 6) + (coldNightDays * 6) + (largeSwingDays * 4));
-            seasonRegimeWhy = $"{warmHighDays} warm day(s) >= {falseSpringWarmDayThresholdC:F2}C (68F) paired with {coldNightDays} cold night(s) <= {falseSpringColdNightThresholdC:F2}C (36F) in the last {window.Count} days.";
+            seasonRegimeWhy = $"{warmHighDays} warm day(s) ≥ {falseSpringWarmDayThresholdC:F2}°C (68°F) paired with {coldNightDays} cold night(s) ≤ {falseSpringColdNightThresholdC:F2}°C (36°F) in the last {window.Count} days.";
             return;
         }
 
@@ -1242,7 +1242,7 @@ else
         {
             seasonRegimeLabel = "Warm Stable";
             seasonRegimeConfidence = Math.Min(92, 50 + (warmStableDays * 8));
-            seasonRegimeWhy = $"Sustained warmth: {warmStableDays} day(s) with highs >= {warmStableHighThresholdC:F2}C (72F) and lows >= {warmStableLowThresholdC:F2}C (50F).";
+            seasonRegimeWhy = $"Sustained warmth: {warmStableDays} day(s) with highs ≥ {warmStableHighThresholdC:F2}°C (72°F) and lows ≥ {warmStableLowThresholdC:F2}°C (50°F).";
             return;
         }
 
@@ -1250,7 +1250,7 @@ else
         {
             seasonRegimeLabel = "Cooling Pattern";
             seasonRegimeConfidence = Math.Min(90, 45 + (coldNightDays * 7) + (int)Math.Abs(avgTrend * 5));
-            seasonRegimeWhy = $"Average temperature trend dropped by {Math.Abs(avgTrend):F2}C ({Math.Abs(ToFahrenheit(avgTrend) - 32):F1}F) with recurring cold nights.";
+            seasonRegimeWhy = $"Average temperature trend dropped by {Math.Abs(avgTrend):F2}°C ({Math.Abs(ToFahrenheit(avgTrend) - 32):F1}°F) with recurring cold nights.";
             return;
         }
 
@@ -1258,7 +1258,7 @@ else
         {
             seasonRegimeLabel = "Spring Stabilizing";
             seasonRegimeConfidence = Math.Min(88, 40 + (int)(avgTrend * 8) + ((window.Count - coldNightDays) * 2));
-            seasonRegimeWhy = $"Average temperature trend rose by {avgTrend:F2}C ({Math.Abs(ToFahrenheit(avgTrend) - 32):F1}F) with limited cold-night setbacks.";
+            seasonRegimeWhy = $"Average temperature trend rose by {avgTrend:F2}°C ({Math.Abs(ToFahrenheit(avgTrend) - 32):F1}°F) with limited cold-night setbacks.";
             return;
         }
 
@@ -1427,7 +1427,7 @@ else
                 CurrentNightStreak = nightStreak,
                 NightTempThresholdC = nightThresholdC,
                 SupportsSuccessionPlanting = profile.SupportsSuccessionPlanting,
-                StreakOperatorLabel = useCoolingLogic ? "<=" : ">=",
+                StreakOperatorLabel = useCoolingLogic ? "≤" : "≥",
                 TargetTransplantDate = targetTransplantDate,
                 IndoorStartDate = indoorStartDate,
                 StatusLabel = statusLabel,
@@ -1609,7 +1609,7 @@ else
 
         if (statusLabel.Equals("Soon", StringComparison.OrdinalIgnoreCase))
         {
-            return $"Monitor this plant closely. Need {requiredNights}-night streak {directionText} {thresholdC:F2}C ({ToFahrenheit(thresholdC):F0}F) (currently {streakDisplay}). {timingExplanation}";
+            return $"Monitor this plant closely. Need {requiredNights}-night streak {directionText} {FormatTemperaturePair(thresholdC, "F2", "F0")} (currently {streakDisplay}). {timingExplanation}";
         }
 
         return $"Outside active window right now. Next target timing is around {FormatGuidanceDate(targetDate)}.";
@@ -1705,9 +1705,9 @@ else
 
     private static string BuildRuleExplanation(int requiredNights, int currentNights, bool useCoolingLogic, double thresholdC, bool supportsSuccessionPlanting)
     {
-        var operatorText = useCoolingLogic ? "<=" : ">=";
+        var operatorText = useCoolingLogic ? "≤" : "≥";
         var streakDisplay = FormatNightStreakForDisplay(currentNights, requiredNights, supportsSuccessionPlanting);
-        return $"Night streak {streakDisplay} where night min {operatorText} {thresholdC:F2}C ({ToFahrenheit(thresholdC):F0}F).";
+        return $"Night streak {streakDisplay} where night min {operatorText} {FormatTemperaturePair(thresholdC, "F2", "F0")}.";
     }
 
     private static string BuildTimingExplanation(bool hasWindow, bool isInWindow, bool isWindowSoon, int? daysUntilWindowStart, string? activeWindowLabel, string? upcomingWindowLabel, bool hasDateRule, int? daysUntilTargetDate, bool hasLatestPlantDate, bool isPastPlantingWindow, int? daysUntilLatestPlantDate)
@@ -1945,6 +1945,12 @@ else
     private static double ToFahrenheit(double celsius)
     {
         return 32 + (celsius * 9 / 5);
+    }
+
+    private static string FormatTemperaturePair(double celsius, string celsiusFormat, string fahrenheitFormat)
+    {
+        var fahrenheit = ToFahrenheit(celsius);
+        return $"{celsius.ToString(celsiusFormat)}°C ({fahrenheit.ToString(fahrenheitFormat)}°F)";
     }
 
     private static string FormatDateLabel(object value)

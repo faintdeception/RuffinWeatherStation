@@ -20,8 +20,8 @@
         {
             var currentMeasurement = Measurement;
 
-            <div class="display-1 text-center">@FormatDouble(currentMeasurement.Fields?.Temperature)°C</div>
-            <div class="h4 text-center">@FormatTemperatureF(currentMeasurement.Fields?.Temperature)°F</div>
+            <div class="display-1 text-center science-text">@FormatDouble(currentMeasurement.Fields?.Temperature)°C</div>
+            <div class="h4 text-center science-text">@FormatTemperatureF(currentMeasurement.Fields?.Temperature)°F</div>
             <p class="text-center text-muted">
                 Last updated: @FormatDateTimeForUserWithTimezone(currentMeasurement.TimestampMs)
                 @if (IsDataStale)
@@ -34,13 +34,13 @@
                 }
             </p>
             <hr />
-            <table class="table table-sm">
+            <table class="table table-sm science-text">
                 <tr><th>Humidity</th><td>@FormatDouble(currentMeasurement.Fields?.Humidity)%</td></tr>
                 <tr><th>Dewpoint</th><td>@FormatDouble(currentMeasurement.Fields?.Dewpoint)°C</td></tr>
                 <tr><th>Pressure</th><td>@FormatDouble(currentMeasurement.Fields?.Pressure) hPa</td></tr>
                 <tr><th>Light</th><td>@FormatDouble(currentMeasurement.Fields?.Lux) lux</td></tr>
                 <tr><th>Wind</th><td>@FormatDouble(currentMeasurement.Fields?.WindSpeed) m/s (@currentMeasurement.Fields?.WindDirectionCardinal)</td></tr>
-                <tr><th>Rain Today</th><td>@AccumulatedRainfall.ToString("F1") mm</td></tr>
+                <tr><th>Rain Today</th><td>@FormatRainfallMillimetersAndInches(AccumulatedRainfall)</td></tr>
                 <tr><th>Location</th><td>@currentMeasurement.Tags?.Location</td></tr>
                 <tr><th>Sensor</th><td>@currentMeasurement.Tags?.SensorType</td></tr>
             </table>
@@ -57,4 +57,10 @@
     [Parameter] public Func<double?, string> FormatDouble { get; set; } = _ => "N/A";
     [Parameter] public Func<double?, string> FormatTemperatureF { get; set; } = _ => "N/A";
     [Parameter] public Func<DateTime, string> FormatDateTimeForUserWithTimezone { get; set; } = value => value.ToString("g");
+
+    private static string FormatRainfallMillimetersAndInches(double millimeters)
+    {
+        var inches = millimeters / 25.4;
+        return $"{millimeters:F1} mm ({inches:F2} in)";
+    }
 }

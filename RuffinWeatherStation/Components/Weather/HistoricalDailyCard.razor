@@ -26,17 +26,17 @@
         }
         else if (Record?.HasData == true)
         {
-            <div class="row text-center mb-3">
+            <div class="row text-center mb-3 science-text">
                 <div class="col-6">
                     <h6 class="mb-1">High</h6>
-                    <div class="fw-semibold">@FormatDouble(Record.High?.Value)C</div>
-                    <small class="text-muted">@FormatTemperatureF(Record.High?.Value)F</small>
+                    <div class="fw-semibold">@FormatDouble(Record.High?.Value)°C</div>
+                    <small class="text-muted">@FormatTemperatureF(Record.High?.Value)°F</small>
                     <div><small class="text-muted">@FormatHistoricDate(Record.High?.Date)</small></div>
                 </div>
                 <div class="col-6">
                     <h6 class="mb-1">Low</h6>
-                    <div class="fw-semibold">@FormatDouble(Record.Low?.Value)C</div>
-                    <small class="text-muted">@FormatTemperatureF(Record.Low?.Value)F</small>
+                    <div class="fw-semibold">@FormatDouble(Record.Low?.Value)°C</div>
+                    <small class="text-muted">@FormatTemperatureF(Record.Low?.Value)°F</small>
                     <div><small class="text-muted">@FormatHistoricDate(Record.Low?.Date)</small></div>
                 </div>
             </div>

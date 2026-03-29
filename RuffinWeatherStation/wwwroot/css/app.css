@@ -1,5 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Math&display=swap');
+
+:root {
+    --font-ui: "Noto Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-science: "Noto Sans Math", "Noto Sans", "Segoe UI Symbol", "Cambria Math", serif;
+}
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-ui);
+}
+
+.science-text {
+    font-family: var(--font-science);
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: 0.01em;
 }
 
 h1:focus {
