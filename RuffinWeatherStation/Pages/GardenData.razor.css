@@ -1,0 +1,281 @@
+    :root {
+        --season-warm-bg: #fff2d6;
+        --season-warm-fg: #5a3600;
+        --season-warm-border: #c78218;
+
+        --season-cool-bg: #e6f4ff;
+        --season-cool-fg: #0b3b57;
+        --season-cool-border: #2d82b7;
+
+        --season-fall-bg: #ffeade;
+        --season-fall-fg: #5e2800;
+        --season-fall-border: #b8612a;
+
+        --season-general-bg: #edf1f5;
+        --season-general-fg: #1f2933;
+        --season-general-border: #697786;
+
+        --status-text: #15212b;
+    }
+
+    .garden-rain-chart {
+        height: 260px;
+    }
+
+    /* Keep the layered bar energy intentional instead of accidental timestamp overlap. */
+    .garden-rain-chart ::deep svg [fill*="46, 139, 87"] {
+        filter: drop-shadow(-10px 0 0 rgba(46, 139, 87, 0.26));
+    }
+
+    .rain-emoji {
+        display: inline-block;
+        margin-right: 0.2rem;
+        transform-origin: center;
+        animation: rain-emoji-drift 2.6s ease-in-out infinite;
+    }
+
+    .rainfall-intensity-badge {
+        letter-spacing: 0.02em;
+        font-weight: 600;
+    }
+
+    @keyframes rain-emoji-drift {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-1px);
+        }
+    }
+
+    .season-trend-chart {
+        height: 320px;
+    }
+
+    .night-streak-progress {
+        height: 0.5rem;
+    }
+
+    .night-streak-progress-label {
+        font-size: 0.65rem;
+        line-height: 0.5rem;
+        font-weight: 600;
+        color: #fff;
+        padding-right: 0.25rem;
+    }
+
+    .night-streak-progress-caption {
+        font-size: 0.7rem;
+        line-height: 1;
+        margin-top: 0.15rem;
+        text-align: right;
+    }
+
+    .season-card-header {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1;
+        border-radius: 999px;
+        padding: 0.35rem 0.65rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .season-emoji {
+        font-size: 0.85rem;
+    }
+
+    .season-warm {
+        background: var(--season-warm-bg);
+        color: var(--season-warm-fg);
+        border: 1px solid var(--season-warm-border);
+    }
+
+    .season-cool {
+        background: var(--season-cool-bg);
+        color: var(--season-cool-fg);
+        border: 1px solid var(--season-cool-border);
+    }
+
+    .season-fall {
+        background: var(--season-fall-bg);
+        color: var(--season-fall-fg);
+        border: 1px solid var(--season-fall-border);
+    }
+
+    .season-general {
+        background: var(--season-general-bg);
+        color: var(--season-general-fg);
+        border: 1px solid var(--season-general-border);
+    }
+
+    .status-badge {
+        font-weight: 700;
+        border-width: 1px;
+        border-style: solid;
+        color: var(--status-text);
+        background: #f6f8fa;
+    }
+
+    .plant-readiness-card {
+        position: relative;
+        overflow: hidden;
+        --plant-divider: rgba(105, 119, 134, 0.35);
+        --plant-top-fill: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%);
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .plant-readiness-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6rem;
+        background: var(--plant-top-fill);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .plant-readiness-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .plant-meta-strip {
+        position: relative;
+        padding-bottom: 0.4rem;
+        margin-top: 0.08rem;
+        display: inline-block;
+        min-width: 14rem;
+    }
+
+    .plant-meta-strip::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: var(--plant-divider);
+    }
+
+    .plant-readiness-card.season-tone-warm {
+        --plant-divider: rgba(199, 130, 24, 0.62);
+        --plant-top-fill: linear-gradient(180deg, rgba(255, 238, 203, 0.75) 0%, rgba(255, 244, 222, 0.28) 56%, rgba(255, 244, 222, 0) 100%);
+    }
+
+    .plant-readiness-card.season-tone-cool {
+        --plant-divider: rgba(45, 130, 183, 0.62);
+        --plant-top-fill: linear-gradient(180deg, rgba(220, 241, 255, 0.78) 0%, rgba(233, 245, 255, 0.3) 56%, rgba(233, 245, 255, 0) 100%);
+    }
+
+    .plant-readiness-card.season-tone-fall {
+        --plant-divider: rgba(184, 97, 42, 0.62);
+        --plant-top-fill: linear-gradient(180deg, rgba(255, 230, 214, 0.74) 0%, rgba(255, 234, 222, 0.26) 56%, rgba(255, 234, 222, 0) 100%);
+    }
+
+    .plant-readiness-card.season-tone-general {
+        --plant-divider: rgba(105, 119, 134, 0.55);
+        --plant-top-fill: linear-gradient(180deg, rgba(234, 240, 245, 0.72) 0%, rgba(237, 241, 245, 0.24) 56%, rgba(237, 241, 245, 0) 100%);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .plant-readiness-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(54, 42, 35, 0.11);
+            border-color: rgba(131, 94, 74, 0.42);
+        }
+    }
+
+    .status-action {
+        border-left-width: 0.35rem;
+        border-left-style: solid;
+    }
+
+    .status-soon {
+        border-left-width: 0.35rem;
+        border-left-style: solid;
+    }
+
+    .status-dormant {
+        border-left-width: 0.35rem;
+        border-left-style: dotted;
+    }
+
+    .status-badge.season-tone-warm {
+        border-color: var(--season-warm-border);
+        border-left-color: var(--season-warm-fg);
+        background: var(--season-warm-bg);
+    }
+
+    .status-badge.season-tone-cool {
+        border-color: var(--season-cool-border);
+        border-left-color: var(--season-cool-fg);
+        background: var(--season-cool-bg);
+    }
+
+    .status-badge.season-tone-fall {
+        border-color: var(--season-fall-border);
+        border-left-color: var(--season-fall-fg);
+        background: var(--season-fall-bg);
+    }
+
+    .status-badge.season-tone-general {
+        border-color: var(--season-general-border);
+        border-left-color: var(--season-general-fg);
+        background: var(--season-general-bg);
+    }
+
+    .season-signal-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+    }
+
+    .season-signal-pill {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #12202b;
+        border: 1px solid transparent;
+        cursor: pointer;
+        background-clip: padding-box;
+    }
+
+    .season-signal-pill:focus-visible {
+        outline: 2px solid #0b3b57;
+        outline-offset: 2px;
+    }
+
+    .season-signal-pill.is-off {
+        opacity: 0.55;
+        filter: saturate(0.35);
+    }
+
+    .season-signal-pill.warm {
+        background: #fff4de;
+        border-color: #c98a17;
+    }
+
+    .season-signal-pill.cold {
+        background: #e9f5ff;
+        border-color: #2f7ea8;
+    }
+
+    .season-signal-pill.swing {
+        background: #f4edff;
+        border-color: #6f53aa;
+    }
+
+    @media (max-width: 768px) {
+        .garden-rain-chart {
+            height: 220px;
+        }
+
+        .season-trend-chart {
+            height: 260px;
+        }
+    }
