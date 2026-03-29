@@ -308,10 +308,11 @@ else
                     </div>
                 </div>
 
-                <DaylightLightCard LightLevels="todayLightLevels"
+                <DaylightLightCard LightLevels="recentLightLevels"
                                    SunriseUtc="approximateSunriseUtc"
                                    SunsetUtc="approximateSunsetUtc"
                                    SnapshotLabel="@BuildDaylightSnapshotLabel()"
+                                   LightWindowLabel="@(analysisHours == 1 ? "last hour" : $"last {analysisHours} hours")"
                                    FormatDaylightTime="FormatDaylightTime"
                                    ConvertToDisplayTime="ConvertToUserTimeZoneNullable"
                                    FormatTimestamp="FormatRainfallTimestamp"

@@ -131,15 +131,21 @@ namespace RuffinWeatherStation.Services
                 });
         }
 
-        public async Task<List<TemperatureMeasurement>?> GetRecentMeasurementsAsync(int count = 25)
+        public async Task<List<TemperatureMeasurement>?> GetRecentMeasurementsAsync(int count = 25, DateTime? sinceUtc = null)
         {
             return await GetCachedDataAsync<List<TemperatureMeasurement>>(
-                $"recent_measurements_{count}", 
+                $"recent_measurements_{count}_{sinceUtc?.ToUniversalTime().ToString("yyyyMMddHHmm") ?? "none"}", 
                 RECENT_CACHE_MINUTES,
                 async () => {
                     try
                     {
-                        return await _httpClient.GetFromJsonAsync<List<TemperatureMeasurement>>($"api/weather/recent?count={count}");
+                        var endpoint = $"api/weather/recent?count={count}";
+                        if (sinceUtc.HasValue)
+                        {
+                            endpoint += $"&sinceUtc={Uri.EscapeDataString(sinceUtc.Value.ToUniversalTime().ToString("o"))}";
+                        }
+
+                        return await _httpClient.GetFromJsonAsync<List<TemperatureMeasurement>>(endpoint);
                     }
                     catch (Exception ex)
                     {
@@ -153,19 +159,17 @@ namespace RuffinWeatherStation.Services
         {
             try
             {
-                // Get today's date in local time
-                DateTime today = DateTime.Now.Date;
-                
-                // For now, we'll use the recent endpoint with a larger count
-                // and filter client-side to get today's data
-                var recentMeasurements = await GetRecentMeasurementsAsync(100);
+                var todayUtc = DateTime.UtcNow.Date;
+
+                // Request a generous cap and let the API filter by UTC day start.
+                var recentMeasurements = await GetRecentMeasurementsAsync(2000, todayUtc);
                 
                 if (recentMeasurements == null)
                     return null;
                     
-                // Filter measurements to get only those from today
+                // Re-apply filter client-side as a safety net and normalize ordering.
                 return recentMeasurements
-                    .Where(m => m.TimestampMs.Date == today)
+                    .Where(m => m.TimestampMs >= todayUtc)
                     .OrderBy(m => m.TimestampMs)
                     .ToList();
             }
@@ -173,6 +177,39 @@ namespace RuffinWeatherStation.Services
             {
                 Console.Error.WriteLine($"Error fetching today's measurements: {ex.Message}");
                 return null;
+            }
+        }
+
+        public async Task<List<DataPoint>> GetRecentLightLevelsAsync(int hours = 1)
+        {
+            try
+            {
+                int normalizedHours = Math.Clamp(hours, 1, 24);
+                int sampleCount = Math.Max(50, normalizedHours * 30);
+                DateTime sinceUtc = DateTime.UtcNow.AddHours(-normalizedHours);
+
+                var recentMeasurements = await GetRecentMeasurementsAsync(sampleCount, sinceUtc);
+                if (recentMeasurements == null || !recentMeasurements.Any())
+                {
+                    return new List<DataPoint>();
+                }
+
+                return recentMeasurements
+                    .Where(m => m.TimestampMs >= sinceUtc)
+                    .Where(m => m.Fields != null)
+                    .GroupBy(m => m.TimestampMs)
+                    .OrderBy(g => g.Key)
+                    .Select(g => new DataPoint
+                    {
+                        Timestamp = g.Key,
+                        Value = g.Average(m => m.Fields?.Lux ?? 0)
+                    })
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error fetching recent light levels: {ex.Message}");
+                return new List<DataPoint>();
             }
         }
 

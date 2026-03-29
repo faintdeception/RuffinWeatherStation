@@ -119,9 +119,13 @@ namespace RuffinWeatherStation.Api.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<List<TemperatureMeasurement>> GetRecentMeasurementsAsync(int count = 25)
+        public async Task<List<TemperatureMeasurement>> GetRecentMeasurementsAsync(int count = 25, DateTime? sinceUtc = null)
         {
-            return await _measurements.Find(_ => true)
+            var filter = sinceUtc.HasValue
+                ? Builders<TemperatureMeasurement>.Filter.Gte(m => m.TimestampMs, sinceUtc.Value)
+                : Builders<TemperatureMeasurement>.Filter.Empty;
+
+            return await _measurements.Find(filter)
                 .SortByDescending(m => m.TimestampMs)
                 .Limit(count)
                 .ToListAsync();

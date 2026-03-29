@@ -41,6 +41,7 @@ public partial class WeatherHome
     private bool isAlertSummaryLoading;
     private string? alertSummaryLoadError;
     private List<DataPoint> todayLightLevels = new();
+    private List<DataPoint> recentLightLevels = new();
     private DateTime? approximateSunriseUtc;
     private DateTime? approximateSunsetUtc;
     private DateTime? daylightSnapshotFetchedAtUtc;

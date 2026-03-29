@@ -41,7 +41,7 @@
             <div class="row text-center mb-3">
                 <div class="col-sm-6 col-12 mb-2 mb-sm-0">
                     <div class="fw-semibold">@FormatLuxValue(GetPeakLuxValue()) lux</div>
-                    <small class="text-muted">Peak recorded light today</small>
+                    <small class="text-muted">Peak recorded light (@LightWindowLabel)</small>
                 </div>
                 <div class="col-sm-6 col-12">
                     <div class="fw-semibold">@FormatDaylightTime(GetPeakLuxTime())</div>
@@ -68,7 +68,7 @@
         }
         else
         {
-            <p class="text-muted mb-0">No light measurements have been recorded for today yet.</p>
+            <p class="text-muted mb-0">No light measurements have been recorded for the @LightWindowLabel window yet.</p>
         }
     </div>
 </div>
@@ -78,6 +78,7 @@
     [Parameter] public DateTime? SunriseUtc { get; set; }
     [Parameter] public DateTime? SunsetUtc { get; set; }
     [Parameter] public string SnapshotLabel { get; set; } = string.Empty;
+    [Parameter] public string LightWindowLabel { get; set; } = "today";
     [Parameter] public Func<DateTime?, string> FormatDaylightTime { get; set; } = _ => "n/a";
     [Parameter] public Func<DateTime?, DateTime?> ConvertToDisplayTime { get; set; } = value => value;
     [Parameter] public Func<object, string> FormatTimestamp { get; set; } = _ => string.Empty;

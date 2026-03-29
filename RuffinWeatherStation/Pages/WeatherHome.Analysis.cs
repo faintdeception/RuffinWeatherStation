@@ -35,6 +35,7 @@ public partial class WeatherHome
         try
         {
             recentAnalysisResult = await TemperatureService.GetRecentAnalysisAsync(hours);
+            recentLightLevels = await TemperatureService.GetRecentLightLevelsAsync(hours);
         }
         catch (Exception ex)
         {

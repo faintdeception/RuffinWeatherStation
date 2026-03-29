@@ -31,9 +31,11 @@ namespace RuffinWeatherStation.Api.Controllers
         }
 
         [HttpGet("recent")]
-        public async Task<ActionResult<IEnumerable<TemperatureMeasurement>>> GetRecent([FromQuery] int count = 25)
+        public async Task<ActionResult<IEnumerable<TemperatureMeasurement>>> GetRecent(
+            [FromQuery] int count = 25,
+            [FromQuery] DateTime? sinceUtc = null)
         {
-            var measurements = await _weatherService.GetRecentMeasurementsAsync(count);
+            var measurements = await _weatherService.GetRecentMeasurementsAsync(count, sinceUtc);
             return measurements;
         }
 
