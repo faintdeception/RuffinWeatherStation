@@ -90,7 +90,7 @@ else
                                  OnDateChanged="OnHistoricalDateChanged"
                                  Location="historicalLocation"
                                  IsLoading="isHistoricalDailyLoading"
-                                 ErrorMessage="historicalDailyErrorMessage"
+                                 ErrorMessage="@historicalDailyErrorMessage"
                                  Record="historicalDailyRecord"
                                  FormatDouble="FormatDouble"
                                  FormatTemperatureF="FormatTemperatureF"
@@ -255,6 +255,17 @@ else
                                     <p>No pressure data available for this period.</p>
                                 }
                             </div>
+
+                            <DaylightLightCard LightLevels="recentLightLevels"
+                                               SunriseUtc="approximateSunriseUtc"
+                                               SunsetUtc="approximateSunsetUtc"
+                                               SnapshotLabel="@BuildDaylightSnapshotLabel()"
+                                               LightWindowLabel="@(analysisHours == 1 ? "last hour" : $"last {analysisHours} hours")"
+                                               FormatDaylightTime="FormatDaylightTime"
+                                               ConvertToDisplayTime="ConvertToUserTimeZoneNullable"
+                                               FormatTimestamp="FormatRainfallTimestamp"
+                                               FormatLuxAxisValue="FormatLuxAxisValue"
+                                               FormatLuxValue="FormatLuxValue" />
                         }
                     </div>
                 </div>
@@ -308,16 +319,6 @@ else
                     </div>
                 </div>
 
-                <DaylightLightCard LightLevels="recentLightLevels"
-                                   SunriseUtc="approximateSunriseUtc"
-                                   SunsetUtc="approximateSunsetUtc"
-                                   SnapshotLabel="@BuildDaylightSnapshotLabel()"
-                                   LightWindowLabel="@(analysisHours == 1 ? "last hour" : $"last {analysisHours} hours")"
-                                   FormatDaylightTime="FormatDaylightTime"
-                                   ConvertToDisplayTime="ConvertToUserTimeZoneNullable"
-                                   FormatTimestamp="FormatRainfallTimestamp"
-                                   FormatLuxAxisValue="FormatLuxAxisValue"
-                                   FormatLuxValue="FormatLuxValue" />
             }
             else
             {
