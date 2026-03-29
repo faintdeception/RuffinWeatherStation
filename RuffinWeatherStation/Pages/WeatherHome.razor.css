@@ -15,6 +15,11 @@
 	animation: rain-emoji-drift 2.6s ease-in-out infinite;
 }
 
+.rainfall-intensity-badge {
+	letter-spacing: 0.02em;
+	font-weight: 600;
+}
+
 @keyframes rain-emoji-drift {
 	0%, 100% {
 		transform: translateY(0);

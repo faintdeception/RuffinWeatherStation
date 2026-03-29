@@ -36,21 +36,28 @@ else
                     @if (rainfallAnalysis?.DailyRainfall != null && rainfallAnalysis.DailyRainfall.Any())
                     {
                         <div class="mb-3">
-                            <div><strong>Total:</strong> @rainfallAnalysis.TotalRainfall.ToString("F1") mm</div>
+                            <div><strong>Total:</strong> @FormatRainfallMillimetersAndInches(rainfallAnalysis.TotalRainfall)</div>
+                            <div><strong>Average Per Day:</strong> @FormatRainfallMillimetersAndInches(rainfallAnalysis.AverageDailyRainfall)</div>
                             <div><strong>Rainy Days:</strong> @rainfallAnalysis.RainyDaysCount / @recentRainfallDays</div>
                             <div><strong>Longest Dry Spell:</strong> @rainfallAnalysis.LongestDrySpellDays day(s)</div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mb-2">
+                            <span class="badge rainfall-intensity-badge @GetRainIntensityBadgeClass(rainfallAnalysis)">
+                                Rain intensity: @GetRainIntensityLabel(rainfallAnalysis)
+                            </span>
                         </div>
 
                         <RadzenChart class="garden-rain-chart" @key="RainChartRenderKey">
                             <RadzenColumnSeries Data="@rainfallAnalysis.DailyRainfall"
                                                 CategoryProperty="Timestamp"
                                                 ValueProperty="Total"
-                                                Title="Daily Rain (mm)"
+                                                Title="Daily rain (mm / in)"
                                                 Fill="rgba(46, 139, 87, 0.75)" />
                             <RadzenCategoryAxis Formatter="@FormatDateLabel" />
                             <RadzenValueAxis>
                                 <RadzenGridLines Visible="true" />
-                                <RadzenAxisTitle Text="Rainfall (mm)" />
+                                <RadzenAxisTitle Text="Rainfall (mm / in)" />
                             </RadzenValueAxis>
                             <RadzenLegend Position="LegendPosition.Top" />
                         </RadzenChart>
@@ -716,6 +723,11 @@ else
         margin-right: 0.2rem;
         transform-origin: center;
         animation: rain-emoji-drift 2.6s ease-in-out infinite;
+    }
+
+    .rainfall-intensity-badge {
+        letter-spacing: 0.02em;
+        font-weight: 600;
     }
 
     @@keyframes rain-emoji-drift {
@@ -1943,6 +1955,57 @@ else
         }
 
         return string.Empty;
+    }
+
+    private static double ConvertMillimetersToInches(double millimeters)
+    {
+        return millimeters / 25.4;
+    }
+
+    private static string FormatRainfallMillimetersAndInches(double millimeters)
+    {
+        return $"{millimeters:F1} mm ({ConvertMillimetersToInches(millimeters):F2} in)";
+    }
+
+    private static string GetRainIntensityLabel(WeatherAnalysisResult? analysis)
+    {
+        var peakDailyMm = analysis?.DailyRainfall?.Any() == true
+            ? analysis.DailyRainfall!.Max(d => d.Total)
+            : 0;
+
+        if (peakDailyMm >= 30)
+        {
+            return "Torrential";
+        }
+
+        if (peakDailyMm >= 15)
+        {
+            return "Heavy";
+        }
+
+        if (peakDailyMm >= 5)
+        {
+            return "Moderate";
+        }
+
+        if (peakDailyMm > 0)
+        {
+            return "Light";
+        }
+
+        return "Dry";
+    }
+
+    private static string GetRainIntensityBadgeClass(WeatherAnalysisResult? analysis)
+    {
+        return GetRainIntensityLabel(analysis) switch
+        {
+            "Torrential" => "text-bg-primary",
+            "Heavy" => "text-bg-info",
+            "Moderate" => "text-bg-success",
+            "Light" => "text-bg-secondary",
+            _ => "text-bg-light text-dark border"
+        };
     }
 
     private void NormalizeRainfallChartData()

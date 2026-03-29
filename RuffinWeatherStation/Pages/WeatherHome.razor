@@ -284,11 +284,11 @@ else
                         {
                             <div class="row mb-3 text-center">
                                 <div class="col-sm-4 col-12 mb-2 mb-sm-0">
-                                    <div class="fw-semibold">@recentRainfallAnalysis.TotalRainfall.ToString("F1") mm</div>
+                                    <div class="fw-semibold">@FormatRainfallMillimetersAndInches(recentRainfallAnalysis.TotalRainfall)</div>
                                     <small class="text-muted">Total (15 days)</small>
                                 </div>
                                 <div class="col-sm-4 col-12 mb-2 mb-sm-0">
-                                    <div class="fw-semibold">@recentRainfallAnalysis.AverageDailyRainfall.ToString("F1") mm</div>
+                                    <div class="fw-semibold">@FormatRainfallMillimetersAndInches(recentRainfallAnalysis.AverageDailyRainfall)</div>
                                     <small class="text-muted">Average per day</small>
                                 </div>
                                 <div class="col-sm-4 col-12">
@@ -297,17 +297,23 @@ else
                                 </div>
                             </div>
 
+                            <div class="d-flex justify-content-end mb-2">
+                                <span class="badge rainfall-intensity-badge @GetRainIntensityBadgeClass(recentRainfallAnalysis)">
+                                    Rain intensity: @GetRainIntensityLabel(recentRainfallAnalysis)
+                                </span>
+                            </div>
+
                             <RadzenChart class="rainfall-chart">
                                 <RadzenColumnSeries Data="@recentRainfallAnalysis.DailyRainfall"
                                                     CategoryProperty="Timestamp"
                                                     ValueProperty="Total"
-                                                    Title="Daily accumulation (mm)"
+                                                    Title="Daily accumulation (mm / in)"
                                                     Fill="rgba(30, 136, 229, 0.75)">
                                 </RadzenColumnSeries>
                                 <RadzenCategoryAxis Formatter="@FormatRecentRainfallDay" />
                                 <RadzenValueAxis>
                                     <RadzenGridLines Visible="true" />
-                                    <RadzenAxisTitle Text="Rainfall (mm)" />
+                                    <RadzenAxisTitle Text="Rainfall (mm / in)" />
                                 </RadzenValueAxis>
                                 <RadzenLegend Position="LegendPosition.Top" />
                             </RadzenChart>

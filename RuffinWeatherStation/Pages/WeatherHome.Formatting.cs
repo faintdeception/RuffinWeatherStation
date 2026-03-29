@@ -247,4 +247,55 @@ public partial class WeatherHome
     {
         return WeatherDisplayHelpers.GetHomeSeverityBadgeClass(severity);
     }
+
+    private static double ConvertMillimetersToInches(double millimeters)
+    {
+        return millimeters / 25.4;
+    }
+
+    private string FormatRainfallMillimetersAndInches(double millimeters)
+    {
+        return $"{millimeters:F1} mm ({ConvertMillimetersToInches(millimeters):F2} in)";
+    }
+
+    private static string GetRainIntensityLabel(WeatherAnalysisResult? analysis)
+    {
+        var peakDailyMm = analysis?.DailyRainfall?.Any() == true
+            ? analysis.DailyRainfall!.Max(d => d.Total)
+            : 0;
+
+        if (peakDailyMm >= 30)
+        {
+            return "Torrential";
+        }
+
+        if (peakDailyMm >= 15)
+        {
+            return "Heavy";
+        }
+
+        if (peakDailyMm >= 5)
+        {
+            return "Moderate";
+        }
+
+        if (peakDailyMm > 0)
+        {
+            return "Light";
+        }
+
+        return "Dry";
+    }
+
+    private static string GetRainIntensityBadgeClass(WeatherAnalysisResult? analysis)
+    {
+        return GetRainIntensityLabel(analysis) switch
+        {
+            "Torrential" => "text-bg-primary",
+            "Heavy" => "text-bg-info",
+            "Moderate" => "text-bg-success",
+            "Light" => "text-bg-secondary",
+            _ => "text-bg-light text-dark border"
+        };
+    }
 }
