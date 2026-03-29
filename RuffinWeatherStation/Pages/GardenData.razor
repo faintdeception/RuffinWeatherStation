@@ -560,18 +560,31 @@ else
                     {
                         <div class="row gy-2 mb-3">
                             <div class="col-md-3 col-6"><strong>Total Snapshots:</strong> @nwsAlertSummary.TotalSnapshots</div>
-                            <div class="col-md-3 col-6"><strong>Active:</strong> @nwsAlertSummary.ActiveAlerts</div>
-                            <div class="col-md-3 col-6"><strong>Expired:</strong> @nwsAlertSummary.ExpiredAlerts</div>
+                            <div class="col-md-3 col-6"><strong>Active Alerts:</strong> @nwsAlertSummary.ActiveAlerts</div>
+                            <div class="col-md-3 col-6"><strong>Expired Alerts:</strong> @nwsAlertSummary.ExpiredAlerts</div>
                             <div class="col-md-3 col-6"><strong>Severe/Extreme:</strong> @nwsAlertSummary.SevereOrExtremeAlerts</div>
+                        </div>
+
+                        <div class="small text-muted mb-3">
+                            Active/expired counts are alert totals from the latest snapshot, not snapshot totals.
                         </div>
 
                         <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
                             <div><strong>Snapshot Fetched:</strong> @FormatUtcDateTime(nwsAlertSummary.SnapshotFetchedAtUtc)</div>
                             <div>
                                 <strong>Snapshot Status:</strong>
-                                <span class="badge @(nwsAlertSummary.IsSnapshotExpired ? "text-bg-secondary" : "text-bg-success") ms-1">
-                                    @(nwsAlertSummary.IsSnapshotExpired ? "Expired" : "Active")
-                                </span>
+                                @if (nwsAlertSummary.ActiveAlerts > 0)
+                                {
+                                    <span class="badge text-bg-success ms-1">Active Alerts</span>
+                                }
+                                else if (nwsAlertSummary.ExpiredAlerts > 0 || nwsAlertSummary.IsSnapshotExpired)
+                                {
+                                    <span class="badge text-bg-secondary ms-1">Expired Alerts</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-light ms-1">No Active Alerts</span>
+                                }
                             </div>
                         </div>
 
