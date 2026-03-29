@@ -30,7 +30,7 @@ else
         <div class="col-lg-7">
             <div class="card h-100">
                 <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Recent Rainfall (Last @recentRainfallDays Days)</h3>
+                    <h3 class="mb-0"><span class="rain-emoji" aria-hidden="true">🌧️</span> Recent Rainfall (Last @recentRainfallDays Days)</h3>
                 </div>
                 <div class="card-body">
                     @if (rainfallAnalysis?.DailyRainfall != null && rainfallAnalysis.DailyRainfall.Any())
@@ -706,6 +706,28 @@ else
         height: 260px;
     }
 
+    /* Keep the layered bar energy intentional instead of accidental timestamp overlap. */
+    .garden-rain-chart ::deep svg [fill*="46, 139, 87"] {
+        filter: drop-shadow(-10px 0 0 rgba(46, 139, 87, 0.26));
+    }
+
+    .rain-emoji {
+        display: inline-block;
+        margin-right: 0.2rem;
+        transform-origin: center;
+        animation: rain-emoji-drift 2.6s ease-in-out infinite;
+    }
+
+    @@keyframes rain-emoji-drift {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-1px);
+        }
+    }
+
     .season-trend-chart {
         height: 320px;
     }
@@ -945,6 +967,8 @@ else
             plantProfilesLoadError = plantProfilesTask.Result.ErrorMessage;
             nwsAlertSummary = alertsTask.Result;
             seasonForecast = forecastTask.Result;
+
+            NormalizeRainfallChartData();
 
             if (gardenReference == null)
             {
@@ -1919,6 +1943,51 @@ else
         }
 
         return string.Empty;
+    }
+
+    private void NormalizeRainfallChartData()
+    {
+        if (rainfallAnalysis?.DailyRainfall == null)
+        {
+            return;
+        }
+
+        var normalized = rainfallAnalysis.DailyRainfall
+            .GroupBy(d => DateOnly.FromDateTime(d.Timestamp))
+            .OrderBy(g => g.Key)
+            .Select(g => new RainfallDataPoint
+            {
+                Timestamp = g.Min(x => x.Timestamp),
+                Total = g.Sum(x => x.Total),
+                MaxRate = g.Max(x => x.MaxRate)
+            })
+            .ToList();
+
+        rainfallAnalysis.DailyRainfall = normalized;
+        rainfallAnalysis.TotalRainfall = normalized.Sum(d => d.Total);
+        rainfallAnalysis.RainyDaysCount = normalized.Count(d => d.Total > 0.1);
+        rainfallAnalysis.AverageDailyRainfall = normalized.Any() ? normalized.Average(d => d.Total) : 0;
+        rainfallAnalysis.MaxDailyRainfall = normalized.Any() ? normalized.Max(d => d.Total) : 0;
+
+        var longestDryStreak = 0;
+        var currentDryStreak = 0;
+        foreach (var day in normalized)
+        {
+            if (day.Total <= 0.1)
+            {
+                currentDryStreak++;
+                if (currentDryStreak > longestDryStreak)
+                {
+                    longestDryStreak = currentDryStreak;
+                }
+            }
+            else
+            {
+                currentDryStreak = 0;
+            }
+        }
+
+        rainfallAnalysis.LongestDrySpellDays = longestDryStreak;
     }
 
     private static string FormatSeasonDateLabel(object value)
