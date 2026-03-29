@@ -822,6 +822,7 @@ else
         overflow: hidden;
         --plant-divider: rgba(105, 119, 134, 0.35);
         --plant-top-fill: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%);
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
     }
 
     .plant-readiness-card::before {
@@ -877,6 +878,14 @@ else
     .plant-readiness-card.season-tone-general {
         --plant-divider: rgba(105, 119, 134, 0.55);
         --plant-top-fill: linear-gradient(180deg, rgba(234, 240, 245, 0.72) 0%, rgba(237, 241, 245, 0.24) 56%, rgba(237, 241, 245, 0) 100%);
+    }
+
+    @@media (hover: hover) and (pointer: fine) {
+        .plant-readiness-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(54, 42, 35, 0.11);
+            border-color: rgba(131, 94, 74, 0.42);
+        }
     }
 
     .status-action {
