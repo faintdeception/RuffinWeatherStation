@@ -345,7 +345,7 @@ else
                                     @foreach (var card in GetActionNowCards())
                                     {
                                         <div class="col-lg-4 col-md-6">
-                                            <div class="p-3 border rounded h-100">
+                                            <div class="p-3 border rounded h-100 plant-readiness-card season-tone-@card.SeasonTone">
                                                 <div class="season-card-header @card.SeasonHeaderClass" aria-label="@($"{card.SeasonLabel} category")">
                                                     <span class="season-emoji" aria-hidden="true">@card.SeasonEmoji</span>
                                                     <span class="season-label">@card.SeasonLabel</span>
@@ -353,7 +353,9 @@ else
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                                     <div>
                                                         <h5 class="mb-0">@card.DisplayName</h5>
-                                                        <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                                        <div class="plant-meta-strip">
+                                                            <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                                        </div>
                                                     </div>
                                                     <span class="badge status-badge @card.BadgeClass">@card.StatusLabel</span>
                                                 </div>
@@ -415,7 +417,7 @@ else
                                     @foreach (var card in GetSoonCards())
                                     {
                                         <div class="col-lg-4 col-md-6">
-                                            <div class="p-3 border rounded h-100">
+                                            <div class="p-3 border rounded h-100 plant-readiness-card season-tone-@card.SeasonTone">
                                                 <div class="season-card-header @card.SeasonHeaderClass" aria-label="@($"{card.SeasonLabel} category")">
                                                     <span class="season-emoji" aria-hidden="true">@card.SeasonEmoji</span>
                                                     <span class="season-label">@card.SeasonLabel</span>
@@ -423,7 +425,9 @@ else
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                                     <div>
                                                         <h5 class="mb-0">@card.DisplayName</h5>
-                                                        <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                                        <div class="plant-meta-strip">
+                                                            <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                                        </div>
                                                     </div>
                                                     <span class="badge status-badge @card.BadgeClass">@card.StatusLabel</span>
                                                 </div>
@@ -485,7 +489,7 @@ else
                                     @foreach (var card in GetDormantCards())
                                     {
                                         <div class="col-lg-4 col-md-6">
-                                            <div class="p-3 border rounded h-100">
+                                            <div class="p-3 border rounded h-100 plant-readiness-card season-tone-@card.SeasonTone">
                                                 <div class="season-card-header @card.SeasonHeaderClass" aria-label="@($"{card.SeasonLabel} category")">
                                                     <span class="season-emoji" aria-hidden="true">@card.SeasonEmoji</span>
                                                     <span class="season-label">@card.SeasonLabel</span>
@@ -493,7 +497,9 @@ else
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                                     <div>
                                                         <h5 class="mb-0">@card.DisplayName</h5>
-                                                        <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                                        <div class="plant-meta-strip">
+                                                            <small class="text-muted">@card.CategoriesLabel · @card.ActionTypeLabel</small>
+                                                        </div>
                                                     </div>
                                                     <span class="badge status-badge @card.BadgeClass">@card.StatusLabel</span>
                                                 </div>
@@ -809,6 +815,68 @@ else
         border-style: solid;
         color: var(--status-text);
         background: #f6f8fa;
+    }
+
+    .plant-readiness-card {
+        position: relative;
+        overflow: hidden;
+        --plant-divider: rgba(105, 119, 134, 0.35);
+        --plant-top-fill: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 100%);
+    }
+
+    .plant-readiness-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6rem;
+        background: var(--plant-top-fill);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .plant-readiness-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .plant-meta-strip {
+        position: relative;
+        padding-bottom: 0.4rem;
+        margin-top: 0.08rem;
+        display: inline-block;
+        min-width: 14rem;
+    }
+
+    .plant-meta-strip::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: var(--plant-divider);
+    }
+
+    .plant-readiness-card.season-tone-warm {
+        --plant-divider: rgba(199, 130, 24, 0.62);
+        --plant-top-fill: linear-gradient(180deg, rgba(255, 238, 203, 0.75) 0%, rgba(255, 244, 222, 0.28) 56%, rgba(255, 244, 222, 0) 100%);
+    }
+
+    .plant-readiness-card.season-tone-cool {
+        --plant-divider: rgba(45, 130, 183, 0.62);
+        --plant-top-fill: linear-gradient(180deg, rgba(220, 241, 255, 0.78) 0%, rgba(233, 245, 255, 0.3) 56%, rgba(233, 245, 255, 0) 100%);
+    }
+
+    .plant-readiness-card.season-tone-fall {
+        --plant-divider: rgba(184, 97, 42, 0.62);
+        --plant-top-fill: linear-gradient(180deg, rgba(255, 230, 214, 0.74) 0%, rgba(255, 234, 222, 0.26) 56%, rgba(255, 234, 222, 0) 100%);
+    }
+
+    .plant-readiness-card.season-tone-general {
+        --plant-divider: rgba(105, 119, 134, 0.55);
+        --plant-top-fill: linear-gradient(180deg, rgba(234, 240, 245, 0.72) 0%, rgba(237, 241, 245, 0.24) 56%, rgba(237, 241, 245, 0) 100%);
     }
 
     .status-action {
