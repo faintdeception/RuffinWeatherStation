@@ -307,6 +307,16 @@ else
                         }
                     </div>
                 </div>
+
+                <DaylightLightCard LightLevels="todayLightLevels"
+                                   SunriseUtc="approximateSunriseUtc"
+                                   SunsetUtc="approximateSunsetUtc"
+                                   SnapshotLabel="@BuildDaylightSnapshotLabel()"
+                                   FormatDaylightTime="FormatDaylightTime"
+                                   ConvertToDisplayTime="ConvertToUserTimeZoneNullable"
+                                   FormatTimestamp="FormatRainfallTimestamp"
+                                   FormatLuxAxisValue="FormatLuxAxisValue"
+                                   FormatLuxValue="FormatLuxValue" />
             }
             else
             {

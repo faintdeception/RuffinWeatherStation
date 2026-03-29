@@ -41,6 +41,16 @@ public partial class WeatherHome
         }
     }
 
+    private DateTime? ConvertToUserTimeZoneNullable(DateTime? utcDateTime)
+    {
+        if (!utcDateTime.HasValue)
+        {
+            return null;
+        }
+
+        return ConvertToUserTimeZone(utcDateTime.Value);
+    }
+
     private bool IsDataStale()
     {
         if (measurement == null)
@@ -168,6 +178,53 @@ public partial class WeatherHome
         }
 
         return value?.ToString() ?? "";
+    }
+
+    private string FormatLuxAxisValue(object value)
+    {
+        if (value is double lux)
+        {
+            if (lux >= 1000)
+            {
+                return $"{lux / 1000:0.#}k";
+            }
+
+            return lux.ToString("0");
+        }
+
+        return value?.ToString() ?? "";
+    }
+
+    private string FormatLuxValue(double value)
+    {
+        if (value >= 1000)
+        {
+            return $"{value:0,0}";
+        }
+
+        return value.ToString("0");
+    }
+
+    private string FormatDaylightTime(DateTime? utcDateTime)
+    {
+        if (!utcDateTime.HasValue)
+        {
+            return "n/a";
+        }
+
+        return ConvertToUserTimeZone(utcDateTime.Value).ToString("h:mm tt");
+    }
+
+    private string BuildDaylightSnapshotLabel()
+    {
+        if (!daylightSnapshotFetchedAtUtc.HasValue)
+        {
+            return "No recent NWS daylight snapshot available (36-hour window).";
+        }
+
+        var sourceLocation = string.IsNullOrWhiteSpace(daylightSnapshotLocation) ? "backyard" : daylightSnapshotLocation;
+        var timingLabel = usesPriorDaySnapshotForDaylight ? "Prior-day snapshot" : "Latest snapshot";
+        return $"{timingLabel} from {sourceLocation} at {FormatDateTimeForUserWithTimezone(daylightSnapshotFetchedAtUtc.Value)}";
     }
 
     private string FormatHistoricDate(string? value)

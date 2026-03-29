@@ -295,21 +295,29 @@ namespace RuffinWeatherStation.Api.Services
         {
             var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
             var lookbackDays = Math.Clamp(days, 1, 30);
+            var nowUtc = DateTime.UtcNow;
+            var snapshotWindowStartUtc = nowUtc.AddHours(-36);
 
             try
             {
                 var locationFilter = Builders<BsonDocument>.Filter.Eq("location", normalizedLocation);
-                var latestSnapshot = await _nwsSnapshots
+                var locationSnapshots = await _nwsSnapshots
                     .Find(locationFilter)
                     .Sort(Builders<BsonDocument>.Sort.Descending("_id"))
-                    .FirstOrDefaultAsync();
+                    .Limit(240)
+                    .ToListAsync();
+
+                var latestSnapshot = SelectLatestSnapshotInWindow(locationSnapshots, snapshotWindowStartUtc);
 
                 if (latestSnapshot == null)
                 {
-                    latestSnapshot = await _nwsSnapshots
+                    var fallbackSnapshots = await _nwsSnapshots
                         .Find(Builders<BsonDocument>.Filter.Empty)
                         .Sort(Builders<BsonDocument>.Sort.Descending("_id"))
-                        .FirstOrDefaultAsync();
+                        .Limit(240)
+                        .ToListAsync();
+
+                    latestSnapshot = SelectLatestSnapshotInWindow(fallbackSnapshots, snapshotWindowStartUtc);
                 }
 
                 if (latestSnapshot == null)
@@ -324,6 +332,10 @@ namespace RuffinWeatherStation.Api.Services
                 }
 
                 var snapshotFetchedAt = GetDateTimeUtc(latestSnapshot, "created_at", "fetched_at", "timestamp", "nws_data.created_at", "nws_data.fetched_at");
+                var snapshotLocation = NormalizeValue(GetString(latestSnapshot, "location", "nws_data.location")) ?? normalizedLocation;
+                var snapshotReportDate = GetSnapshotReportDate(latestSnapshot);
+                var usesPriorDaySnapshot = snapshotReportDate.HasValue && snapshotReportDate.Value < DateOnly.FromDateTime(DateTime.UtcNow.Date);
+                var (sunriseUtc, sunsetUtc) = GetDaylightWindowUtc(latestSnapshot);
 
                 var alerts = new List<NwsAlertSnapshotSummary>();
 
@@ -394,6 +406,11 @@ namespace RuffinWeatherStation.Api.Services
                     ActiveAlerts = alerts.Count(a => a.IsActive),
                     ExpiredAlerts = alerts.Count(a => !a.IsActive),
                     SevereOrExtremeAlerts = severeCount,
+                    ApproximateSunriseUtc = sunriseUtc,
+                    ApproximateSunsetUtc = sunsetUtc,
+                    DaylightSnapshotFetchedAtUtc = snapshotFetchedAt,
+                    DaylightSnapshotLocation = snapshotLocation,
+                    UsesPriorDaySnapshotForDaylight = usesPriorDaySnapshot,
                     RecentAlerts = alerts
                         .OrderByDescending(a => a.OnsetUtc ?? a.SentUtc ?? DateTime.MinValue)
                         .ToList(),
@@ -458,6 +475,11 @@ namespace RuffinWeatherStation.Api.Services
                     return epochDate;
                 }
 
+                if (value.IsString && DateTimeOffset.TryParse(value.AsString, out var parsedOffset))
+                {
+                    return parsedOffset.UtcDateTime;
+                }
+
                 if (value.IsString && DateTime.TryParse(value.AsString, out var parsed))
                 {
                     return parsed.Kind == DateTimeKind.Utc ? parsed : parsed.ToUniversalTime();
@@ -485,6 +507,63 @@ namespace RuffinWeatherStation.Api.Services
             {
                 return false;
             }
+        }
+
+        private static BsonDocument? SelectLatestSnapshotInWindow(IEnumerable<BsonDocument> snapshots, DateTime windowStartUtc)
+        {
+            foreach (var snapshot in snapshots)
+            {
+                var fetchedAtUtc = GetDateTimeUtc(snapshot, "created_at", "fetched_at", "timestamp", "nws_data.created_at", "nws_data.fetched_at")
+                    ?? GetObjectIdUtc(snapshot);
+
+                if (!fetchedAtUtc.HasValue)
+                {
+                    continue;
+                }
+
+                if (fetchedAtUtc.Value >= windowStartUtc)
+                {
+                    return snapshot;
+                }
+            }
+
+            return null;
+        }
+
+        private static DateTime? GetObjectIdUtc(BsonDocument snapshot)
+        {
+            if (!snapshot.TryGetValue("_id", out var idValue))
+            {
+                return null;
+            }
+
+            return idValue.IsObjectId ? idValue.AsObjectId.CreationTime.ToUniversalTime() : null;
+        }
+
+        private static (DateTime? SunriseUtc, DateTime? SunsetUtc) GetDaylightWindowUtc(BsonDocument snapshot)
+        {
+            var sunriseUtc = GetDateTimeUtc(snapshot,
+                "nws_data.forecast.sunrise",
+                "forecast.sunrise",
+                "sunrise");
+
+            var sunsetUtc = GetDateTimeUtc(snapshot,
+                "nws_data.forecast.sunset",
+                "forecast.sunset",
+                "sunset");
+
+            return (sunriseUtc, sunsetUtc);
+        }
+
+        private static DateOnly? GetSnapshotReportDate(BsonDocument snapshot)
+        {
+            var reportDateRaw = NormalizeValue(GetString(snapshot, "report_date", "nws_data.report_date"));
+            if (string.IsNullOrWhiteSpace(reportDateRaw))
+            {
+                return null;
+            }
+
+            return DateOnly.TryParse(reportDateRaw, out var reportDate) ? reportDate : null;
         }
 
         private static IEnumerable<BsonDocument> ExpandAlertDocuments(BsonDocument snapshot)

@@ -40,6 +40,12 @@ public partial class WeatherHome
     private List<NwsAlertSnapshotData> attentionAlerts = new();
     private bool isAlertSummaryLoading;
     private string? alertSummaryLoadError;
+    private List<DataPoint> todayLightLevels = new();
+    private DateTime? approximateSunriseUtc;
+    private DateTime? approximateSunsetUtc;
+    private DateTime? daylightSnapshotFetchedAtUtc;
+    private string daylightSnapshotLocation = string.Empty;
+    private bool usesPriorDaySnapshotForDaylight;
 
     protected override async Task OnInitializedAsync()
     {

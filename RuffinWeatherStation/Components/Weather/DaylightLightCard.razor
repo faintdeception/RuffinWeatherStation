@@ -1,0 +1,159 @@
+<div class="card mt-4 daylight-light-card">
+    <div class="card-header text-white daylight-light-header">
+        <h3 class="mb-0">Daylight and light levels</h3>
+        <small class="daylight-light-subtitle">@SnapshotLabel</small>
+    </div>
+    <div class="card-body">
+        @if (HasDaylightEstimate)
+        {
+            <div class="daylight-summary row text-center mb-3">
+                <div class="col-sm-4 col-12 mb-2 mb-sm-0">
+                    <div class="fw-semibold">@FormatDaylightTime(SunriseUtc)</div>
+                    <small class="text-muted">Approx. sunrise</small>
+                </div>
+                <div class="col-sm-4 col-12 mb-2 mb-sm-0">
+                    <div class="fw-semibold">@FormatDaylightDuration()</div>
+                    <small class="text-muted">Daylight window</small>
+                </div>
+                <div class="col-sm-4 col-12">
+                    <div class="fw-semibold">@FormatDaylightTime(SunsetUtc)</div>
+                    <small class="text-muted">Approx. sunset</small>
+                </div>
+            </div>
+
+            <div class="sun-track mb-4" role="img" aria-label="Approximate daylight timeline">
+                <div class="sun-track-night"></div>
+                <div class="sun-track-day" style="left:@GetPercentOfDay(SunriseUtc); width:@GetDaylightWidthPercent();"></div>
+                <div class="sun-marker sunrise" style="left:@GetPercentOfDay(SunriseUtc);">Sunrise</div>
+                <div class="sun-marker sunset" style="left:@GetPercentOfDay(SunsetUtc);">Sunset</div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning daylight-warning" role="alert">
+                <div class="fw-semibold">Daylight estimate unavailable</div>
+                <div>Approximate sunrise and sunset times are temporarily unavailable from recent NWS data.</div>
+            </div>
+        }
+
+        @if (LightLevels != null && LightLevels.Any())
+        {
+            <div class="row text-center mb-3">
+                <div class="col-sm-6 col-12 mb-2 mb-sm-0">
+                    <div class="fw-semibold">@FormatLuxValue(GetPeakLuxValue()) lux</div>
+                    <small class="text-muted">Peak recorded light today</small>
+                </div>
+                <div class="col-sm-6 col-12">
+                    <div class="fw-semibold">@FormatDaylightTime(GetPeakLuxTime())</div>
+                    <small class="text-muted">Peak time</small>
+                </div>
+            </div>
+
+            <RadzenChart class="daylight-chart">
+                <RadzenAreaSeries Data="@LightLevels"
+                                  CategoryProperty="Timestamp"
+                                  ValueProperty="Value"
+                                  Title="Recorded light (lux)"
+                                  LineType="LineType.Solid"
+                                  Stroke="rgba(255, 152, 0, 0.95)"
+                                  Fill="rgba(255, 193, 7, 0.45)"
+                                  StrokeWidth="2" />
+                <RadzenCategoryAxis Formatter="@FormatTimestamp" />
+                <RadzenValueAxis Formatter="@FormatLuxAxisValue">
+                    <RadzenGridLines Visible="true" />
+                    <RadzenAxisTitle Text="Light (lux)" />
+                </RadzenValueAxis>
+                <RadzenLegend Position="LegendPosition.Top" />
+            </RadzenChart>
+        }
+        else
+        {
+            <p class="text-muted mb-0">No light measurements have been recorded for today yet.</p>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<DataPoint>? LightLevels { get; set; }
+    [Parameter] public DateTime? SunriseUtc { get; set; }
+    [Parameter] public DateTime? SunsetUtc { get; set; }
+    [Parameter] public string SnapshotLabel { get; set; } = string.Empty;
+    [Parameter] public Func<DateTime?, string> FormatDaylightTime { get; set; } = _ => "n/a";
+    [Parameter] public Func<DateTime?, DateTime?> ConvertToDisplayTime { get; set; } = value => value;
+    [Parameter] public Func<object, string> FormatTimestamp { get; set; } = _ => string.Empty;
+    [Parameter] public Func<object, string> FormatLuxAxisValue { get; set; } = _ => string.Empty;
+    [Parameter] public Func<double, string> FormatLuxValue { get; set; } = _ => "0";
+
+    private bool HasDaylightEstimate => SunriseUtc.HasValue && SunsetUtc.HasValue && SunsetUtc > SunriseUtc;
+
+    private string GetPercentOfDay(DateTime? utc)
+    {
+        if (!utc.HasValue)
+        {
+            return "0%";
+        }
+
+        var displayTime = ConvertToDisplayTime(utc);
+        if (!displayTime.HasValue)
+        {
+            return "0%";
+        }
+
+        var midnight = displayTime.Value.Date;
+        var daySeconds = (displayTime.Value - midnight).TotalSeconds;
+        var bounded = Math.Clamp(daySeconds / TimeSpan.FromDays(1).TotalSeconds * 100d, 0d, 100d);
+        return $"{bounded:0.##}%";
+    }
+
+    private string GetDaylightWidthPercent()
+    {
+        if (!HasDaylightEstimate)
+        {
+            return "0%";
+        }
+
+        var sunriseLocal = ConvertToDisplayTime(SunriseUtc);
+        var sunsetLocal = ConvertToDisplayTime(SunsetUtc);
+        if (!sunriseLocal.HasValue || !sunsetLocal.HasValue)
+        {
+            return "0%";
+        }
+
+        var sunrisePercent = (sunriseLocal.Value - sunriseLocal.Value.Date).TotalSeconds / TimeSpan.FromDays(1).TotalSeconds * 100d;
+        var sunsetPercent = (sunsetLocal.Value - sunsetLocal.Value.Date).TotalSeconds / TimeSpan.FromDays(1).TotalSeconds * 100d;
+        var width = Math.Clamp(sunsetPercent - sunrisePercent, 0d, 100d);
+        return $"{width:0.##}%";
+    }
+
+    private string FormatDaylightDuration()
+    {
+        if (!HasDaylightEstimate)
+        {
+            return "n/a";
+        }
+
+        var duration = SunsetUtc!.Value - SunriseUtc!.Value;
+        return $"{(int)duration.TotalHours}h {duration.Minutes}m";
+    }
+
+    private double GetPeakLuxValue()
+    {
+        if (LightLevels == null || LightLevels.Count == 0)
+        {
+            return 0;
+        }
+
+        return LightLevels.Max(x => x.Value);
+    }
+
+    private DateTime? GetPeakLuxTime()
+    {
+        if (LightLevels == null || LightLevels.Count == 0)
+        {
+            return null;
+        }
+
+        var peakLux = LightLevels.Max(x => x.Value);
+        return LightLevels.First(x => x.Value == peakLux).Timestamp;
+    }
+}

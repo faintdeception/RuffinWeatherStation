@@ -1,0 +1,67 @@
+.daylight-light-card .daylight-light-header {
+    background: linear-gradient(120deg, #1565c0 0%, #ef6c00 100%);
+}
+
+.daylight-light-subtitle {
+    opacity: 0.95;
+}
+
+.sun-track {
+    position: relative;
+    height: 54px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #e3f2fd;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+}
+
+.sun-track-night {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #0d1b2a 0%, #1b263b 100%);
+    opacity: 0.8;
+}
+
+.sun-track-day {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, rgba(255, 213, 79, 0.88) 0%, rgba(255, 167, 38, 0.95) 100%);
+}
+
+.sun-marker {
+    position: absolute;
+    top: 6px;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #102a43;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 999px;
+    padding: 2px 8px;
+    border: 1px solid rgba(16, 42, 67, 0.2);
+    white-space: nowrap;
+}
+
+.sun-marker.sunset {
+    top: 28px;
+}
+
+.daylight-chart {
+    height: 240px;
+}
+
+.daylight-warning {
+    border-left: 4px solid #f57f17;
+    background: linear-gradient(90deg, rgba(255, 249, 196, 0.75) 0%, rgba(255, 243, 224, 0.75) 100%);
+}
+
+@media (max-width: 768px) {
+    .daylight-chart {
+        height: 210px;
+    }
+
+    .sun-track {
+        height: 58px;
+    }
+}

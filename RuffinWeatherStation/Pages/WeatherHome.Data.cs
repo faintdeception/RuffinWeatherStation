@@ -26,6 +26,8 @@ public partial class WeatherHome
                     .Take(4)
                     .ToList();
             }
+
+            UpdateDaylightCardData();
         }
         catch (Exception ex)
         {
@@ -99,6 +101,8 @@ public partial class WeatherHome
                     .ToList();
             }
 
+                    UpdateDaylightCardData();
+
             // Update the next cache refresh time estimation.
             nextCacheRefresh = DateTime.Now.Add(cacheDuration);
             isLoading = false;
@@ -108,6 +112,26 @@ public partial class WeatherHome
             Console.Error.WriteLine($"Error loading weather data: {ex.Message}");
             isLoading = false;
         }
+    }
+
+    private void UpdateDaylightCardData()
+    {
+        todayLightLevels = todaysMeasurements?
+            .Where(m => m.Fields != null)
+            .GroupBy(m => m.TimestampMs)
+            .OrderBy(g => g.Key)
+            .Select(g => new DataPoint
+            {
+                Timestamp = g.Key,
+                Value = g.Average(m => m.Fields?.Lux ?? 0)
+            })
+            .ToList() ?? new List<DataPoint>();
+
+        approximateSunriseUtc = homeAlertSummary?.ApproximateSunriseUtc;
+        approximateSunsetUtc = homeAlertSummary?.ApproximateSunsetUtc;
+        daylightSnapshotFetchedAtUtc = homeAlertSummary?.DaylightSnapshotFetchedAtUtc;
+        daylightSnapshotLocation = homeAlertSummary?.DaylightSnapshotLocation ?? string.Empty;
+        usesPriorDaySnapshotForDaylight = homeAlertSummary?.UsesPriorDaySnapshotForDaylight ?? false;
     }
 
     private async Task LoadRecentRainfallAnalysis()

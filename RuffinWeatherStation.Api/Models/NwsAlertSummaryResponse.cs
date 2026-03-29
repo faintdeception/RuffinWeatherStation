@@ -11,6 +11,11 @@ public class NwsAlertSummaryResponse
     public int ActiveAlerts { get; set; }
     public int ExpiredAlerts { get; set; }
     public int SevereOrExtremeAlerts { get; set; }
+    public DateTime? ApproximateSunriseUtc { get; set; }
+    public DateTime? ApproximateSunsetUtc { get; set; }
+    public DateTime? DaylightSnapshotFetchedAtUtc { get; set; }
+    public string DaylightSnapshotLocation { get; set; } = string.Empty;
+    public bool UsesPriorDaySnapshotForDaylight { get; set; }
     public List<NwsAlertSnapshotSummary> RecentAlerts { get; set; } = new();
     public List<NwsMitigationRecommendation> MitigationRecommendations { get; set; } = new();
 }
