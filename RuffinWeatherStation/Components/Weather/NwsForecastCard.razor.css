@@ -11,6 +11,23 @@
     gap: 0.6rem;
 }
 
+.nws-forecast-day-group {
+    margin-bottom: 0.8rem;
+}
+
+.nws-forecast-day-group:last-child {
+    margin-bottom: 0;
+}
+
+.nws-forecast-day-heading {
+    margin: 0 0 0.45rem;
+    font-size: 0.96rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: rgba(27, 55, 84, 0.93);
+    text-transform: uppercase;
+}
+
 .nws-forecast-period {
     border-radius: 10px;
     border: 1px solid rgba(70, 90, 110, 0.16);
@@ -67,6 +84,17 @@
     margin-top: 0.35rem;
     font-size: 0.88rem;
     color: rgba(30, 45, 61, 0.85);
+}
+
+.nws-forecast-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.nws-forecast-actions .badge {
+    font-size: 0.72rem;
+    letter-spacing: 0.01em;
 }
 
 @media (min-width: 900px) {

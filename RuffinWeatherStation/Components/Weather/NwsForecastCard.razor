@@ -1,9 +1,18 @@
 @using RuffinWeatherStation.Models
 
 <div class="card nws-forecast-card mt-3">
-    <div class="card-header text-white nws-forecast-header">
-        <h3 class="mb-0">@Title</h3>
-        <small class="opacity-75">@Subtitle</small>
+    <div class="card-header text-white nws-forecast-header d-flex justify-content-between align-items-start gap-2 flex-wrap">
+        <div>
+            <h3 class="mb-0">@Title</h3>
+            <small class="opacity-75">@Subtitle</small>
+        </div>
+        @if (Forecast?.SnapshotFetchedAtUtc != null)
+        {
+            <div class="d-flex gap-1 flex-wrap">
+                <span class="badge @GetFreshnessBadgeClass(Forecast.SnapshotFetchedAtUtc)">@GetFreshnessLabel(Forecast.SnapshotFetchedAtUtc)</span>
+                <span class="badge @GetConfidenceBadgeClass(periodsForDisplay)">Confidence: @GetConfidenceLabel(periodsForDisplay)</span>
+            </div>
+        }
     </div>
     <div class="card-body">
         @if (Forecast == null || !Forecast.HasData || !Forecast.Periods.Any())
@@ -12,50 +21,46 @@
         }
         else
         {
-            var periods = Forecast.Periods
+            periodsForDisplay = Forecast.Periods
                 .OrderBy(p => p.StartTimeUtc ?? DateTime.MaxValue)
                 .Take(Math.Max(1, MaxItems))
                 .ToList();
 
-            <div class="nws-forecast-grid">
-                @foreach (var period in periods)
+            @if (GroupByLocalDay)
+            {
+                var dayGroups = periodsForDisplay
+                    .GroupBy(p => (p.StartTimeUtc ?? DateTime.UtcNow).ToLocalTime().Date)
+                    .OrderBy(g => g.Key)
+                    .ToList();
+
+                @foreach (var dayGroup in dayGroups)
                 {
-                    <article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night")">
-                        <header class="nws-forecast-period-header">
-                            <div class="nws-forecast-period-name">@period.Name</div>
-                            <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
-                        </header>
-
-                        <div class="nws-forecast-keyline">
-                            <span class="nws-forecast-temp">@FormatTemperature(period)</span>
-                            <span class="nws-forecast-pop">Rain @FormatPercent(period.PrecipitationChancePercent)</span>
-                        </div>
-
-                        <div class="nws-forecast-keyline subtle">
-                            <span>Wind @FormatWind(period)</span>
-                            @if (!string.IsNullOrWhiteSpace(period.WindDirection))
+                    <div class="nws-forecast-day-group">
+                        <h5 class="nws-forecast-day-heading">@FormatDayHeading(dayGroup.Key)</h5>
+                        <div class="nws-forecast-grid">
+                            @foreach (var period in dayGroup)
                             {
-                                <span>@period.WindDirection</span>
+                                @RenderPeriodCard(period)
                             }
                         </div>
-
-                        @if (ShowDetailed && !string.IsNullOrWhiteSpace(period.DetailedForecast))
-                        {
-                            <p class="nws-forecast-detail mb-0">@period.DetailedForecast</p>
-                        }
-                        else if (!string.IsNullOrWhiteSpace(period.ShortForecast))
-                        {
-                            <p class="nws-forecast-detail mb-0">@period.ShortForecast</p>
-                        }
-                    </article>
+                    </div>
                 }
-            </div>
+            }
+            else
+            {
+                <div class="nws-forecast-grid">
+                    @foreach (var period in periodsForDisplay)
+                    {
+                        @RenderPeriodCard(period)
+                    }
+                </div>
+            }
 
             @if (ShowSnapshotMeta)
             {
                 <div class="nws-forecast-meta mt-2">
                     <small class="text-muted">
-                        Snapshot: @FormatPeriodStart(Forecast.SnapshotFetchedAtUtc) · Location: @Forecast.Location
+                        Snapshot: @FormatPeriodStart(Forecast.SnapshotFetchedAtUtc) (@FormatSnapshotAge(Forecast.SnapshotFetchedAtUtc)) · Location: @Forecast.Location
                     </small>
                 </div>
             }
@@ -81,6 +86,57 @@
 
     [Parameter]
     public bool ShowSnapshotMeta { get; set; } = true;
+
+    [Parameter]
+    public bool ShowGardenActions { get; set; }
+
+    [Parameter]
+    public bool GroupByLocalDay { get; set; }
+
+    private List<NwsForecastPeriodData> periodsForDisplay = new();
+
+    private RenderFragment RenderPeriodCard(NwsForecastPeriodData period) => @<article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night")">
+        <header class="nws-forecast-period-header">
+            <div class="nws-forecast-period-name">@period.Name</div>
+            <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
+        </header>
+
+        <div class="nws-forecast-keyline">
+            <span class="nws-forecast-temp">@FormatTemperature(period)</span>
+            <span class="nws-forecast-pop">Rain @FormatPercent(period.PrecipitationChancePercent)</span>
+        </div>
+
+        <div class="nws-forecast-keyline subtle">
+            <span>Wind @FormatWind(period)</span>
+            @if (!string.IsNullOrWhiteSpace(period.WindDirection))
+            {
+                <span>@period.WindDirection</span>
+            }
+        </div>
+
+        @if (ShowGardenActions)
+        {
+            var actionTags = GetGardenActions(period);
+            if (actionTags.Any())
+            {
+                <div class="nws-forecast-actions mt-2">
+                    @foreach (var action in actionTags)
+                    {
+                        <span class="badge @action.CssClass">@action.Label</span>
+                    }
+                </div>
+            }
+        }
+
+        @if (ShowDetailed && !string.IsNullOrWhiteSpace(period.DetailedForecast))
+        {
+            <p class="nws-forecast-detail mb-0">@period.DetailedForecast</p>
+        }
+        else if (!string.IsNullOrWhiteSpace(period.ShortForecast))
+        {
+            <p class="nws-forecast-detail mb-0">@period.ShortForecast</p>
+        }
+    </article>;
 
     private static string FormatTemperature(NwsForecastPeriodData period)
     {
@@ -126,4 +182,195 @@
 
         return utc.Value.ToLocalTime().ToString("ddd h:mm tt");
     }
+
+    private static string FormatDayHeading(DateTime localDate)
+    {
+        var today = DateTime.Now.Date;
+        if (localDate == today)
+        {
+            return "Today";
+        }
+
+        if (localDate == today.AddDays(1))
+        {
+            return "Tomorrow";
+        }
+
+        return localDate.ToString("dddd, MMM d");
+    }
+
+    private static string FormatSnapshotAge(DateTime? snapshotUtc)
+    {
+        if (!snapshotUtc.HasValue)
+        {
+            return "age unknown";
+        }
+
+        var age = DateTime.UtcNow - snapshotUtc.Value;
+        if (age.TotalHours < 1)
+        {
+            return $"{Math.Max(1, Math.Round(age.TotalMinutes))}m ago";
+        }
+
+        return $"{Math.Round(age.TotalHours, 1)}h ago";
+    }
+
+    private static string GetFreshnessBadgeClass(DateTime? snapshotUtc)
+    {
+        if (!snapshotUtc.HasValue)
+        {
+            return "text-bg-secondary";
+        }
+
+        var age = DateTime.UtcNow - snapshotUtc.Value;
+        if (age.TotalHours <= 3)
+        {
+            return "text-bg-success";
+        }
+
+        if (age.TotalHours <= 8)
+        {
+            return "text-bg-warning";
+        }
+
+        return "text-bg-danger";
+    }
+
+    private static string GetFreshnessLabel(DateTime? snapshotUtc)
+    {
+        if (!snapshotUtc.HasValue)
+        {
+            return "Snapshot age unknown";
+        }
+
+        var age = DateTime.UtcNow - snapshotUtc.Value;
+        if (age.TotalHours <= 3)
+        {
+            return "Fresh Snapshot";
+        }
+
+        if (age.TotalHours <= 8)
+        {
+            return "Aging Snapshot";
+        }
+
+        return "Stale Snapshot";
+    }
+
+    private static string GetConfidenceBadgeClass(IReadOnlyList<NwsForecastPeriodData> periods)
+    {
+        var score = GetForecastConfidenceScore(periods);
+        if (score >= 0.75)
+        {
+            return "text-bg-success";
+        }
+
+        if (score >= 0.5)
+        {
+            return "text-bg-warning";
+        }
+
+        return "text-bg-danger";
+    }
+
+    private static string GetConfidenceLabel(IReadOnlyList<NwsForecastPeriodData> periods)
+    {
+        var score = GetForecastConfidenceScore(periods);
+        if (score >= 0.75)
+        {
+            return "High";
+        }
+
+        if (score >= 0.5)
+        {
+            return "Medium";
+        }
+
+        return "Low";
+    }
+
+    private static double GetForecastConfidenceScore(IReadOnlyList<NwsForecastPeriodData> periods)
+    {
+        if (periods.Count == 0)
+        {
+            return 0;
+        }
+
+        var scored = periods.Select(p =>
+        {
+            var checks = 0;
+            var total = 5;
+
+            if (p.StartTimeUtc.HasValue) checks++;
+            if (p.Temperature.HasValue) checks++;
+            if (p.PrecipitationChancePercent.HasValue) checks++;
+            if (!string.IsNullOrWhiteSpace(p.WindSpeedText) || p.WindSpeedMphMax.HasValue) checks++;
+            if (!string.IsNullOrWhiteSpace(p.ShortForecast) || !string.IsNullOrWhiteSpace(p.DetailedForecast)) checks++;
+
+            return (double)checks / total;
+        });
+
+        return scored.Average();
+    }
+
+    private static IReadOnlyList<GardenActionTag> GetGardenActions(NwsForecastPeriodData period)
+    {
+        var actions = new List<GardenActionTag>();
+        var text = $"{period.ShortForecast} {period.DetailedForecast}".ToLowerInvariant();
+        var rainChance = period.PrecipitationChancePercent ?? 0;
+        var windMax = period.WindSpeedMphMax ?? 0;
+        var tempF = GetTempF(period);
+
+        if ((!period.IsDaytime || tempF <= 36) && (text.Contains("frost") || text.Contains("freeze") || tempF <= 33))
+        {
+            actions.Add(new GardenActionTag("Frost caution", "text-bg-danger"));
+        }
+
+        if (rainChance >= 45 || text.Contains("rain") || text.Contains("showers") || text.Contains("thunder"))
+        {
+            actions.Add(new GardenActionTag("Delay watering", "text-bg-primary"));
+        }
+
+        if (windMax >= 18 || text.Contains("gust") || text.Contains("thunder"))
+        {
+            actions.Add(new GardenActionTag("Skip foliar spray", "text-bg-warning"));
+        }
+
+        if (period.IsDaytime && rainChance < 30 && windMax > 0 && windMax <= 12)
+        {
+            actions.Add(new GardenActionTag("Good mowing window", "text-bg-success"));
+        }
+
+        if (period.IsDaytime && tempF >= 50 && tempF <= 86 && rainChance < 40 && windMax <= 15)
+        {
+            actions.Add(new GardenActionTag("Good planting window", "text-bg-success"));
+        }
+
+        if (actions.Count == 0)
+        {
+            actions.Add(new GardenActionTag("Monitor conditions", "text-bg-secondary"));
+        }
+
+        return actions
+            .DistinctBy(a => a.Label)
+            .Take(3)
+            .ToList();
+    }
+
+    private static double GetTempF(NwsForecastPeriodData period)
+    {
+        if (!period.Temperature.HasValue)
+        {
+            return double.NaN;
+        }
+
+        if (string.Equals(period.TemperatureUnit, "C", StringComparison.OrdinalIgnoreCase))
+        {
+            return (period.Temperature.Value * 9 / 5) + 32;
+        }
+
+        return period.Temperature.Value;
+    }
+
+    private sealed record GardenActionTag(string Label, string CssClass);
 }

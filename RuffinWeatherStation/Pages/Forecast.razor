@@ -19,11 +19,68 @@ else if (!string.IsNullOrWhiteSpace(loadError))
 }
 else
 {
+    var periods = (forecastSummary?.Periods ?? new List<NwsForecastPeriodData>())
+        .OrderBy(p => p.StartTimeUtc ?? DateTime.MaxValue)
+        .Take(12)
+        .ToList();
+
+    @if (periods.Any())
+    {
+        var windiest = periods
+            .Where(p => p.WindSpeedMphMax.HasValue)
+            .OrderByDescending(p => p.WindSpeedMphMax)
+            .FirstOrDefault();
+
+        var wettest = periods
+            .Where(p => p.PrecipitationChancePercent.HasValue)
+            .OrderByDescending(p => p.PrecipitationChancePercent)
+            .FirstOrDefault();
+
+        var dayTempValues = periods
+            .Where(p => p.IsDaytime && p.Temperature.HasValue)
+            .Select(GetTempF)
+            .Where(v => !double.IsNaN(v))
+            .ToList();
+
+        var temperatureSwing = dayTempValues.Any() ? dayTempValues.Max() - dayTempValues.Min() : 0;
+
+        <div class="row g-2 mb-3">
+            <div class="col-md-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">Windiest Period</div>
+                        <div class="fw-bold">@(windiest?.Name ?? "--")</div>
+                        <div>@(windiest?.WindSpeedText ?? "--")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">Highest Rain Chance</div>
+                        <div class="fw-bold">@(wettest?.Name ?? "--")</div>
+                        <div>@(wettest?.PrecipitationChancePercent.HasValue == true ? $"{Math.Round(wettest.PrecipitationChancePercent.Value)}%" : "--")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">Daytime Temp Swing</div>
+                        <div class="fw-bold">@Math.Round(temperatureSwing)°F</div>
+                        <div>Across displayed daytime periods</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <NwsForecastCard Forecast="forecastSummary"
                      Title="National Weather Service Forecast"
                      Subtitle="Expanded planning view with detailed period guidance"
-                     MaxItems="10"
+                     MaxItems="12"
                      ShowDetailed="true"
+                     GroupByLocalDay="true"
                      ShowSnapshotMeta="true" />
 }
 
@@ -48,5 +105,20 @@ else
         {
             isLoading = false;
         }
+    }
+
+    private static double GetTempF(NwsForecastPeriodData period)
+    {
+        if (!period.Temperature.HasValue)
+        {
+            return double.NaN;
+        }
+
+        if (string.Equals(period.TemperatureUnit, "C", StringComparison.OrdinalIgnoreCase))
+        {
+            return (period.Temperature.Value * 9 / 5) + 32;
+        }
+
+        return period.Temperature.Value;
     }
 }
