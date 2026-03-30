@@ -79,7 +79,7 @@
     public string Subtitle { get; set; } = "National Weather Service outlook";
 
     [Parameter]
-    public int MaxItems { get; set; } = 2;
+    public int MaxItems { get; set; } = 14;
 
     [Parameter]
     public bool ShowDetailed { get; set; }
@@ -98,7 +98,17 @@
     private RenderFragment RenderPeriodCard(NwsForecastPeriodData period) => @<article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night")">
         <header class="nws-forecast-period-header">
             <div class="nws-forecast-period-title-wrap">
-                <span class="nws-forecast-icon @GetForecastIconToneClass(period)" aria-hidden="true">@GetForecastIconGlyph(period)</span>
+                @if (!string.IsNullOrWhiteSpace(period.IconUrl))
+                {
+                    <img class="nws-forecast-icon-image"
+                         src="@period.IconUrl"
+                         alt="@GetForecastIconAltText(period)"
+                         loading="lazy" />
+                }
+                else
+                {
+                    <span class="nws-forecast-icon @GetForecastIconToneClass(period)" aria-hidden="true">@GetForecastIconGlyph(period)</span>
+                }
                 <div class="nws-forecast-period-name">@period.Name</div>
             </div>
             <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
@@ -440,6 +450,16 @@
         }
 
         return "tone-night";
+    }
+
+    private static string GetForecastIconAltText(NwsForecastPeriodData period)
+    {
+        if (!string.IsNullOrWhiteSpace(period.ShortForecast))
+        {
+            return $"{period.Name}: {period.ShortForecast}";
+        }
+
+        return $"{period.Name} forecast icon";
     }
 
     private static double GetTempF(NwsForecastPeriodData period)

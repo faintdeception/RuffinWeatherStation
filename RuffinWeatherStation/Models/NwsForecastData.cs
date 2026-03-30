@@ -1,5 +1,7 @@
 namespace RuffinWeatherStation.Models;
 
+using System.Text.Json.Serialization;
+
 public class NwsForecastData
 {
     public string Location { get; set; } = "backyard";
@@ -22,6 +24,8 @@ public class NwsForecastPeriodData
     public double? WindSpeedMphMax { get; set; }
     public string WindDirection { get; set; } = string.Empty;
     public double? PrecipitationChancePercent { get; set; }
+    [JsonPropertyName("icon")]
+    public string IconUrl { get; set; } = string.Empty;
     public string ShortForecast { get; set; } = string.Empty;
     public string DetailedForecast { get; set; } = string.Empty;
 }

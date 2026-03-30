@@ -13,11 +13,16 @@ public class GardenController : ControllerBase
     private static readonly string FrostDateFormat = "MM-dd";
     private readonly GardenSettings _gardenSettings;
     private readonly WeatherService _weatherService;
+    private readonly NwsIconCacheService _iconCacheService;
 
-    public GardenController(IOptions<GardenSettings> gardenSettings, WeatherService weatherService)
+    public GardenController(
+        IOptions<GardenSettings> gardenSettings,
+        WeatherService weatherService,
+        NwsIconCacheService iconCacheService)
     {
         _gardenSettings = gardenSettings.Value;
         _weatherService = weatherService;
+        _iconCacheService = iconCacheService;
     }
 
     [HttpGet("reference")]
@@ -72,6 +77,30 @@ public class GardenController : ControllerBase
         var fallbackLocation = string.IsNullOrWhiteSpace(_gardenSettings.LocationLabel) ? "backyard" : _gardenSettings.LocationLabel.Trim();
         var summary = await _weatherService.GetNwsForecastSummaryAsync(location ?? fallbackLocation, maxPeriods);
         return Ok(summary);
+    }
+
+    [HttpGet("icon-cache/{fileName}")]
+    public IActionResult GetCachedIcon([FromRoute] string fileName)
+    {
+        var filePath = _iconCacheService.ResolveCachedIconFilePath(fileName);
+        if (filePath == null)
+        {
+            return NotFound();
+        }
+
+        var contentType = fileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+            ? "image/png"
+            : fileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+                ? "image/jpeg"
+                : fileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase)
+                    ? "image/gif"
+                    : fileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase)
+                        ? "image/webp"
+                        : fileName.EndsWith(".svg", StringComparison.OrdinalIgnoreCase)
+                            ? "image/svg+xml"
+                            : "application/octet-stream";
+
+        return PhysicalFile(filePath, contentType);
     }
 
     private static DateOnly ResolveAverageLastFrostDate(string monthDay, int year)

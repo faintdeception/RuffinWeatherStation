@@ -2,7 +2,7 @@
 @inject GardenDataService GardenDataService
 
 <h1>NWS Forecast</h1>
-<p class="text-muted">Detailed 2-day forecast view (today through tomorrow night) from the latest NWS snapshot.</p>
+<p class="text-muted">Detailed 7-day forecast view (14 periods) from the latest NWS snapshot.</p>
 
 @if (isLoading)
 {
@@ -21,7 +21,7 @@ else
 {
     var periods = (forecastSummary?.Periods ?? new List<NwsForecastPeriodData>())
         .OrderBy(p => p.StartTimeUtc ?? DateTime.MaxValue)
-        .Take(12)
+        .Take(14)
         .ToList();
 
     @if (periods.Any())
@@ -77,9 +77,9 @@ else
 
     <NwsForecastCard Forecast="forecastSummary"
                      Title="National Weather Service Forecast"
-                     Subtitle="Expanded planning view with detailed period guidance"
-                     MaxItems="4"
-                     ShowDetailed="true"
+                     Subtitle="Expanded planning view across all available periods"
+                     MaxItems="14"
+                     ShowDetailed="false"
                      GroupByLocalDay="true"
                      ShowSnapshotMeta="true" />
 }
@@ -95,7 +95,7 @@ else
         {
             isLoading = true;
             loadError = null;
-            forecastSummary = await GardenDataService.GetForecastSummaryAsync(maxPeriods: 4);
+            forecastSummary = await GardenDataService.GetForecastSummaryAsync(maxPeriods: 14);
         }
         catch (Exception ex)
         {

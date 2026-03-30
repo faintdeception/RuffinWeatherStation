@@ -29,6 +29,8 @@ try
 
     // Register the WeatherService
     try {
+        builder.Services.AddHttpClient();
+        builder.Services.AddSingleton<NwsIconCacheService>();
         Console.WriteLine("[STARTUP] Registering WeatherService...");
         builder.Services.AddSingleton<WeatherService>();
         Console.WriteLine("[STARTUP] WeatherService registered successfully");

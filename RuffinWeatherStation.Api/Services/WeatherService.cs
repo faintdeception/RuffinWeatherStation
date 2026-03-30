@@ -18,12 +18,14 @@ namespace RuffinWeatherStation.Api.Services
         private readonly IMongoCollection<AllTimeRecordDocument> _allTimeRecords;
         private readonly IMongoCollection<WeatherPrediction> _predictions;
         private readonly IMongoCollection<BsonDocument> _nwsSnapshots;
+        private readonly NwsIconCacheService _nwsIconCacheService;
 
-        public WeatherService(IConfiguration configuration)
+        public WeatherService(IConfiguration configuration, NwsIconCacheService nwsIconCacheService)
         {
             try
             {
                 Console.WriteLine("[WEATHER SERVICE] Initializing WeatherService...");
+            _nwsIconCacheService = nwsIconCacheService;
                 
                 var connectionString = configuration.GetConnectionString("MongoDb");
                 if (string.IsNullOrEmpty(connectionString))
@@ -475,30 +477,9 @@ namespace RuffinWeatherStation.Api.Services
 
                 var snapshotFetchedAt = GetDateTimeUtc(latestSnapshot, "created_at", "fetched_at", "timestamp", "nws_data.created_at", "nws_data.fetched_at");
 
-                var periods = ExpandForecastPeriodDocuments(latestSnapshot)
-                    .Select(periodDoc =>
-                    {
-                        var windSpeedText = NormalizeValue(GetString(periodDoc, "windSpeed", "wind_speed", "properties.windSpeed")) ?? string.Empty;
-                        var sourceTemperature = TryGetDouble(periodDoc, "temperature", "temp", "temperature.value", "properties.temperature");
-                        var sourceTemperatureUnit = NormalizeValue(GetString(periodDoc, "temperatureUnit", "temperature_unit", "temp_unit", "properties.temperatureUnit")) ?? "F";
-
-                        return new NwsForecastPeriodSummary
-                        {
-                            Name = NormalizeValue(GetString(periodDoc, "name", "period_name", "title")) ?? "Forecast Period",
-                            StartTimeUtc = GetDateTimeUtc(periodDoc, "startTime", "start_time", "start", "properties.startTime"),
-                            EndTimeUtc = GetDateTimeUtc(periodDoc, "endTime", "end_time", "end", "properties.endTime"),
-                            IsDaytime = TryGetBool(periodDoc, "isDaytime", "is_daytime", "daytime", "properties.isDaytime"),
-                            Temperature = sourceTemperature,
-                            CelsiusTemperature = ConvertToCelsius(sourceTemperature, sourceTemperatureUnit),
-                            TemperatureUnit = sourceTemperatureUnit,
-                            WindSpeedText = windSpeedText,
-                            WindSpeedMphMax = ParseWindSpeedMaxMph(windSpeedText),
-                            WindDirection = NormalizeValue(GetString(periodDoc, "windDirection", "wind_direction", "properties.windDirection")) ?? string.Empty,
-                            PrecipitationChancePercent = TryGetDouble(periodDoc, "probabilityOfPrecipitation.value", "pop", "precipitationChance", "precipitation_probability", "properties.probabilityOfPrecipitation.value"),
-                            ShortForecast = NormalizeValue(GetString(periodDoc, "shortForecast", "short_forecast", "summary", "properties.shortForecast")) ?? string.Empty,
-                            DetailedForecast = NormalizeValue(GetString(periodDoc, "detailedForecast", "detailed_forecast", "description", "properties.detailedForecast")) ?? string.Empty
-                        };
-                    })
+                var periodDocs = ExpandForecastPeriodDocuments(latestSnapshot).ToList();
+                var periodTasks = periodDocs.Select(BuildForecastPeriodSummaryAsync).ToList();
+                var periods = (await Task.WhenAll(periodTasks))
                     .Where(p => !string.IsNullOrWhiteSpace(p.ShortForecast) || !string.IsNullOrWhiteSpace(p.DetailedForecast) || p.StartTimeUtc.HasValue)
                     .OrderBy(p => p.StartTimeUtc ?? DateTime.MaxValue)
                     .Take(cappedPeriods)
@@ -523,6 +504,32 @@ namespace RuffinWeatherStation.Api.Services
                     HasData = false
                 };
             }
+        }
+
+        private async Task<NwsForecastPeriodSummary> BuildForecastPeriodSummaryAsync(BsonDocument periodDoc)
+        {
+            var windSpeedText = NormalizeValue(GetString(periodDoc, "windSpeed", "wind_speed", "properties.windSpeed")) ?? string.Empty;
+            var sourceTemperature = TryGetDouble(periodDoc, "temperature", "temp", "temperature.value", "properties.temperature");
+            var sourceTemperatureUnit = NormalizeValue(GetString(periodDoc, "temperatureUnit", "temperature_unit", "temp_unit", "properties.temperatureUnit")) ?? "F";
+            var sourceIconUrl = NormalizeValue(GetString(periodDoc, "icon", "iconUrl", "properties.icon"));
+
+            return new NwsForecastPeriodSummary
+            {
+                Name = NormalizeValue(GetString(periodDoc, "name", "period_name", "title")) ?? "Forecast Period",
+                StartTimeUtc = GetDateTimeUtc(periodDoc, "startTime", "start_time", "start", "properties.startTime"),
+                EndTimeUtc = GetDateTimeUtc(periodDoc, "endTime", "end_time", "end", "properties.endTime"),
+                IsDaytime = TryGetBool(periodDoc, "isDaytime", "is_daytime", "daytime", "properties.isDaytime"),
+                Temperature = sourceTemperature,
+                CelsiusTemperature = ConvertToCelsius(sourceTemperature, sourceTemperatureUnit),
+                TemperatureUnit = sourceTemperatureUnit,
+                WindSpeedText = windSpeedText,
+                WindSpeedMphMax = ParseWindSpeedMaxMph(windSpeedText),
+                WindDirection = NormalizeValue(GetString(periodDoc, "windDirection", "wind_direction", "properties.windDirection")) ?? string.Empty,
+                PrecipitationChancePercent = TryGetDouble(periodDoc, "probabilityOfPrecipitation.value", "pop", "precipitationChance", "precipitation_probability", "properties.probabilityOfPrecipitation.value"),
+                IconUrl = await _nwsIconCacheService.GetCachedIconUrlAsync(sourceIconUrl),
+                ShortForecast = NormalizeValue(GetString(periodDoc, "shortForecast", "short_forecast", "summary", "properties.shortForecast")) ?? string.Empty,
+                DetailedForecast = NormalizeValue(GetString(periodDoc, "detailedForecast", "detailed_forecast", "description", "properties.detailedForecast")) ?? string.Empty
+            };
         }
 
         private static string? GetString(BsonDocument doc, params string[] candidates)

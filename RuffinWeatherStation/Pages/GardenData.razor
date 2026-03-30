@@ -28,11 +28,12 @@ else
     <div class="row gy-3">
         <div class="col-12">
             <NwsForecastCard Forecast="gardenForecastSummary"
-                             Title="Garden Forecast Planner (Today Through Tomorrow Night)"
-                             Subtitle="Best windows for planting, mowing, and watering"
-                             MaxItems="4"
+                             Title="Garden Forecast Planner (Full 7-Day / 14-Period Outlook)"
+                             Subtitle="Best windows for planting, mowing, and watering across the full forecast horizon"
+                             MaxItems="14"
                              ShowDetailed="false"
                              ShowGardenActions="true"
+                             GroupByLocalDay="true"
                              ShowSnapshotMeta="true" />
             <div class="mt-2">
                 <a class="btn btn-outline-primary btn-sm" href="forecast">Open Full NWS Forecast</a>

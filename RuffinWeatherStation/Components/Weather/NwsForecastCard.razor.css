@@ -9,6 +9,7 @@
 .nws-forecast-grid {
     display: grid;
     gap: 0.6rem;
+    grid-template-columns: 1fr;
 }
 
 .nws-forecast-day-group {
@@ -50,11 +51,21 @@
     display: inline-flex;
     align-items: center;
     gap: 0.42rem;
+    min-width: 0;
 }
 
 .nws-forecast-period-name {
     font-weight: 800;
     color: rgba(25, 42, 60, 0.95);
+}
+
+.nws-forecast-icon-image {
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(20, 20, 20, 0.08);
+    object-fit: cover;
+    flex-shrink: 0;
 }
 
 .nws-forecast-icon {
@@ -134,5 +145,11 @@
 @media (min-width: 900px) {
     .nws-forecast-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1200px) {
+    .nws-forecast-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
