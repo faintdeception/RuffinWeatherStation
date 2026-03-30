@@ -7,18 +7,31 @@ namespace RuffinWeatherStation.Api.Services;
 public sealed class NwsIconCacheService
 {
     private const string CacheRoutePrefix = "/api/garden/icon-cache";
-    private static readonly TimeSpan CacheRetention = TimeSpan.FromDays(365 * 3);
-    private static readonly TimeSpan CleanupInterval = TimeSpan.FromHours(24);
+    private const int DefaultRetentionDays = 365 * 3;
+    private const int DefaultCleanupIntervalHours = 24;
+    private static readonly TimeSpan MinRetention = TimeSpan.FromDays(7);
+    private static readonly TimeSpan MaxRetention = TimeSpan.FromDays(365 * 10);
+    private static readonly TimeSpan MinCleanupInterval = TimeSpan.FromHours(1);
+    private static readonly TimeSpan MaxCleanupInterval = TimeSpan.FromDays(7);
+
     private readonly HttpClient _httpClient;
     private readonly string _cacheDirectory;
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _downloadLocks = new(StringComparer.OrdinalIgnoreCase);
     private readonly object _cleanupGate = new();
+    private readonly TimeSpan _cacheRetention;
+    private readonly TimeSpan _cleanupInterval;
     private DateTime _nextCleanupUtc = DateTime.MinValue;
 
-    public NwsIconCacheService(IHttpClientFactory httpClientFactory, IWebHostEnvironment hostEnvironment)
+    public NwsIconCacheService(IHttpClientFactory httpClientFactory, IWebHostEnvironment hostEnvironment, IConfiguration configuration)
     {
         _httpClient = httpClientFactory.CreateClient(nameof(NwsIconCacheService));
         _httpClient.Timeout = TimeSpan.FromSeconds(8);
+
+        var configuredRetentionDays = configuration.GetValue<int?>("NwsIconCache:RetentionDays") ?? DefaultRetentionDays;
+        var configuredCleanupIntervalHours = configuration.GetValue<int?>("NwsIconCache:CleanupIntervalHours") ?? DefaultCleanupIntervalHours;
+
+        _cacheRetention = Clamp(TimeSpan.FromDays(configuredRetentionDays), MinRetention, MaxRetention);
+        _cleanupInterval = Clamp(TimeSpan.FromHours(configuredCleanupIntervalHours), MinCleanupInterval, MaxCleanupInterval);
 
         _cacheDirectory = Path.Combine(hostEnvironment.ContentRootPath, "icon-cache", "nws");
         Directory.CreateDirectory(_cacheDirectory);
@@ -113,7 +126,7 @@ public sealed class NwsIconCacheService
                 return;
             }
 
-            _nextCleanupUtc = nowUtc.Add(CleanupInterval);
+            _nextCleanupUtc = nowUtc.Add(_cleanupInterval);
         }
 
         _ = Task.Run(CleanupExpiredFiles);
@@ -123,7 +136,7 @@ public sealed class NwsIconCacheService
     {
         try
         {
-            var cutoff = DateTime.UtcNow.Subtract(CacheRetention);
+            var cutoff = DateTime.UtcNow.Subtract(_cacheRetention);
             foreach (var filePath in Directory.GetFiles(_cacheDirectory))
             {
                 try
@@ -215,5 +228,20 @@ public sealed class NwsIconCacheService
         }
 
         return builder.ToString();
+    }
+
+    private static TimeSpan Clamp(TimeSpan value, TimeSpan min, TimeSpan max)
+    {
+        if (value < min)
+        {
+            return min;
+        }
+
+        if (value > max)
+        {
+            return max;
+        }
+
+        return value;
     }
 }
