@@ -130,6 +130,31 @@
     flex: 0 0 14px;
 }
 
+.wind-distribution-swatch.wind-intensity-calm {
+    background-color: rgba(79, 145, 226, 0.62);
+    border-color: rgba(32, 83, 143, 0.7);
+}
+
+.wind-distribution-swatch.wind-intensity-breezy {
+    background-color: rgba(87, 174, 214, 0.74);
+    border-color: rgba(21, 103, 130, 0.8);
+}
+
+.wind-distribution-swatch.wind-intensity-fresh {
+    background-color: rgba(88, 173, 104, 0.78);
+    border-color: rgba(39, 112, 53, 0.86);
+}
+
+.wind-distribution-swatch.wind-intensity-strong {
+    background-color: rgba(235, 183, 57, 0.84);
+    border-color: rgba(158, 104, 8, 0.9);
+}
+
+.wind-distribution-swatch.wind-intensity-severe {
+    background-color: rgba(219, 83, 65, 0.9);
+    border-color: rgba(146, 36, 28, 0.96);
+}
+
 .gust-history-title {
     font-size: 0.85rem;
     font-weight: 700;
