@@ -16,7 +16,10 @@
             var currentWindIntensityClass = WeatherDisplayHelpers.GetWindIntensityClass(latestWindSpeed);
             var currentWindStrokeWidth = WeatherDisplayHelpers.GetWindPetalStrokeWidth(latestWindSpeed);
             var currentWindStrokeWidthCss = currentWindStrokeWidth.ToString("0.0", CultureInfo.InvariantCulture);
-            var recentGusts = GetRecentGustSamples();
+            var recentWindowSamples = GetRecentSamplesWithinTwoHours();
+            var recentGusts = GetRecentGustSamples(recentWindowSamples);
+            var recentDistributionBins = GetWindDistributionBins(recentWindowSamples);
+            var calmPercentage = GetCalmPercentage(recentWindowSamples);
 
             <div class="wind-rose-shell">
                 <svg class="wind-rose-chart" viewBox="0 0 220 220" role="img" aria-label="Wind rose chart">
@@ -51,28 +54,71 @@
                 </div>
             </div>
 
-            @if (recentGusts.Any())
+            @if (recentDistributionBins.Any())
             {
-                <div class="gust-history mt-3">
-                    <div class="gust-history-title">Recent Gusts (Last 2 Hours)</div>
-                    @foreach (var gust in recentGusts)
+                <div class="wind-distribution mt-3">
+                    <div class="gust-history-title">Wind Distribution (Last 2 Hours)</div>
+
+                    <div class="wind-distribution-layout">
+                        <svg class="wind-distribution-chart" viewBox="0 0 260 260" role="img" aria-label="Wind direction and speed distribution for last two hours">
+                            <circle class="wind-rose-ring" cx="130" cy="130" r="96" />
+                            <circle class="wind-rose-ring" cx="130" cy="130" r="72" />
+                            <circle class="wind-rose-ring" cx="130" cy="130" r="48" />
+                            <circle class="wind-rose-ring" cx="130" cy="130" r="24" />
+
+                            <line class="wind-rose-axis" x1="130" y1="16" x2="130" y2="244" />
+                            <line class="wind-rose-axis" x1="16" y1="130" x2="244" y2="130" />
+
+                            <text class="wind-rose-label" x="130" y="12" text-anchor="middle">N</text>
+                            <text class="wind-rose-label" x="252" y="134" text-anchor="middle">E</text>
+                            <text class="wind-rose-label" x="130" y="256" text-anchor="middle">S</text>
+                            <text class="wind-rose-label" x="8" y="134" text-anchor="middle">W</text>
+
+                            @foreach (var bin in recentDistributionBins)
+                            {
+                                <path class="wind-distribution-bin @bin.IntensityClass" d="@bin.PathData">
+                                    <title>@($"{bin.Cardinal}: {bin.Percentage.ToString("0.0", CultureInfo.InvariantCulture)}% | Avg {bin.AverageSpeed.ToString("0.0", CultureInfo.InvariantCulture)} m/s")</title>
+                                </path>
+                            }
+
+                            <circle class="wind-distribution-center" cx="130" cy="130" r="21" />
+                            <text class="wind-distribution-center-text" x="130" y="136" text-anchor="middle">@calmPercentage.ToString("0.0")%</text>
+                        </svg>
+
+                        <div class="wind-distribution-legend" aria-label="Wind speed legend">
+                            @foreach (var entry in GetWindLegendEntries())
+                            {
+                                <div class="wind-distribution-legend-item">
+                                    <span class="wind-distribution-swatch @entry.CssClass"></span>
+                                    <span>@entry.Label</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    @if (recentGusts.Any())
                     {
-                        <div class="gust-history-item">
-                            <svg class="gust-history-arrow" viewBox="0 0 220 220" role="img" aria-label="Recent gust arrow">
-                                <g class="wind-gust-vector" style="transform: rotate(@($"{gust.Direction:F1}deg")); transform-origin: 110px 110px;">
-                                    <polygon class="wind-gust-petal @gust.IntensityClass"
-                                             points="@WeatherDisplayHelpers.GetWindRosePetalPoints(gust.Speed)"
-                                             style="stroke-width: @gust.StrokeWidthCss;" />
-                                </g>
-                                <circle class="wind-rose-center" cx="110" cy="110" r="5" />
-                            </svg>
-                            <div class="gust-history-metadata">
-                                <span class="gust-history-speed">@gust.Speed.ToString("0.0") m/s</span>
-                                <span class="gust-history-direction">@gust.Cardinal (@Math.Round(gust.Direction, 0)°)</span>
-                                <small class="text-muted">@gust.Timestamp.ToLocalTime().ToString("h:mm tt")</small>
-                            </div>
+                        <div class="gust-history mt-2">
+                            <div class="gust-history-subtitle">Strongest Recent Gusts</div>
+                            @foreach (var gust in recentGusts)
+                            {
+                                <div class="gust-history-item">
+                                    <div class="gust-history-metadata">
+                                        <span class="gust-history-speed">@gust.Speed.ToString("0.0") m/s</span>
+                                        <span class="gust-history-direction">@gust.Cardinal (@Math.Round(gust.Direction, 0)°)</span>
+                                        <small class="text-muted">@gust.Timestamp.ToLocalTime().ToString("h:mm tt")</small>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     }
+                </div>
+            }
+            else
+            {
+                <div class="gust-history mt-3">
+                    <div class="gust-history-title">Wind Distribution (Last 2 Hours)</div>
+                    <small class="text-muted">Not enough recent wind samples yet.</small>
                 </div>
             }
         }
@@ -96,7 +142,7 @@
     [Parameter]
     public int GustHistoryCount { get; set; } = 5;
 
-    private IReadOnlyList<WindGustSampleView> GetRecentGustSamples()
+    private IReadOnlyList<TemperatureMeasurement> GetRecentSamplesWithinTwoHours()
     {
         if (RecentMeasurements == null)
         {
@@ -113,35 +159,46 @@
             return [];
         }
 
-        const double gustFloorMetersPerSecond = 1.5;
         var latestTimestamp = ordered[^1].TimestampMs;
         var lookbackStart = latestTimestamp.AddHours(-2);
-        ordered = ordered
+        var twoHourWindow = ordered
             .Where(m => m.TimestampMs >= lookbackStart)
             .ToList();
 
-        if (ordered.Count == 0)
+        if (twoHourWindow.Count == 0)
         {
             return [];
         }
 
+        return twoHourWindow;
+    }
+
+    private IReadOnlyList<WindGustSampleView> GetRecentGustSamples(IReadOnlyList<TemperatureMeasurement> recentWindowSamples)
+    {
+        if (recentWindowSamples.Count == 0)
+        {
+            return [];
+        }
+
+        const double gustFloorMetersPerSecond = 1.5;
+
         var detectedGusts = new List<TemperatureMeasurement>();
 
-        for (var i = 1; i < ordered.Count - 1; i++)
+        for (var i = 1; i < recentWindowSamples.Count - 1; i++)
         {
-            var previousSpeed = ordered[i - 1].Fields?.WindSpeed ?? 0;
-            var currentSpeed = ordered[i].Fields?.WindSpeed ?? 0;
-            var nextSpeed = ordered[i + 1].Fields?.WindSpeed ?? 0;
+            var previousSpeed = recentWindowSamples[i - 1].Fields?.WindSpeed ?? 0;
+            var currentSpeed = recentWindowSamples[i].Fields?.WindSpeed ?? 0;
+            var nextSpeed = recentWindowSamples[i + 1].Fields?.WindSpeed ?? 0;
 
             if (currentSpeed >= gustFloorMetersPerSecond && currentSpeed >= previousSpeed && currentSpeed > nextSpeed)
             {
-                detectedGusts.Add(ordered[i]);
+                detectedGusts.Add(recentWindowSamples[i]);
             }
         }
 
         if (detectedGusts.Count == 0)
         {
-            detectedGusts = ordered
+            detectedGusts = recentWindowSamples
                 .Where(m => (m.Fields?.WindSpeed ?? 0) >= gustFloorMetersPerSecond)
                 .ToList();
         }
@@ -167,6 +224,125 @@
             .ToList();
     }
 
+    private IReadOnlyList<WindDirectionBinView> GetWindDistributionBins(IReadOnlyList<TemperatureMeasurement> recentWindowSamples)
+    {
+        if (recentWindowSamples.Count == 0)
+        {
+            return [];
+        }
+
+        const int binCount = 16;
+        const double center = 130;
+        const double innerRadius = 24;
+        const double outerRadiusMax = 98;
+        const double sectorWidthDegrees = 22.5;
+        const double sectorGapDegrees = 2.0;
+
+        var samples = recentWindowSamples
+            .Where(m => m.Fields != null)
+            .Select(m => new
+            {
+                Direction = WeatherDisplayHelpers.NormalizeWindDirection(m.Fields?.WindDirection ?? 0),
+                Speed = WeatherDisplayHelpers.GetLatestWindSpeed(m.Fields?.WindSpeed)
+            })
+            .ToList();
+
+        if (samples.Count == 0)
+        {
+            return [];
+        }
+
+        var bins = new List<(int Index, int Count, double AvgSpeed, double Percentage)>();
+
+        for (var i = 0; i < binCount; i++)
+        {
+            var start = i * sectorWidthDegrees;
+            var end = start + sectorWidthDegrees;
+
+            var binSamples = samples
+                .Where(s => s.Direction >= start && s.Direction < end)
+                .ToList();
+
+            var count = binSamples.Count;
+            var avgSpeed = count > 0 ? binSamples.Average(s => s.Speed) : 0;
+            var percentage = (double)count / samples.Count * 100;
+
+            bins.Add((i, count, avgSpeed, percentage));
+        }
+
+        var maxPercentage = bins.Max(b => b.Percentage);
+        if (maxPercentage <= 0)
+        {
+            return [];
+        }
+
+        return bins
+            .Where(b => b.Count > 0)
+            .Select(b =>
+            {
+                var startAngle = b.Index * sectorWidthDegrees + (sectorGapDegrees / 2);
+                var endAngle = ((b.Index + 1) * sectorWidthDegrees) - (sectorGapDegrees / 2);
+                var normalizedLength = b.Percentage / maxPercentage;
+                var outerRadius = innerRadius + ((outerRadiusMax - innerRadius) * normalizedLength);
+                var centerAngle = b.Index * sectorWidthDegrees + (sectorWidthDegrees / 2);
+
+                return new WindDirectionBinView
+                {
+                    Cardinal = WeatherDisplayHelpers.GetWindDirectionCardinalLabel(null, centerAngle),
+                    Percentage = b.Percentage,
+                    AverageSpeed = b.AvgSpeed,
+                    IntensityClass = WeatherDisplayHelpers.GetWindIntensityClass(b.AvgSpeed),
+                    PathData = BuildSectorPath(center, center, innerRadius, outerRadius, startAngle, endAngle)
+                };
+            })
+            .ToList();
+    }
+
+    private static double GetCalmPercentage(IReadOnlyList<TemperatureMeasurement> recentWindowSamples)
+    {
+        if (recentWindowSamples.Count == 0)
+        {
+            return 0;
+        }
+
+        var calmCount = recentWindowSamples.Count(m => WeatherDisplayHelpers.GetLatestWindSpeed(m.Fields?.WindSpeed) < 1);
+        return (double)calmCount / recentWindowSamples.Count * 100;
+    }
+
+    private static string BuildSectorPath(double cx, double cy, double innerRadius, double outerRadius, double startAngleDeg, double endAngleDeg)
+    {
+        var startOuter = ToPolarCartesian(cx, cy, outerRadius, startAngleDeg);
+        var endOuter = ToPolarCartesian(cx, cy, outerRadius, endAngleDeg);
+        var startInner = ToPolarCartesian(cx, cy, innerRadius, startAngleDeg);
+        var endInner = ToPolarCartesian(cx, cy, innerRadius, endAngleDeg);
+
+        var largeArc = endAngleDeg - startAngleDeg > 180 ? 1 : 0;
+
+        return string.Create(
+            CultureInfo.InvariantCulture,
+            $"M {startOuter.X:0.00} {startOuter.Y:0.00} A {outerRadius:0.00} {outerRadius:0.00} 0 {largeArc} 1 {endOuter.X:0.00} {endOuter.Y:0.00} L {endInner.X:0.00} {endInner.Y:0.00} A {innerRadius:0.00} {innerRadius:0.00} 0 {largeArc} 0 {startInner.X:0.00} {startInner.Y:0.00} Z");
+    }
+
+    private static (double X, double Y) ToPolarCartesian(double cx, double cy, double radius, double angleDeg)
+    {
+        var radians = Math.PI * angleDeg / 180;
+        var x = cx + (radius * Math.Sin(radians));
+        var y = cy - (radius * Math.Cos(radians));
+        return (x, y);
+    }
+
+    private static IReadOnlyList<WindLegendEntry> GetWindLegendEntries()
+    {
+        return
+        [
+            new WindLegendEntry { CssClass = "wind-intensity-calm", Label = "Calm: < 2 m/s" },
+            new WindLegendEntry { CssClass = "wind-intensity-breezy", Label = "Breezy: 2 to 4.9 m/s" },
+            new WindLegendEntry { CssClass = "wind-intensity-fresh", Label = "Fresh: 5 to 8.9 m/s" },
+            new WindLegendEntry { CssClass = "wind-intensity-strong", Label = "Strong: 9 to 13.9 m/s" },
+            new WindLegendEntry { CssClass = "wind-intensity-severe", Label = "Severe: 14+ m/s" }
+        ];
+    }
+
     private sealed class WindGustSampleView
     {
         public double Speed { get; init; }
@@ -176,5 +352,20 @@
         public double StrokeWidth { get; init; }
         public string StrokeWidthCss => StrokeWidth.ToString("0.0", CultureInfo.InvariantCulture);
         public DateTime Timestamp { get; init; }
+    }
+
+    private sealed class WindDirectionBinView
+    {
+        public string Cardinal { get; init; } = "N";
+        public string IntensityClass { get; init; } = "wind-intensity-calm";
+        public string PathData { get; init; } = string.Empty;
+        public double Percentage { get; init; }
+        public double AverageSpeed { get; init; }
+    }
+
+    private sealed class WindLegendEntry
+    {
+        public string CssClass { get; init; } = string.Empty;
+        public string Label { get; init; } = string.Empty;
     }
 }

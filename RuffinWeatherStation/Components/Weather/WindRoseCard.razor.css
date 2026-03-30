@@ -72,6 +72,64 @@
     max-width: 340px;
 }
 
+.wind-distribution {
+    width: 100%;
+    max-width: 360px;
+}
+
+.wind-distribution-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: start;
+}
+
+.wind-distribution-chart {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    margin: 0 auto;
+}
+
+.wind-distribution-bin {
+    stroke: rgba(20, 20, 20, 0.55);
+    stroke-width: 1.2;
+}
+
+.wind-distribution-center {
+    fill: rgba(126, 181, 214, 0.92);
+    stroke: rgba(33, 81, 109, 0.65);
+    stroke-width: 1;
+}
+
+.wind-distribution-center-text {
+    fill: rgba(27, 60, 82, 0.95);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.wind-distribution-legend {
+    display: grid;
+    gap: 0.24rem;
+    padding: 0.2rem 0.1rem 0;
+}
+
+.wind-distribution-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+    color: rgba(28, 28, 28, 0.82);
+}
+
+.wind-distribution-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    border: 1px solid rgba(20, 20, 20, 0.45);
+    flex: 0 0 14px;
+}
+
 .gust-history-title {
     font-size: 0.85rem;
     font-weight: 700;
@@ -79,6 +137,14 @@
     letter-spacing: 0.04em;
     color: rgba(35, 35, 35, 0.72);
     margin-bottom: 0.35rem;
+}
+
+.gust-history-subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    font-weight: 700;
+    color: rgba(44, 44, 44, 0.78);
+    margin-bottom: 0.2rem;
 }
 
 .gust-history-item {
@@ -94,9 +160,9 @@
 }
 
 .gust-history-arrow {
-    width: 34px;
-    height: 34px;
-    flex: 0 0 34px;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
 }
 
 .gust-history-metadata {
@@ -115,6 +181,17 @@
     color: rgba(30, 30, 30, 0.78);
 }
 
+@media (min-width: 900px) {
+    .wind-distribution-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 160px);
+        gap: 0.8rem;
+    }
+
+    .wind-distribution-chart {
+        max-width: 340px;
+    }
+}
+
 @media (max-width: 768px) {
     .rainfall-card-subtitle {
         font-size: 0.8rem;
@@ -130,5 +207,19 @@
 
     .gust-history {
         max-width: 100%;
+    }
+
+    .wind-distribution {
+        max-width: 100%;
+    }
+
+    .wind-distribution-chart {
+        max-width: 300px;
+    }
+
+    .gust-history-arrow {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
     }
 }
