@@ -58,7 +58,7 @@ public partial class WeatherHome
         {
             isForecastLoading = true;
             forecastLoadError = null;
-            homeForecastSummary = await GardenDataService.GetForecastSummaryAsync(maxPeriods: 12);
+            homeForecastSummary = await GardenDataService.GetForecastSummaryAsync(maxPeriods: 4);
         }
         catch (Exception ex)
         {

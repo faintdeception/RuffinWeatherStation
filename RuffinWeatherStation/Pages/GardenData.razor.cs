@@ -74,7 +74,7 @@ public partial class GardenData
             var referenceTask = GardenDataService.GetGardenReferenceAsync();
             var plantProfilesTask = GardenPlantProfileService.GetProfilesAsync();
             var alertsTask = GardenDataService.GetAlertsSummaryAsync(days: 7);
-            var forecastSummaryTask = GardenDataService.GetForecastSummaryAsync(maxPeriods: 12);
+            var forecastSummaryTask = GardenDataService.GetForecastSummaryAsync(maxPeriods: 4);
             var forecastTask = TemperatureService.GetLatestPredictionAsync();
 
             await Task.WhenAll(rainfallTask, dailyTask, referenceTask, plantProfilesTask, alertsTask, forecastSummaryTask, forecastTask);

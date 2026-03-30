@@ -46,9 +46,21 @@
     gap: 0.5rem;
 }
 
+.nws-forecast-period-title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+}
+
 .nws-forecast-period-name {
     font-weight: 800;
     color: rgba(25, 42, 60, 0.95);
+}
+
+.nws-forecast-icon {
+    font-size: 1rem;
+    color: rgba(34, 98, 154, 0.95);
+    line-height: 1;
 }
 
 .nws-forecast-period-time {
