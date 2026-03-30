@@ -4,6 +4,7 @@ using RuffinWeatherStation.Api.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace RuffinWeatherStation.Api.Services
@@ -433,6 +434,94 @@ namespace RuffinWeatherStation.Api.Services
             }
         }
 
+        public async Task<NwsForecastResponse> GetNwsForecastSummaryAsync(string location = "backyard", int maxPeriods = 12)
+        {
+            var normalizedLocation = string.IsNullOrWhiteSpace(location) ? "backyard" : location.Trim();
+            var cappedPeriods = Math.Clamp(maxPeriods, 2, 20);
+            var nowUtc = DateTime.UtcNow;
+            var snapshotWindowStartUtc = nowUtc.AddHours(-48);
+
+            try
+            {
+                var locationFilter = Builders<BsonDocument>.Filter.Eq("location", normalizedLocation);
+                var locationSnapshots = await _nwsSnapshots
+                    .Find(locationFilter)
+                    .Sort(Builders<BsonDocument>.Sort.Descending("_id"))
+                    .Limit(240)
+                    .ToListAsync();
+
+                var latestSnapshot = SelectLatestSnapshotInWindow(locationSnapshots, snapshotWindowStartUtc);
+
+                if (latestSnapshot == null)
+                {
+                    var fallbackSnapshots = await _nwsSnapshots
+                        .Find(Builders<BsonDocument>.Filter.Empty)
+                        .Sort(Builders<BsonDocument>.Sort.Descending("_id"))
+                        .Limit(240)
+                        .ToListAsync();
+
+                    latestSnapshot = SelectLatestSnapshotInWindow(fallbackSnapshots, snapshotWindowStartUtc);
+                }
+
+                if (latestSnapshot == null)
+                {
+                    return new NwsForecastResponse
+                    {
+                        Location = normalizedLocation,
+                        GeneratedAtUtc = DateTime.UtcNow,
+                        HasData = false
+                    };
+                }
+
+                var snapshotFetchedAt = GetDateTimeUtc(latestSnapshot, "created_at", "fetched_at", "timestamp", "nws_data.created_at", "nws_data.fetched_at");
+
+                var periods = ExpandForecastPeriodDocuments(latestSnapshot)
+                    .Select(periodDoc =>
+                    {
+                        var windSpeedText = NormalizeValue(GetString(periodDoc, "windSpeed", "wind_speed", "properties.windSpeed")) ?? string.Empty;
+
+                        return new NwsForecastPeriodSummary
+                        {
+                            Name = NormalizeValue(GetString(periodDoc, "name", "period_name", "title")) ?? "Forecast Period",
+                            StartTimeUtc = GetDateTimeUtc(periodDoc, "startTime", "start_time", "start", "properties.startTime"),
+                            EndTimeUtc = GetDateTimeUtc(periodDoc, "endTime", "end_time", "end", "properties.endTime"),
+                            IsDaytime = TryGetBool(periodDoc, "isDaytime", "is_daytime", "daytime", "properties.isDaytime"),
+                            Temperature = TryGetDouble(periodDoc, "temperature", "temp", "temperature.value", "properties.temperature"),
+                            TemperatureUnit = NormalizeValue(GetString(periodDoc, "temperatureUnit", "temperature_unit", "temp_unit", "properties.temperatureUnit")) ?? "F",
+                            WindSpeedText = windSpeedText,
+                            WindSpeedMphMax = ParseWindSpeedMaxMph(windSpeedText),
+                            WindDirection = NormalizeValue(GetString(periodDoc, "windDirection", "wind_direction", "properties.windDirection")) ?? string.Empty,
+                            PrecipitationChancePercent = TryGetDouble(periodDoc, "probabilityOfPrecipitation.value", "pop", "precipitationChance", "precipitation_probability", "properties.probabilityOfPrecipitation.value"),
+                            ShortForecast = NormalizeValue(GetString(periodDoc, "shortForecast", "short_forecast", "summary", "properties.shortForecast")) ?? string.Empty,
+                            DetailedForecast = NormalizeValue(GetString(periodDoc, "detailedForecast", "detailed_forecast", "description", "properties.detailedForecast")) ?? string.Empty
+                        };
+                    })
+                    .Where(p => !string.IsNullOrWhiteSpace(p.ShortForecast) || !string.IsNullOrWhiteSpace(p.DetailedForecast) || p.StartTimeUtc.HasValue)
+                    .OrderBy(p => p.StartTimeUtc ?? DateTime.MaxValue)
+                    .Take(cappedPeriods)
+                    .ToList();
+
+                return new NwsForecastResponse
+                {
+                    Location = normalizedLocation,
+                    GeneratedAtUtc = DateTime.UtcNow,
+                    SnapshotFetchedAtUtc = snapshotFetchedAt,
+                    HasData = periods.Count > 0,
+                    Periods = periods
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WEATHER SERVICE ERROR] Error building NWS forecast summary: {ex.Message}");
+                return new NwsForecastResponse
+                {
+                    Location = normalizedLocation,
+                    GeneratedAtUtc = DateTime.UtcNow,
+                    HasData = false
+                };
+            }
+        }
+
         private static string? GetString(BsonDocument doc, params string[] candidates)
         {
             foreach (var candidate in candidates)
@@ -606,6 +695,111 @@ namespace RuffinWeatherStation.Api.Services
                     yield return alert;
                 }
             }
+        }
+
+        private static IEnumerable<BsonDocument> ExpandForecastPeriodDocuments(BsonDocument snapshot)
+        {
+            IEnumerable<BsonDocument> FromPath(string path)
+            {
+                if (TryGetBsonValue(snapshot, path, out var value) && value is BsonArray periods)
+                {
+                    return periods.OfType<BsonDocument>();
+                }
+
+                return Enumerable.Empty<BsonDocument>();
+            }
+
+            return FromPath("forecast.periods")
+                .Concat(FromPath("nws_data.forecast.periods"))
+                .Concat(FromPath("periods"))
+                .Concat(FromPath("nws_data.periods"));
+        }
+
+        private static bool TryGetBool(BsonDocument doc, params string[] candidates)
+        {
+            foreach (var candidate in candidates)
+            {
+                if (!TryGetBsonValue(doc, candidate, out var value) || value == null || value.IsBsonNull)
+                {
+                    continue;
+                }
+
+                if (value.IsBoolean)
+                {
+                    return value.AsBoolean;
+                }
+
+                if (value.IsString && bool.TryParse(value.AsString, out var parsedBool))
+                {
+                    return parsedBool;
+                }
+            }
+
+            return false;
+        }
+
+        private static double? TryGetDouble(BsonDocument doc, params string[] candidates)
+        {
+            foreach (var candidate in candidates)
+            {
+                if (!TryGetBsonValue(doc, candidate, out var value) || value == null || value.IsBsonNull)
+                {
+                    continue;
+                }
+
+                if (value.IsDouble)
+                {
+                    return value.AsDouble;
+                }
+
+                if (value.IsInt32)
+                {
+                    return value.AsInt32;
+                }
+
+                if (value.IsInt64)
+                {
+                    return value.AsInt64;
+                }
+
+                if (value.IsDecimal128)
+                {
+                    return (double)value.AsDecimal128;
+                }
+
+                if (value.IsString && double.TryParse(value.AsString, out var parsed))
+                {
+                    return parsed;
+                }
+            }
+
+            return null;
+        }
+
+        private static double? ParseWindSpeedMaxMph(string windSpeedText)
+        {
+            if (string.IsNullOrWhiteSpace(windSpeedText))
+            {
+                return null;
+            }
+
+            var numericMatches = Regex.Matches(windSpeedText, "\\d+(\\.\\d+)?");
+            if (numericMatches.Count == 0)
+            {
+                return null;
+            }
+
+            var values = numericMatches
+                .Select(m => double.TryParse(m.Value, out var parsed) ? parsed : double.NaN)
+                .Where(v => !double.IsNaN(v))
+                .ToList();
+
+            if (values.Count == 0)
+            {
+                return null;
+            }
+
+            return values.Max();
         }
 
         private static string? NormalizeValue(string? value)

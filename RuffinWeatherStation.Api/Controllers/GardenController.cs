@@ -64,6 +64,16 @@ public class GardenController : ControllerBase
         return Ok(summary);
     }
 
+    [HttpGet("forecast-summary")]
+    public async Task<ActionResult<NwsForecastResponse>> GetForecastSummary(
+        [FromQuery] int maxPeriods = 12,
+        [FromQuery] string? location = null)
+    {
+        var fallbackLocation = string.IsNullOrWhiteSpace(_gardenSettings.LocationLabel) ? "backyard" : _gardenSettings.LocationLabel.Trim();
+        var summary = await _weatherService.GetNwsForecastSummaryAsync(location ?? fallbackLocation, maxPeriods);
+        return Ok(summary);
+    }
+
     private static DateOnly ResolveAverageLastFrostDate(string monthDay, int year)
     {
         if (DateTime.TryParseExact(

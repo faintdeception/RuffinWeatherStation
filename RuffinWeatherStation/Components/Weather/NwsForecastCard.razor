@@ -1,0 +1,129 @@
+@using RuffinWeatherStation.Models
+
+<div class="card nws-forecast-card mt-3">
+    <div class="card-header text-white nws-forecast-header">
+        <h3 class="mb-0">@Title</h3>
+        <small class="opacity-75">@Subtitle</small>
+    </div>
+    <div class="card-body">
+        @if (Forecast == null || !Forecast.HasData || !Forecast.Periods.Any())
+        {
+            <p class="text-muted mb-0">No NWS forecast periods are available right now.</p>
+        }
+        else
+        {
+            var periods = Forecast.Periods
+                .OrderBy(p => p.StartTimeUtc ?? DateTime.MaxValue)
+                .Take(Math.Max(1, MaxItems))
+                .ToList();
+
+            <div class="nws-forecast-grid">
+                @foreach (var period in periods)
+                {
+                    <article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night")">
+                        <header class="nws-forecast-period-header">
+                            <div class="nws-forecast-period-name">@period.Name</div>
+                            <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
+                        </header>
+
+                        <div class="nws-forecast-keyline">
+                            <span class="nws-forecast-temp">@FormatTemperature(period)</span>
+                            <span class="nws-forecast-pop">Rain @FormatPercent(period.PrecipitationChancePercent)</span>
+                        </div>
+
+                        <div class="nws-forecast-keyline subtle">
+                            <span>Wind @FormatWind(period)</span>
+                            @if (!string.IsNullOrWhiteSpace(period.WindDirection))
+                            {
+                                <span>@period.WindDirection</span>
+                            }
+                        </div>
+
+                        @if (ShowDetailed && !string.IsNullOrWhiteSpace(period.DetailedForecast))
+                        {
+                            <p class="nws-forecast-detail mb-0">@period.DetailedForecast</p>
+                        }
+                        else if (!string.IsNullOrWhiteSpace(period.ShortForecast))
+                        {
+                            <p class="nws-forecast-detail mb-0">@period.ShortForecast</p>
+                        }
+                    </article>
+                }
+            </div>
+
+            @if (ShowSnapshotMeta)
+            {
+                <div class="nws-forecast-meta mt-2">
+                    <small class="text-muted">
+                        Snapshot: @FormatPeriodStart(Forecast.SnapshotFetchedAtUtc) · Location: @Forecast.Location
+                    </small>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public NwsForecastData? Forecast { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "NWS Forecast";
+
+    [Parameter]
+    public string Subtitle { get; set; } = "National Weather Service outlook";
+
+    [Parameter]
+    public int MaxItems { get; set; } = 2;
+
+    [Parameter]
+    public bool ShowDetailed { get; set; }
+
+    [Parameter]
+    public bool ShowSnapshotMeta { get; set; } = true;
+
+    private static string FormatTemperature(NwsForecastPeriodData period)
+    {
+        if (!period.Temperature.HasValue)
+        {
+            return "--";
+        }
+
+        return $"{Math.Round(period.Temperature.Value)}°{period.TemperatureUnit}";
+    }
+
+    private static string FormatPercent(double? value)
+    {
+        if (!value.HasValue)
+        {
+            return "--";
+        }
+
+        return $"{Math.Round(value.Value)}%";
+    }
+
+    private static string FormatWind(NwsForecastPeriodData period)
+    {
+        if (!string.IsNullOrWhiteSpace(period.WindSpeedText))
+        {
+            return period.WindSpeedText;
+        }
+
+        if (period.WindSpeedMphMax.HasValue)
+        {
+            return $"up to {Math.Round(period.WindSpeedMphMax.Value)} mph";
+        }
+
+        return "--";
+    }
+
+    private static string FormatPeriodStart(DateTime? utc)
+    {
+        if (!utc.HasValue)
+        {
+            return "Unknown";
+        }
+
+        return utc.Value.ToLocalTime().ToString("ddd h:mm tt");
+    }
+}

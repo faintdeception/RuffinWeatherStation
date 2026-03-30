@@ -26,6 +26,18 @@ else if (!string.IsNullOrWhiteSpace(errorMessage))
 else
 {
     <div class="row gy-3">
+        <div class="col-12">
+            <NwsForecastCard Forecast="gardenForecastSummary"
+                             Title="Garden Forecast Planner (Next 5 Periods)"
+                             Subtitle="Best windows for planting, mowing, and watering"
+                             MaxItems="5"
+                             ShowDetailed="false"
+                             ShowSnapshotMeta="true" />
+            <div class="mt-2">
+                <a class="btn btn-outline-primary btn-sm" href="forecast">Open Full NWS Forecast</a>
+            </div>
+        </div>
+
         <div class="col-lg-7">
             <div class="card h-100">
                 <div class="card-header bg-success text-white">

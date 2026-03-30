@@ -40,6 +40,9 @@ public partial class WeatherHome
     private List<NwsAlertSnapshotData> attentionAlerts = new();
     private bool isAlertSummaryLoading;
     private string? alertSummaryLoadError;
+    private NwsForecastData? homeForecastSummary;
+    private bool isForecastLoading;
+    private string? forecastLoadError;
     private List<DataPoint> todayLightLevels = new();
     private List<DataPoint> recentLightLevels = new();
     private DateTime? approximateSunriseUtc;
@@ -61,6 +64,9 @@ public partial class WeatherHome
 
         // Surface high-risk CAP combinations from the latest NWS snapshot on the Home dashboard.
         await LoadHomeAttentionAlerts();
+
+        // Load compact NWS forecast for near-term planning context.
+        await LoadHomeForecastSummary();
 
         // Start with short-term (recent) analysis.
         await AnalyzeRecentPeriod(analysisHours);

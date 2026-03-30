@@ -27,6 +27,7 @@ public partial class GardenData
 
     private GardenReferenceData? gardenReference;
     private NwsAlertSummaryData? nwsAlertSummary;
+    private NwsForecastData? gardenForecastSummary;
     private WeatherAnalysisResult? rainfallAnalysis;
     private List<DailyMeasurement>? recentDailyMeasurements;
     private List<GardenPlantProfile> plantProfiles = new();
@@ -73,9 +74,10 @@ public partial class GardenData
             var referenceTask = GardenDataService.GetGardenReferenceAsync();
             var plantProfilesTask = GardenPlantProfileService.GetProfilesAsync();
             var alertsTask = GardenDataService.GetAlertsSummaryAsync(days: 7);
+            var forecastSummaryTask = GardenDataService.GetForecastSummaryAsync(maxPeriods: 12);
             var forecastTask = TemperatureService.GetLatestPredictionAsync();
 
-            await Task.WhenAll(rainfallTask, dailyTask, referenceTask, plantProfilesTask, alertsTask, forecastTask);
+            await Task.WhenAll(rainfallTask, dailyTask, referenceTask, plantProfilesTask, alertsTask, forecastSummaryTask, forecastTask);
 
             rainfallAnalysis = rainfallTask.Result;
             recentDailyMeasurements = dailyTask.Result;
@@ -84,6 +86,7 @@ public partial class GardenData
             plantProfileWarnings = plantProfilesTask.Result.Warnings;
             plantProfilesLoadError = plantProfilesTask.Result.ErrorMessage;
             nwsAlertSummary = alertsTask.Result;
+            gardenForecastSummary = forecastSummaryTask.Result;
             seasonForecast = forecastTask.Result;
 
             NormalizeRainfallChartData();

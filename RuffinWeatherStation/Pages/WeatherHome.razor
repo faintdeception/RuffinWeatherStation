@@ -37,6 +37,28 @@
                      FormatNullableDateTimeForUserWithTimezone="FormatNullableDateTimeForUserWithTimezone"
                      GetSeverityBadgeClass="GetHomeSeverityBadgeClass" />
 
+@if (isForecastLoading)
+{
+    <div class="alert alert-info" role="status">Loading NWS forecast summary...</div>
+}
+else if (!string.IsNullOrWhiteSpace(forecastLoadError))
+{
+    <div class="alert alert-warning">@forecastLoadError</div>
+}
+else
+{
+    <NwsForecastCard Forecast="homeForecastSummary"
+                     Title="NWS Outlook: Today + Tomorrow"
+                     Subtitle="Quick planning view. Station data remains primary."
+                     MaxItems="2"
+                     ShowDetailed="false"
+                     ShowSnapshotMeta="true" />
+
+    <div class="mb-3">
+        <a class="btn btn-outline-primary btn-sm" href="forecast">Open Full NWS Forecast</a>
+    </div>
+}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <p class="mb-1">Real-time weather data from the Ruffin Weather Station</p>

@@ -45,4 +45,24 @@ public class GardenDataService
             return null;
         }
     }
+
+    public async Task<NwsForecastData?> GetForecastSummaryAsync(int maxPeriods = 12, string? location = null)
+    {
+        try
+        {
+            var queryParts = new List<string> { $"maxPeriods={maxPeriods}" };
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                queryParts.Add($"location={Uri.EscapeDataString(location)}");
+            }
+
+            var query = string.Join("&", queryParts);
+            return await _httpClient.GetFromJsonAsync<NwsForecastData>($"api/garden/forecast-summary?{query}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading NWS forecast summary: {ex.Message}");
+            return null;
+        }
+    }
 }

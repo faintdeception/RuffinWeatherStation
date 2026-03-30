@@ -52,6 +52,25 @@ public partial class WeatherHome
         }
     }
 
+    private async Task LoadHomeForecastSummary()
+    {
+        try
+        {
+            isForecastLoading = true;
+            forecastLoadError = null;
+            homeForecastSummary = await GardenDataService.GetForecastSummaryAsync(maxPeriods: 12);
+        }
+        catch (Exception ex)
+        {
+            forecastLoadError = $"Unable to load NWS forecast summary: {ex.Message}";
+            Console.Error.WriteLine(forecastLoadError);
+        }
+        finally
+        {
+            isForecastLoading = false;
+        }
+    }
+
     private async Task LoadData()
     {
         try
