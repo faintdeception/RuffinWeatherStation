@@ -1,5 +1,6 @@
 @using RuffinWeatherStation.Models
 @using RuffinWeatherStation.Utilities
+@using System.Globalization
 
 <div class="card mt-3 wind-gust-card" style="max-width: 400px;">
     <div class="card-header bg-secondary text-white">
@@ -12,6 +13,10 @@
             var latestWindSpeed = WeatherDisplayHelpers.GetLatestWindSpeed(Measurement.Fields.WindSpeed);
             var normalizedDirection = WeatherDisplayHelpers.NormalizeWindDirection(Measurement.Fields.WindDirection);
             var windDirectionCardinal = WeatherDisplayHelpers.GetWindDirectionCardinalLabel(Measurement.Fields.WindDirectionCardinal, normalizedDirection);
+            var currentWindIntensityClass = WeatherDisplayHelpers.GetWindIntensityClass(latestWindSpeed);
+            var currentWindStrokeWidth = WeatherDisplayHelpers.GetWindPetalStrokeWidth(latestWindSpeed);
+            var currentWindStrokeWidthCss = currentWindStrokeWidth.ToString("0.0", CultureInfo.InvariantCulture);
+            var recentGusts = GetRecentGustSamples();
 
             <div class="wind-rose-shell">
                 <svg class="wind-rose-chart" viewBox="0 0 220 220" role="img" aria-label="Wind rose chart">
@@ -28,7 +33,9 @@
                     <text class="wind-rose-label" x="10" y="114" text-anchor="middle">W</text>
 
                     <g class="wind-gust-vector" style="transform: rotate(@($"{normalizedDirection:F1}deg")); transform-origin: 110px 110px;">
-                        <polygon class="wind-gust-petal" points="@WeatherDisplayHelpers.GetWindRosePetalPoints(latestWindSpeed)" />
+                        <polygon class="wind-gust-petal @currentWindIntensityClass"
+                                 points="@WeatherDisplayHelpers.GetWindRosePetalPoints(latestWindSpeed)"
+                                 style="stroke-width: @currentWindStrokeWidthCss;" />
                     </g>
 
                     <circle class="wind-rose-center" cx="110" cy="110" r="5" />
@@ -43,6 +50,31 @@
                     }
                 </div>
             </div>
+
+            @if (recentGusts.Any())
+            {
+                <div class="gust-history mt-3">
+                    <div class="gust-history-title">Recent Gusts</div>
+                    @foreach (var gust in recentGusts)
+                    {
+                        <div class="gust-history-item">
+                            <svg class="gust-history-arrow" viewBox="0 0 220 220" role="img" aria-label="Recent gust arrow">
+                                <g class="wind-gust-vector" style="transform: rotate(@($"{gust.Direction:F1}deg")); transform-origin: 110px 110px;">
+                                    <polygon class="wind-gust-petal @gust.IntensityClass"
+                                             points="@WeatherDisplayHelpers.GetWindRosePetalPoints(gust.Speed)"
+                                             style="stroke-width: @gust.StrokeWidthCss;" />
+                                </g>
+                                <circle class="wind-rose-center" cx="110" cy="110" r="5" />
+                            </svg>
+                            <div class="gust-history-metadata">
+                                <span class="gust-history-speed">@gust.Speed.ToString("0.0") m/s</span>
+                                <span class="gust-history-direction">@gust.Cardinal (@Math.Round(gust.Direction, 0)°)</span>
+                                <small class="text-muted">@gust.Timestamp.ToLocalTime().ToString("h:mm tt")</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
         }
         else
         {
@@ -57,4 +89,81 @@
 
     [Parameter]
     public string? ObservedLabel { get; set; }
+
+    [Parameter]
+    public IEnumerable<TemperatureMeasurement>? RecentMeasurements { get; set; }
+
+    [Parameter]
+    public int GustHistoryCount { get; set; } = 5;
+
+    private IReadOnlyList<WindGustSampleView> GetRecentGustSamples()
+    {
+        if (RecentMeasurements == null)
+        {
+            return [];
+        }
+
+        var ordered = RecentMeasurements
+            .Where(m => m.Fields != null)
+            .OrderBy(m => m.TimestampMs)
+            .ToList();
+
+        if (ordered.Count == 0)
+        {
+            return [];
+        }
+
+        const double gustFloorMetersPerSecond = 1.5;
+        var detectedGusts = new List<TemperatureMeasurement>();
+
+        for (var i = 1; i < ordered.Count - 1; i++)
+        {
+            var previousSpeed = ordered[i - 1].Fields?.WindSpeed ?? 0;
+            var currentSpeed = ordered[i].Fields?.WindSpeed ?? 0;
+            var nextSpeed = ordered[i + 1].Fields?.WindSpeed ?? 0;
+
+            if (currentSpeed >= gustFloorMetersPerSecond && currentSpeed >= previousSpeed && currentSpeed > nextSpeed)
+            {
+                detectedGusts.Add(ordered[i]);
+            }
+        }
+
+        if (detectedGusts.Count == 0)
+        {
+            detectedGusts = ordered
+                .Where(m => (m.Fields?.WindSpeed ?? 0) >= gustFloorMetersPerSecond)
+                .ToList();
+        }
+
+        return detectedGusts
+            .OrderByDescending(m => m.TimestampMs)
+            .Take(Math.Clamp(GustHistoryCount, 3, 5))
+            .Select(m =>
+            {
+                var speed = WeatherDisplayHelpers.GetLatestWindSpeed(m.Fields?.WindSpeed);
+                var direction = WeatherDisplayHelpers.NormalizeWindDirection(m.Fields?.WindDirection ?? 0);
+
+                return new WindGustSampleView
+                {
+                    Speed = speed,
+                    Direction = direction,
+                    Cardinal = WeatherDisplayHelpers.GetWindDirectionCardinalLabel(m.Fields?.WindDirectionCardinal, direction),
+                    IntensityClass = WeatherDisplayHelpers.GetWindIntensityClass(speed),
+                    StrokeWidth = WeatherDisplayHelpers.GetWindPetalStrokeWidth(speed),
+                    Timestamp = m.TimestampMs
+                };
+            })
+            .ToList();
+    }
+
+    private sealed class WindGustSampleView
+    {
+        public double Speed { get; init; }
+        public double Direction { get; init; }
+        public string Cardinal { get; init; } = "N";
+        public string IntensityClass { get; init; } = "wind-intensity-calm";
+        public double StrokeWidth { get; init; }
+        public string StrokeWidthCss => StrokeWidth.ToString("0.0", CultureInfo.InvariantCulture);
+        public DateTime Timestamp { get; init; }
+    }
 }

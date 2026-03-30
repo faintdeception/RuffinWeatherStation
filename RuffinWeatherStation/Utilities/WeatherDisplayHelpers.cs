@@ -87,11 +87,13 @@ public static class WeatherDisplayHelpers
     public static string GetWindRosePetalPoints(double speed)
     {
         const double center = 110;
-        const double minRadius = 24;
-        const double maxRadius = 86;
+        const double minRadius = 20;
+        const double maxRadius = 90;
         const double referenceSpeed = 25; // m/s cap for petal scaling
 
+        // Ease-out scaling creates stronger visual separation for light-to-moderate gusts.
         var normalizedSpeed = Math.Clamp(speed / referenceSpeed, 0, 1);
+        normalizedSpeed = Math.Pow(normalizedSpeed, 0.75);
         var radius = minRadius + (normalizedSpeed * (maxRadius - minRadius));
         var shoulderOffset = 9 + (normalizedSpeed * 6);
         var shoulderY = center - radius + 14;
@@ -100,5 +102,42 @@ public static class WeatherDisplayHelpers
         return string.Create(
             provider: CultureInfo.InvariantCulture,
             $"{center:0.0},{center:0.0} {center - shoulderOffset:0.0},{shoulderY:0.0} {center:0.0},{tipY:0.0} {center + shoulderOffset:0.0},{shoulderY:0.0}");
+    }
+
+    public static string GetWindIntensityClass(double speed)
+    {
+        return speed switch
+        {
+            < 2 => "wind-intensity-calm",
+            < 5 => "wind-intensity-breezy",
+            < 9 => "wind-intensity-fresh",
+            < 14 => "wind-intensity-strong",
+            _ => "wind-intensity-severe"
+        };
+    }
+
+    public static double GetWindPetalStrokeWidth(double speed)
+    {
+        if (speed < 2)
+        {
+            return 1.0;
+        }
+
+        if (speed < 5)
+        {
+            return 1.3;
+        }
+
+        if (speed < 9)
+        {
+            return 1.7;
+        }
+
+        if (speed < 14)
+        {
+            return 2.1;
+        }
+
+        return 2.5;
     }
 }

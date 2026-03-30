@@ -33,13 +33,86 @@
 }
 
 .wind-gust-petal {
-    fill: rgba(217, 83, 79, 0.78);
-    stroke: rgba(140, 24, 24, 0.85);
+    fill: rgba(70, 136, 204, 0.75);
+    stroke: rgba(24, 79, 136, 0.85);
     stroke-width: 1.2;
+}
+
+.wind-intensity-calm {
+    fill: rgba(79, 145, 226, 0.62);
+    stroke: rgba(32, 83, 143, 0.7);
+}
+
+.wind-intensity-breezy {
+    fill: rgba(87, 174, 214, 0.74);
+    stroke: rgba(21, 103, 130, 0.8);
+}
+
+.wind-intensity-fresh {
+    fill: rgba(88, 173, 104, 0.78);
+    stroke: rgba(39, 112, 53, 0.86);
+}
+
+.wind-intensity-strong {
+    fill: rgba(235, 183, 57, 0.84);
+    stroke: rgba(158, 104, 8, 0.9);
+}
+
+.wind-intensity-severe {
+    fill: rgba(219, 83, 65, 0.9);
+    stroke: rgba(146, 36, 28, 0.96);
 }
 
 .wind-rose-center {
     fill: rgba(45, 45, 45, 0.9);
+}
+
+.gust-history {
+    width: 100%;
+    max-width: 340px;
+}
+
+.gust-history-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(35, 35, 35, 0.72);
+    margin-bottom: 0.35rem;
+}
+
+.gust-history-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.2rem 0;
+    border-top: 1px dashed rgba(80, 80, 80, 0.18);
+}
+
+.gust-history-item:first-of-type {
+    border-top: none;
+}
+
+.gust-history-arrow {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+}
+
+.gust-history-metadata {
+    display: grid;
+    gap: 0.02rem;
+    line-height: 1.1;
+}
+
+.gust-history-speed {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.gust-history-direction {
+    font-size: 0.78rem;
+    color: rgba(30, 30, 30, 0.78);
 }
 
 @media (max-width: 768px) {
@@ -53,5 +126,9 @@
 
     .wind-rose-details .display-6 {
         font-size: 1.5rem;
+    }
+
+    .gust-history {
+        max-width: 100%;
     }
 }

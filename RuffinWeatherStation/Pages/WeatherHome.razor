@@ -98,6 +98,7 @@ else
                                  FormatDateTimeForUserWithTimezone="FormatDateTimeForUserWithTimezone" />
 
             <WindRoseCard Measurement="measurement"
+                          RecentMeasurements="todaysMeasurements"
                           ObservedLabel="@(measurement != null ? FormatDateTimeForUserWithTimezone(measurement.TimestampMs) : null)" />
 
             <TodayRainfallCard AccumulatedRainfall="accumulatedRainfall"
