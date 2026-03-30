@@ -51,6 +51,45 @@
             }
         })();
     </script>
+    <script>
+        window.ruffinWeatherStorage = window.ruffinWeatherStorage || {};
+
+        window.ruffinWeatherStorage.cleanupRecentMeasurementsCache = function (maxPersistCount, maxJsonLength) {
+            var removed = 0;
+            var prefix = "recent_measurements_";
+
+            try {
+                for (var i = localStorage.length - 1; i >= 0; i--) {
+                    var key = localStorage.key(i);
+                    if (!key || key.indexOf(prefix) !== 0) {
+                        continue;
+                    }
+
+                    var isOversizedCount = false;
+                    var countPart = key.substring(prefix.length).split("_")[0];
+                    var parsedCount = Number.parseInt(countPart, 10);
+                    if (!Number.isNaN(parsedCount) && parsedCount > maxPersistCount) {
+                        isOversizedCount = true;
+                    }
+
+                    var isOversizedPayload = false;
+                    if (!isOversizedCount) {
+                        var value = localStorage.getItem(key);
+                        isOversizedPayload = !!value && value.length > maxJsonLength;
+                    }
+
+                    if (isOversizedCount || isOversizedPayload) {
+                        localStorage.removeItem(key);
+                        removed++;
+                    }
+                }
+            } catch (e) {
+                console.warn("recent measurement cache cleanup failed", e);
+            }
+
+            return removed;
+        };
+    </script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
 </body>

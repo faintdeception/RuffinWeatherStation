@@ -26,6 +26,9 @@ namespace RuffinWeatherStation.Services
         private const int HOURLY_CACHE_MINUTES = 45;
         private const int HISTORICAL_DAILY_CACHE_MINUTES = 60;
         private const int ALL_TIME_RECORDS_CACHE_MINUTES = 120;
+        private const int MAX_LOCAL_STORAGE_JSON_LENGTH = 350_000;
+        private const int MAX_RECENT_MEASUREMENTS_PERSIST_COUNT = 250;
+        private bool _recentMeasurementsCacheCleanupAttempted;
 
         public TemperatureService(HttpClient httpClient, IJSRuntime jsRuntime)
         {
@@ -34,7 +37,11 @@ namespace RuffinWeatherStation.Services
         }
 
         // Helper methods for caching
-        private async Task<T?> GetCachedDataAsync<T>(string cacheKey, int cacheMinutes, Func<Task<T?>> fetchFunction)
+        private async Task<T?> GetCachedDataAsync<T>(
+            string cacheKey,
+            int cacheMinutes,
+            Func<Task<T?>> fetchFunction,
+            bool allowPersistentCache = true)
         {
             // First try memory cache
             if (_memoryCache.TryGetValue(cacheKey, out var cachedData) && 
@@ -45,24 +52,28 @@ namespace RuffinWeatherStation.Services
             }
             
             // Then try local storage
-            try 
+            if (allowPersistentCache)
             {
-                var storedData = await LoadFromLocalStorageAsync<CacheEntry<T>>(cacheKey);
-                if (storedData != null && 
-                    (DateTime.Now - storedData.Timestamp).TotalMinutes < cacheMinutes)
+                try 
                 {
-                    Console.WriteLine($"Cache hit for {cacheKey} - returning localStorage data");
-                    
-                    // Update memory cache
-                    _memoryCache[cacheKey] = (storedData.Data, storedData.Timestamp);
-                    
-                    return storedData.Data;
+                    var storedData = await LoadFromLocalStorageAsync<CacheEntry<T>>(cacheKey);
+                    if (storedData != null && 
+                        storedData.Data != null &&
+                        (DateTime.Now - storedData.Timestamp).TotalMinutes < cacheMinutes)
+                    {
+                        Console.WriteLine($"Cache hit for {cacheKey} - returning localStorage data");
+                        
+                        // Update memory cache
+                        _memoryCache[cacheKey] = (storedData.Data!, storedData.Timestamp);
+                        
+                        return storedData.Data;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error reading from localStorage: {ex.Message}");
-                // Continue to fetch from API if localStorage fails
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Error reading from localStorage: {ex.Message}");
+                    // Continue to fetch from API if localStorage fails
+                }
             }
             
             // If not in cache or expired, fetch new data
@@ -75,18 +86,21 @@ namespace RuffinWeatherStation.Services
                 _memoryCache[cacheKey] = (data, DateTime.Now);
                 
                 // Update localStorage cache
-                try 
+                if (allowPersistentCache)
                 {
-                    await SaveToLocalStorageAsync(cacheKey, new CacheEntry<T> 
+                    try 
                     { 
-                        Data = data, 
-                        Timestamp = DateTime.Now 
-                    });
-                }
-                catch (Exception ex) 
-                {
-                    Console.Error.WriteLine($"Error writing to localStorage: {ex.Message}");
-                    // Continue even if localStorage fails
+                        await SaveToLocalStorageAsync(cacheKey, new CacheEntry<T> 
+                        { 
+                            Data = data, 
+                            Timestamp = DateTime.Now 
+                        });
+                    }
+                    catch (Exception ex) 
+                    {
+                        Console.Error.WriteLine($"Error writing to localStorage: {ex.Message}");
+                        // Continue even if localStorage fails
+                    }
                 }
             }
             
@@ -95,14 +109,49 @@ namespace RuffinWeatherStation.Services
         
         private async Task SaveToLocalStorageAsync<T>(string key, T data)
         {
-            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", key, 
-                JsonSerializer.Serialize(data));
+            var serialized = JsonSerializer.Serialize(data);
+
+            // Avoid pushing very large blobs into localStorage; browsers enforce small per-origin quotas.
+            if (serialized.Length > MAX_LOCAL_STORAGE_JSON_LENGTH)
+            {
+                Console.WriteLine($"Skipping localStorage for {key}: payload size {serialized.Length} exceeds threshold {MAX_LOCAL_STORAGE_JSON_LENGTH}.");
+                return;
+            }
+
+            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", key, serialized);
         }
 
         private async Task<T?> LoadFromLocalStorageAsync<T>(string key) where T : class
         {
             var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
             return json == null ? null : JsonSerializer.Deserialize<T>(json);
+        }
+
+        private async Task EnsureRecentMeasurementsCacheCleanupAsync()
+        {
+            if (_recentMeasurementsCacheCleanupAttempted)
+            {
+                return;
+            }
+
+            _recentMeasurementsCacheCleanupAttempted = true;
+
+            try
+            {
+                var removedCount = await _jsRuntime.InvokeAsync<int>(
+                    "ruffinWeatherStorage.cleanupRecentMeasurementsCache",
+                    MAX_RECENT_MEASUREMENTS_PERSIST_COUNT,
+                    MAX_LOCAL_STORAGE_JSON_LENGTH);
+
+                if (removedCount > 0)
+                {
+                    Console.WriteLine($"Cleaned up {removedCount} stale recent measurement cache entries from localStorage.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error cleaning recent measurement cache: {ex.Message}");
+            }
         }
 
         // Local cache class
@@ -133,6 +182,10 @@ namespace RuffinWeatherStation.Services
 
         public async Task<List<TemperatureMeasurement>?> GetRecentMeasurementsAsync(int count = 25, DateTime? sinceUtc = null)
         {
+            await EnsureRecentMeasurementsCacheCleanupAsync();
+
+            var allowPersistentCache = !sinceUtc.HasValue && count <= MAX_RECENT_MEASUREMENTS_PERSIST_COUNT;
+
             return await GetCachedDataAsync<List<TemperatureMeasurement>>(
                 $"recent_measurements_{count}_{sinceUtc?.ToUniversalTime().ToString("yyyyMMddHHmm") ?? "none"}", 
                 RECENT_CACHE_MINUTES,
@@ -152,7 +205,8 @@ namespace RuffinWeatherStation.Services
                         Console.Error.WriteLine($"Error fetching recent measurements: {ex.Message}");
                         return null;
                     }
-                });
+                },
+                allowPersistentCache);
         }
         
         public async Task<List<TemperatureMeasurement>?> GetTodaysMeasurementsAsync()
