@@ -479,6 +479,8 @@ namespace RuffinWeatherStation.Api.Services
                     .Select(periodDoc =>
                     {
                         var windSpeedText = NormalizeValue(GetString(periodDoc, "windSpeed", "wind_speed", "properties.windSpeed")) ?? string.Empty;
+                        var sourceTemperature = TryGetDouble(periodDoc, "temperature", "temp", "temperature.value", "properties.temperature");
+                        var sourceTemperatureUnit = NormalizeValue(GetString(periodDoc, "temperatureUnit", "temperature_unit", "temp_unit", "properties.temperatureUnit")) ?? "F";
 
                         return new NwsForecastPeriodSummary
                         {
@@ -486,8 +488,9 @@ namespace RuffinWeatherStation.Api.Services
                             StartTimeUtc = GetDateTimeUtc(periodDoc, "startTime", "start_time", "start", "properties.startTime"),
                             EndTimeUtc = GetDateTimeUtc(periodDoc, "endTime", "end_time", "end", "properties.endTime"),
                             IsDaytime = TryGetBool(periodDoc, "isDaytime", "is_daytime", "daytime", "properties.isDaytime"),
-                            Temperature = TryGetDouble(periodDoc, "temperature", "temp", "temperature.value", "properties.temperature"),
-                            TemperatureUnit = NormalizeValue(GetString(periodDoc, "temperatureUnit", "temperature_unit", "temp_unit", "properties.temperatureUnit")) ?? "F",
+                            Temperature = sourceTemperature,
+                            CelsiusTemperature = ConvertToCelsius(sourceTemperature, sourceTemperatureUnit),
+                            TemperatureUnit = sourceTemperatureUnit,
                             WindSpeedText = windSpeedText,
                             WindSpeedMphMax = ParseWindSpeedMaxMph(windSpeedText),
                             WindDirection = NormalizeValue(GetString(periodDoc, "windDirection", "wind_direction", "properties.windDirection")) ?? string.Empty,
@@ -800,6 +803,27 @@ namespace RuffinWeatherStation.Api.Services
             }
 
             return values.Max();
+        }
+
+        private static double? ConvertToCelsius(double? temperature, string? unit)
+        {
+            if (!temperature.HasValue)
+            {
+                return null;
+            }
+
+            if (string.Equals(unit, "C", StringComparison.OrdinalIgnoreCase))
+            {
+                return temperature.Value;
+            }
+
+            if (string.Equals(unit, "F", StringComparison.OrdinalIgnoreCase))
+            {
+                return (temperature.Value - 32) * 5 / 9;
+            }
+
+            // If unit is unknown, preserve value as-is to avoid dropping data.
+            return temperature.Value;
         }
 
         private static string? NormalizeValue(string? value)

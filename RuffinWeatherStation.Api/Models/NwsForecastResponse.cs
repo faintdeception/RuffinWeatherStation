@@ -16,6 +16,7 @@ public class NwsForecastPeriodSummary
     public DateTime? EndTimeUtc { get; set; }
     public bool IsDaytime { get; set; }
     public double? Temperature { get; set; }
+    public double? CelsiusTemperature { get; set; }
     public string TemperatureUnit { get; set; } = "F";
     public string WindSpeedText { get; set; } = string.Empty;
     public double? WindSpeedMphMax { get; set; }

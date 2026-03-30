@@ -143,6 +143,13 @@
 
     private static string FormatTemperature(NwsForecastPeriodData period)
     {
+        if (period.CelsiusTemperature.HasValue)
+        {
+            var c = Math.Round(period.CelsiusTemperature.Value);
+            var f = Math.Round(GetFahrenheitTemperature(period));
+            return $"{c}°C ({f}°F)";
+        }
+
         if (!period.Temperature.HasValue)
         {
             return "--";
@@ -412,6 +419,11 @@
 
     private static double GetTempF(NwsForecastPeriodData period)
     {
+        if (period.CelsiusTemperature.HasValue)
+        {
+            return (period.CelsiusTemperature.Value * 9 / 5) + 32;
+        }
+
         if (!period.Temperature.HasValue)
         {
             return double.NaN;
@@ -423,6 +435,26 @@
         }
 
         return period.Temperature.Value;
+    }
+
+    private static double GetFahrenheitTemperature(NwsForecastPeriodData period)
+    {
+        if (period.Temperature.HasValue && string.Equals(period.TemperatureUnit, "F", StringComparison.OrdinalIgnoreCase))
+        {
+            return period.Temperature.Value;
+        }
+
+        if (period.CelsiusTemperature.HasValue)
+        {
+            return (period.CelsiusTemperature.Value * 9 / 5) + 32;
+        }
+
+        if (period.Temperature.HasValue && string.Equals(period.TemperatureUnit, "C", StringComparison.OrdinalIgnoreCase))
+        {
+            return (period.Temperature.Value * 9 / 5) + 32;
+        }
+
+        return period.Temperature ?? double.NaN;
     }
 
     private sealed record GardenActionTag(string Label, string CssClass);
