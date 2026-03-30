@@ -54,7 +54,7 @@
             @if (recentGusts.Any())
             {
                 <div class="gust-history mt-3">
-                    <div class="gust-history-title">Recent Gusts</div>
+                    <div class="gust-history-title">Recent Gusts (Last 2 Hours)</div>
                     @foreach (var gust in recentGusts)
                     {
                         <div class="gust-history-item">
@@ -114,6 +114,17 @@
         }
 
         const double gustFloorMetersPerSecond = 1.5;
+        var latestTimestamp = ordered[^1].TimestampMs;
+        var lookbackStart = latestTimestamp.AddHours(-2);
+        ordered = ordered
+            .Where(m => m.TimestampMs >= lookbackStart)
+            .ToList();
+
+        if (ordered.Count == 0)
+        {
+            return [];
+        }
+
         var detectedGusts = new List<TemperatureMeasurement>();
 
         for (var i = 1; i < ordered.Count - 1; i++)
