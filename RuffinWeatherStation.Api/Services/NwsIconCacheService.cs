@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -26,6 +27,9 @@ public sealed class NwsIconCacheService
     {
         _httpClient = httpClientFactory.CreateClient(nameof(NwsIconCacheService));
         _httpClient.Timeout = TimeSpan.FromSeconds(8);
+        _httpClient.DefaultRequestHeaders.UserAgent.Clear();
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("RuffinWeatherStation/1.0 (+https://ruffinweather.com)");
+        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("image/*"));
 
         var configuredRetentionDays = configuration.GetValue<int?>("NwsIconCache:RetentionDays") ?? DefaultRetentionDays;
         var configuredCleanupIntervalHours = configuration.GetValue<int?>("NwsIconCache:CleanupIntervalHours") ?? DefaultCleanupIntervalHours;
@@ -80,6 +84,7 @@ public sealed class NwsIconCacheService
             using var response = await _httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
             if (!response.IsSuccessStatusCode)
             {
+                Console.WriteLine($"[NWS ICON CACHE] Download failed: {(int)response.StatusCode} {response.ReasonPhrase} for {uri}");
                 return string.Empty;
             }
 
@@ -106,8 +111,9 @@ public sealed class NwsIconCacheService
 
             return BuildCacheRouteFromPath(finalFilePath);
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"[NWS ICON CACHE] Exception while caching icon {sourceUrl}: {ex.Message}");
             return string.Empty;
         }
         finally
