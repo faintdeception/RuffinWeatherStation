@@ -98,7 +98,7 @@
     private RenderFragment RenderPeriodCard(NwsForecastPeriodData period) => @<article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night")">
         <header class="nws-forecast-period-header">
             <div class="nws-forecast-period-title-wrap">
-                <span class="nws-forecast-icon bi @GetForecastIconClass(period)" aria-hidden="true"></span>
+                <span class="nws-forecast-icon @GetForecastIconToneClass(period)" aria-hidden="true">@GetForecastIconGlyph(period)</span>
                 <div class="nws-forecast-period-name">@period.Name</div>
             </div>
             <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
@@ -367,7 +367,7 @@
             .ToList();
     }
 
-    private static string GetForecastIconClass(NwsForecastPeriodData period)
+    private static string GetForecastIconGlyph(NwsForecastPeriodData period)
     {
         var sourceText = string.IsNullOrWhiteSpace(period.ShortForecast)
             ? period.DetailedForecast
@@ -376,45 +376,70 @@
 
         if (text.Contains("thunder") || text.Contains("t-storm") || text.Contains("lightning"))
         {
-            return "bi-cloud-lightning-rain";
+            return "⛈";
         }
 
         if (text.Contains("snow") || text.Contains("flurr"))
         {
-            return "bi-cloud-snow";
+            return "🌨";
         }
 
         if (text.Contains("rain") || text.Contains("showers") || text.Contains("drizzle"))
         {
-            return "bi-cloud-rain";
+            return "🌧";
         }
 
         if (text.Contains("fog") || text.Contains("mist") || text.Contains("haze"))
         {
-            return "bi-cloud-fog2";
+            return "🌫";
         }
 
         if (text.Contains("wind"))
         {
-            return "bi-wind";
+            return "🌬";
         }
 
         if (text.Contains("mostly cloudy") || text.Contains("overcast") || text.Contains("cloudy"))
         {
-            return "bi-clouds";
+            return "☁";
         }
 
         if (text.Contains("partly cloudy") || text.Contains("mostly sunny") || text.Contains("partly sunny"))
         {
-            return period.IsDaytime ? "bi-cloud-sun" : "bi-cloud-moon";
+            return period.IsDaytime ? "⛅" : "☁";
         }
 
         if (text.Contains("clear") || text.Contains("sunny"))
         {
-            return period.IsDaytime ? "bi-brightness-high" : "bi-moon-stars";
+            return period.IsDaytime ? "☀" : "🌙";
         }
 
-        return period.IsDaytime ? "bi-cloud-sun" : "bi-cloud-moon";
+        return period.IsDaytime ? "⛅" : "🌙";
+    }
+
+    private static string GetForecastIconToneClass(NwsForecastPeriodData period)
+    {
+        var sourceText = string.IsNullOrWhiteSpace(period.ShortForecast)
+            ? period.DetailedForecast
+            : period.ShortForecast;
+        var text = sourceText.ToLowerInvariant();
+
+        if (text.Contains("thunder") || text.Contains("rain") || text.Contains("showers") || text.Contains("drizzle") || text.Contains("snow"))
+        {
+            return "tone-wet";
+        }
+
+        if (text.Contains("fog") || text.Contains("haze") || text.Contains("cloud"))
+        {
+            return "tone-cloud";
+        }
+
+        if (period.IsDaytime)
+        {
+            return "tone-sun";
+        }
+
+        return "tone-night";
     }
 
     private static double GetTempF(NwsForecastPeriodData period)
