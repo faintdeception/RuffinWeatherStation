@@ -21,6 +21,7 @@ public sealed class NwsIconCacheService
     private readonly object _cleanupGate = new();
     private readonly TimeSpan _cacheRetention;
     private readonly TimeSpan _cleanupInterval;
+    private readonly string? _publicBaseUrl;
     private DateTime _nextCleanupUtc = DateTime.MinValue;
 
     public NwsIconCacheService(IHttpClientFactory httpClientFactory, IWebHostEnvironment hostEnvironment, IConfiguration configuration)
@@ -33,6 +34,7 @@ public sealed class NwsIconCacheService
 
         var configuredRetentionDays = configuration.GetValue<int?>("NwsIconCache:RetentionDays") ?? DefaultRetentionDays;
         var configuredCleanupIntervalHours = configuration.GetValue<int?>("NwsIconCache:CleanupIntervalHours") ?? DefaultCleanupIntervalHours;
+        _publicBaseUrl = configuration.GetValue<string>("NwsIconCache:PublicBaseUrl")?.Trim().TrimEnd('/');
 
         _cacheRetention = Clamp(TimeSpan.FromDays(configuredRetentionDays), MinRetention, MaxRetention);
         _cleanupInterval = Clamp(TimeSpan.FromHours(configuredCleanupIntervalHours), MinCleanupInterval, MaxCleanupInterval);
@@ -200,9 +202,15 @@ public sealed class NwsIconCacheService
         return matches.FirstOrDefault();
     }
 
-    private static string BuildCacheRouteFromPath(string filePath)
+    private string BuildCacheRouteFromPath(string filePath)
     {
-        return $"{CacheRoutePrefix}/{Path.GetFileName(filePath)}";
+        var relativePath = $"{CacheRoutePrefix}/{Path.GetFileName(filePath)}";
+        if (string.IsNullOrWhiteSpace(_publicBaseUrl))
+        {
+            return relativePath;
+        }
+
+        return $"{_publicBaseUrl}{relativePath}";
     }
 
     private static string ResolveExtension(string? mediaType)
