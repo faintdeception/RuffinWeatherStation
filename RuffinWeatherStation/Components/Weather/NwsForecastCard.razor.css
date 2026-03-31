@@ -32,13 +32,47 @@
     border-radius: 999px;
 }
 
+.nws-forecast-matrix {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.nws-forecast-row-block {
+    display: grid;
+    grid-template-columns: 1.95rem minmax(0, 1fr);
+    align-items: stretch;
+    gap: 0.5rem;
+}
+
+.nws-forecast-row-title {
+    border-radius: 999px;
+    border: 1px solid rgba(44, 89, 130, 0.18);
+    background: rgba(234, 243, 251, 0.7);
+    color: rgba(24, 66, 102, 0.66);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}
+
+.nws-forecast-row-grid {
+    display: grid;
+    gap: 0.65rem;
+    grid-template-columns: repeat(var(--forecast-day-columns), minmax(0, 1fr));
+}
+
 .nws-forecast-period {
     border-radius: 10px;
     border: 1px solid rgba(70, 90, 110, 0.16);
-    padding: 0.58rem 0.64rem;
+    padding: 0.7rem 0.75rem;
     background: linear-gradient(165deg, rgba(255, 255, 255, 0.99) 0%, rgba(236, 245, 252, 0.96) 100%);
     flex: 0 0 clamp(154px, 12vw, 182px);
-    min-height: 184px;
+    min-height: 186px;
     scroll-snap-align: start;
     display: flex;
     flex-direction: column;
@@ -53,6 +87,11 @@
 .nws-forecast-period:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 13px rgba(34, 58, 86, 0.18);
+}
+
+.nws-forecast-period.is-empty {
+    background: linear-gradient(180deg, rgba(241, 247, 252, 0.94), rgba(230, 240, 248, 0.92));
+    border-style: dashed;
 }
 
 .nws-forecast-period-header {
@@ -74,19 +113,25 @@
 }
 
 .nws-forecast-day-chip {
-    font-size: 0.62rem;
+    font-size: 0.64rem;
     letter-spacing: 0.03em;
     text-transform: uppercase;
     font-weight: 800;
     color: rgba(21, 58, 92, 0.84);
     margin-bottom: 0.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .nws-forecast-period-name {
     font-weight: 800;
     color: rgba(25, 42, 60, 0.95);
-    font-size: 0.9rem;
+    font-size: 1rem;
     line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .nws-forecast-icon-image {
@@ -127,7 +172,7 @@
 }
 
 .nws-forecast-period-time {
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -143,12 +188,12 @@
 }
 
 .nws-forecast-keyline.subtle {
-    font-size: 0.77rem;
+    font-size: 0.8rem;
     color: rgba(38, 53, 68, 0.8);
 }
 
 .nws-forecast-temp {
-    font-size: 1.03rem;
+    font-size: 1.08rem;
     font-weight: 900;
     color: rgba(20, 48, 79, 0.95);
     white-space: nowrap;
@@ -156,18 +201,18 @@
 
 .nws-forecast-pop {
     font-weight: 700;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: rgba(27, 100, 143, 0.9);
     white-space: nowrap;
 }
 
 .nws-forecast-detail {
     margin-top: 0.35rem;
-    font-size: 0.76rem;
-    line-height: 1.25;
+    font-size: 0.84rem;
+    line-height: 1.3;
     color: rgba(30, 45, 61, 0.85);
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -180,21 +225,41 @@
 }
 
 .nws-forecast-actions .badge {
-    font-size: 0.66rem;
+    font-size: 0.72rem;
     letter-spacing: 0.01em;
 }
 
 @media (max-width: 576px) {
+    .nws-forecast-row-block {
+        grid-template-columns: 1fr;
+        gap: 0.45rem;
+    }
+
+    .nws-forecast-row-title {
+        min-height: 1.8rem;
+        writing-mode: horizontal-tb;
+        text-orientation: initial;
+    }
+
+    .nws-forecast-row-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .nws-forecast-period {
-        flex-basis: 146px;
-        min-height: 172px;
+        min-height: 190px;
     }
 
     .nws-forecast-temp {
-        font-size: 0.96rem;
+        font-size: 1.06rem;
     }
 
     .nws-forecast-detail {
         -webkit-line-clamp: 2;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 1024px) {
+    .nws-forecast-row-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
