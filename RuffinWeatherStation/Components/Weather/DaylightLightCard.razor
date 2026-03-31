@@ -1,6 +1,6 @@
 <div class="card mt-4 daylight-light-card">
     <div class="card-header text-white daylight-light-header">
-        <h3 class="mb-0">😎☀️ Daylight and light levels</h3>
+        <h3 class="mb-0">@GetSmartLightEmoji() Daylight and light levels</h3>
         <small class="daylight-light-subtitle">@SnapshotLabel</small>
     </div>
     <div class="card-body">
@@ -156,5 +156,61 @@
 
         var peakLux = LightLevels.Max(x => x.Value);
         return LightLevels.First(x => x.Value == peakLux).Timestamp;
+    }
+
+    private string GetSmartLightEmoji()
+    {
+        var peakLux = GetPeakLuxValue();
+
+        // Keep the logic intentionally simple so it is easy to tune later.
+        if (!IsCurrentlyDaytime())
+        {
+            if (peakLux >= 300)
+            {
+                return "🌙✨";
+            }
+
+            return "🌙";
+        }
+
+        if (peakLux >= 1400)
+        {
+            return "😎☀️";
+        }
+
+        if (peakLux >= 800)
+        {
+            return "☀️";
+        }
+
+        if (peakLux >= 350)
+        {
+            return "⛅";
+        }
+
+        return "🙂☁️";
+    }
+
+    private bool IsCurrentlyDaytime()
+    {
+        if (!HasDaylightEstimate)
+        {
+            return GetPeakLuxValue() >= 200;
+        }
+
+        var now = ConvertToDisplayTime(DateTime.UtcNow);
+        if (!now.HasValue)
+        {
+            return GetPeakLuxValue() >= 200;
+        }
+
+        var sunrise = ConvertToDisplayTime(SunriseUtc);
+        var sunset = ConvertToDisplayTime(SunsetUtc);
+        if (!sunrise.HasValue || !sunset.HasValue)
+        {
+            return GetPeakLuxValue() >= 200;
+        }
+
+        return now.Value >= sunrise.Value && now.Value < sunset.Value;
     }
 }
