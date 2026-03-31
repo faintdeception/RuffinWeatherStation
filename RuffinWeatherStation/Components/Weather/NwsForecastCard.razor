@@ -15,6 +15,7 @@
             </div>
         }
     </div>
+
     <div class="card-body">
         @if (Forecast == null || !Forecast.HasData || !Forecast.Periods.Any())
         {
@@ -22,48 +23,37 @@
         }
         else
         {
-            periodsForDisplay = Forecast.Periods
-                .OrderBy(p => p.StartTimeUtc ?? DateTime.MaxValue)
-                .Take(Math.Max(1, MaxItems))
-                .ToList();
-
             @if (GroupByLocalDay)
             {
-                var dayBuckets = BuildDayBuckets(periodsForDisplay);
-                <div class="nws-forecast-matrix" style="--forecast-day-columns:@dayBuckets.Count;" aria-label="Forecast by day and daypart">
-                    <section class="nws-forecast-row-block" aria-label="AM forecast">
-                        <div class="nws-forecast-row-title">AM</div>
-                        <div class="nws-forecast-row-grid">
-                            @foreach (var bucket in dayBuckets)
-                            {
-                                if (bucket.DayPeriod != null)
-                                {
-                                    @RenderPeriodCard(bucket.DayPeriod, true, bucket.DayLabel, "AM", compactContent: true)
-                                }
-                                else
-                                {
-                                    @RenderEmptyPeriodCard(bucket.DayLabel, "AM")
-                                }
-                            }
-                        </div>
-                    </section>
+                var amItems = BuildDayPartRowItems(periodsForDisplay, isDaytime: true, "AM");
+                var pmItems = BuildDayPartRowItems(periodsForDisplay, isDaytime: false, "PM");
 
-                    <section class="nws-forecast-row-block" aria-label="PM forecast">
-                        <div class="nws-forecast-row-title">PM</div>
-                        <div class="nws-forecast-row-grid">
-                            @foreach (var bucket in dayBuckets)
-                            {
-                                if (bucket.NightPeriod != null)
+                <div class="nws-forecast-matrix" aria-label="Forecast by day and daypart">
+                    @if (amItems.Any())
+                    {
+                        <section class="nws-forecast-row-block" aria-label="AM forecast">
+                            <div class="nws-forecast-row-title">AM</div>
+                            <div class="nws-forecast-row-grid" style="--forecast-day-columns:@amItems.Count;">
+                                @foreach (var item in amItems)
                                 {
-                                    @RenderPeriodCard(bucket.NightPeriod, true, bucket.DayLabel, "PM", compactContent: true)
+                                    @RenderPeriodCard(item.Period, true, item.DayLabel, item.DayPartName, compactContent: true)
                                 }
-                                else
+                            </div>
+                        </section>
+                    }
+
+                    @if (pmItems.Any())
+                    {
+                        <section class="nws-forecast-row-block" aria-label="PM forecast">
+                            <div class="nws-forecast-row-title">PM</div>
+                            <div class="nws-forecast-row-grid" style="--forecast-day-columns:@pmItems.Count;">
+                                @foreach (var item in pmItems)
                                 {
-                                    @RenderEmptyPeriodCard(bucket.DayLabel, "PM")
+                                    @RenderPeriodCard(item.Period, true, item.DayLabel, item.DayPartName, compactContent: true)
                                 }
-                            }
-                        </div>
-                    </section>
+                            </div>
+                        </section>
+                    }
                 </div>
             }
             else
@@ -115,96 +105,82 @@
 
     private List<NwsForecastPeriodData> periodsForDisplay = new();
 
+    protected override void OnParametersSet()
+    {
+        periodsForDisplay = Forecast?.Periods?
+            .OrderBy(p => p.StartTimeUtc ?? DateTime.MaxValue)
+            .Take(Math.Max(1, MaxItems))
+            .ToList() ?? new List<NwsForecastPeriodData>();
+    }
+
     private RenderFragment RenderPeriodCard(
         NwsForecastPeriodData period,
         bool showDayChip = false,
         string? dayLabelOverride = null,
         string? nameOverride = null,
-        bool compactContent = false) => @<article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night")">
-        <header class="nws-forecast-period-header">
-            <div class="nws-forecast-period-title-wrap">
-                @if (!string.IsNullOrWhiteSpace(period.IconUrl))
-                {
-                    <img class="nws-forecast-icon-image"
-                         src="@ResolveIconUrl(period.IconUrl)"
-                         alt="@GetForecastIconAltText(period)"
-                         loading="lazy" />
-                }
-                else
-                {
+        bool compactContent = false) => @<article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night") @(HasForecastBackground(period) ? "has-forecast-bg" : string.Empty)"
+                                                 style="@GetForecastBackgroundStyle(period)">
+        <div class="nws-forecast-period-content">
+            <header class="nws-forecast-period-header">
+                <div class="nws-forecast-period-title-wrap">
                     <span class="nws-forecast-icon @GetForecastIconToneClass(period)" aria-hidden="true">@GetForecastIconGlyph(period)</span>
-                }
-                <div class="nws-forecast-period-title-stack">
-                    @if (showDayChip)
-                    {
-                        <div class="nws-forecast-day-chip">@(dayLabelOverride ?? GetPeriodDayLabel(period))</div>
-                    }
-                    <div class="nws-forecast-period-name">@(nameOverride ?? period.Name)</div>
+                    <div class="nws-forecast-period-title-stack">
+                        @if (showDayChip)
+                        {
+                            <div class="nws-forecast-day-chip">@(dayLabelOverride ?? GetPeriodDayLabel(period))</div>
+                        }
+                        <div class="nws-forecast-period-name">@(nameOverride ?? period.Name)</div>
+                    </div>
                 </div>
+                @if (!compactContent)
+                {
+                    <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
+                }
+            </header>
+
+            <div class="nws-forecast-keyline">
+                <span class="nws-forecast-temp">@FormatTemperature(period)</span>
+                <span class="nws-forecast-pop"
+                      aria-label="@GetPrecipitationLabel(period.PrecipitationChancePercent)"
+                      title="@GetPrecipitationLabel(period.PrecipitationChancePercent)">
+                    @GetPrecipitationEmoji(period.PrecipitationChancePercent) @FormatPercent(period.PrecipitationChancePercent)
+                </span>
             </div>
+
             @if (!compactContent)
             {
-                <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
-            }
-        </header>
-
-        <div class="nws-forecast-keyline">
-            <span class="nws-forecast-temp">@FormatTemperature(period)</span>
-            <span class="nws-forecast-pop"
-                  aria-label="@GetPrecipitationLabel(period.PrecipitationChancePercent)"
-                  title="@GetPrecipitationLabel(period.PrecipitationChancePercent)">
-                @GetPrecipitationEmoji(period.PrecipitationChancePercent) @FormatPercent(period.PrecipitationChancePercent)
-            </span>
-        </div>
-
-        @if (!compactContent)
-        {
-            <div class="nws-forecast-keyline subtle">
-                <span>Wind @FormatWind(period)</span>
-                @if (!string.IsNullOrWhiteSpace(period.WindDirection))
-                {
-                    <span>@period.WindDirection</span>
-                }
-            </div>
-        }
-
-        @if (ShowGardenActions)
-        {
-            var actionTags = GetGardenActions(period);
-            if (actionTags.Any())
-            {
-                <div class="nws-forecast-actions mt-2">
-                    @foreach (var action in actionTags)
+                <div class="nws-forecast-keyline subtle">
+                    <span>Wind @FormatWind(period)</span>
+                    @if (!string.IsNullOrWhiteSpace(period.WindDirection))
                     {
-                        <span class="badge @action.CssClass">@action.Label</span>
+                        <span>@period.WindDirection</span>
                     }
                 </div>
             }
-        }
 
-        @if (ShowDetailed && !compactContent && !string.IsNullOrWhiteSpace(period.DetailedForecast))
-        {
-            <p class="nws-forecast-detail mb-0">@period.DetailedForecast</p>
-        }
-        else if (!string.IsNullOrWhiteSpace(period.ShortForecast))
-        {
-            <p class="nws-forecast-detail mb-0">@period.ShortForecast</p>
-        }
-    </article>;
+            @if (ShowGardenActions)
+            {
+                var actionTags = GetGardenActions(period);
+                if (actionTags.Any())
+                {
+                    <div class="nws-forecast-actions mt-2">
+                        @foreach (var action in actionTags)
+                        {
+                            <span class="badge @action.CssClass">@action.Label</span>
+                        }
+                    </div>
+                }
+            }
 
-    private RenderFragment RenderEmptyPeriodCard(string dayLabel, string dayPartName) => @<article class="nws-forecast-period is-empty">
-        <header class="nws-forecast-period-header">
-            <div class="nws-forecast-period-title-stack">
-                <div class="nws-forecast-day-chip">@dayLabel</div>
-                <div class="nws-forecast-period-name">@dayPartName</div>
-            </div>
-        </header>
-
-        <div class="nws-forecast-keyline subtle">
-            <span>Unavailable</span>
+            @if (ShowDetailed && !compactContent && !string.IsNullOrWhiteSpace(period.DetailedForecast))
+            {
+                <p class="nws-forecast-detail mb-0">@period.DetailedForecast</p>
+            }
+            else if (!string.IsNullOrWhiteSpace(period.ShortForecast))
+            {
+                <p class="nws-forecast-detail mb-0">@period.ShortForecast</p>
+            }
         </div>
-
-        <p class="nws-forecast-detail mb-0">NWS did not return this daypart in the current snapshot.</p>
     </article>;
 
     private static string FormatTemperature(NwsForecastPeriodData period)
@@ -337,27 +313,50 @@
         return localDate.ToString("ddd, MMM d");
     }
 
-    private static List<ForecastDayBucket> BuildDayBuckets(IReadOnlyList<NwsForecastPeriodData> periods)
+    private static List<ForecastRowItem> BuildDayPartRowItems(
+        IReadOnlyList<NwsForecastPeriodData> periods,
+        bool isDaytime,
+        string dayPartName)
     {
         return periods
             .GroupBy(p => (p.StartTimeUtc ?? DateTime.UtcNow).ToLocalTime().Date)
             .OrderBy(g => g.Key)
-            .Select(g => new ForecastDayBucket
+            .Select(g => new
             {
                 DayLabel = FormatCompactDayLabel(g.Key),
-                DayPeriod = g.FirstOrDefault(p => p.IsDaytime),
-                NightPeriod = g.FirstOrDefault(p => !p.IsDaytime)
+                DayPartName = dayPartName,
+                Period = g.FirstOrDefault(p => p.IsDaytime == isDaytime)
+            })
+            .Where(i => i.Period != null)
+            .Select(i => new ForecastRowItem
+            {
+                DayLabel = i.DayLabel,
+                DayPartName = i.DayPartName,
+                Period = i.Period!
             })
             .ToList();
     }
 
-    private sealed class ForecastDayBucket
+    private bool HasForecastBackground(NwsForecastPeriodData period) => !string.IsNullOrWhiteSpace(period.IconUrl);
+
+    private string GetForecastBackgroundStyle(NwsForecastPeriodData period)
+    {
+        if (string.IsNullOrWhiteSpace(period.IconUrl))
+        {
+            return string.Empty;
+        }
+
+        var iconUrl = ResolveIconUrl(period.IconUrl).Replace("'", "%27");
+        return $"--forecast-bg-image: url('{iconUrl}');";
+    }
+
+    private sealed class ForecastRowItem
     {
         public string DayLabel { get; set; } = string.Empty;
 
-        public NwsForecastPeriodData? DayPeriod { get; set; }
+        public string DayPartName { get; set; } = string.Empty;
 
-        public NwsForecastPeriodData? NightPeriod { get; set; }
+        public NwsForecastPeriodData Period { get; set; } = new();
     }
 
     private static string FormatSnapshotAge(DateTime? snapshotUtc)
@@ -591,16 +590,6 @@
         }
 
         return "tone-night";
-    }
-
-    private static string GetForecastIconAltText(NwsForecastPeriodData period)
-    {
-        if (!string.IsNullOrWhiteSpace(period.ShortForecast))
-        {
-            return $"{period.Name}: {period.ShortForecast}";
-        }
-
-        return $"{period.Name} forecast icon";
     }
 
     private string ResolveIconUrl(string iconUrl)

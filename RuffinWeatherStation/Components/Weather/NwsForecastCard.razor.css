@@ -68,30 +68,44 @@
 
 .nws-forecast-period {
     border-radius: 10px;
-    border: 1px solid rgba(70, 90, 110, 0.16);
-    padding: 0.7rem 0.75rem;
+    border: 1px solid rgba(70, 90, 110, 0.2);
+    padding: 0.55rem;
     background: linear-gradient(165deg, rgba(255, 255, 255, 0.99) 0%, rgba(236, 245, 252, 0.96) 100%);
-    flex: 0 0 clamp(154px, 12vw, 182px);
-    min-height: 186px;
-    scroll-snap-align: start;
+    min-height: 188px;
     display: flex;
     flex-direction: column;
     transition: transform 180ms ease, box-shadow 180ms ease;
     box-shadow: 0 2px 5px rgba(34, 58, 86, 0.1);
+    position: relative;
+    overflow: hidden;
 }
 
 .nws-forecast-period.is-night {
     background: linear-gradient(165deg, rgba(234, 242, 250, 0.98) 0%, rgba(219, 231, 245, 0.95) 100%);
 }
 
-.nws-forecast-period:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 13px rgba(34, 58, 86, 0.18);
+.nws-forecast-period.has-forecast-bg {
+    background-image:
+        linear-gradient(165deg, rgba(235, 244, 251, 0.38) 0%, rgba(219, 234, 246, 0.5) 100%),
+        var(--forecast-bg-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-.nws-forecast-period.is-empty {
-    background: linear-gradient(180deg, rgba(241, 247, 252, 0.94), rgba(230, 240, 248, 0.92));
-    border-style: dashed;
+.nws-forecast-period-content {
+    background: linear-gradient(160deg, rgba(248, 252, 255, 0.76) 0%, rgba(238, 247, 253, 0.82) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 0.72rem;
+    padding: 0.5rem 0.55rem;
+    min-height: 100%;
+    backdrop-filter: blur(3px) saturate(120%);
+    -webkit-backdrop-filter: blur(3px) saturate(120%);
+}
+
+.nws-forecast-period:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 13px rgba(34, 58, 86, 0.2);
 }
 
 .nws-forecast-period-header {
@@ -117,42 +131,37 @@
     letter-spacing: 0.03em;
     text-transform: uppercase;
     font-weight: 800;
-    color: rgba(21, 58, 92, 0.84);
+    color: rgba(21, 58, 92, 0.86);
     margin-bottom: 0.1rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .nws-forecast-period-name {
     font-weight: 800;
-    color: rgba(25, 42, 60, 0.95);
+    color: rgba(25, 42, 60, 0.97);
     font-size: 1rem;
     line-height: 1.15;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.nws-forecast-icon-image {
-    width: 1.85rem;
-    height: 1.85rem;
-    border-radius: 999px;
-    box-shadow: inset 0 0 0 1px rgba(20, 20, 20, 0.08);
-    object-fit: cover;
-    flex-shrink: 0;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .nws-forecast-icon {
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 1.2rem;
+    height: 1.2rem;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.04rem;
+    font-size: 0.78rem;
     line-height: 1;
-    box-shadow: inset 0 0 0 1px rgba(20, 20, 20, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(20, 20, 20, 0.1);
+    opacity: 0.92;
+    flex-shrink: 0;
 }
 
 .nws-forecast-icon.tone-sun {
@@ -180,7 +189,7 @@
 }
 
 .nws-forecast-keyline {
-    margin-top: 0.28rem;
+    margin-top: 0.3rem;
     display: flex;
     justify-content: space-between;
     gap: 0.36rem;
@@ -195,14 +204,15 @@
 .nws-forecast-temp {
     font-size: 1.08rem;
     font-weight: 900;
-    color: rgba(20, 48, 79, 0.95);
+    color: rgba(20, 48, 79, 0.97);
     white-space: nowrap;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .nws-forecast-pop {
     font-weight: 700;
     font-size: 0.8rem;
-    color: rgba(27, 100, 143, 0.9);
+    color: rgba(27, 100, 143, 0.95);
     white-space: nowrap;
 }
 
@@ -210,11 +220,12 @@
     margin-top: 0.35rem;
     font-size: 0.84rem;
     line-height: 1.3;
-    color: rgba(30, 45, 61, 0.85);
+    color: rgba(30, 45, 61, 0.92);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .nws-forecast-actions {
@@ -246,15 +257,11 @@
     }
 
     .nws-forecast-period {
-        min-height: 190px;
+        min-height: 180px;
     }
 
     .nws-forecast-temp {
-        font-size: 1.06rem;
-    }
-
-    .nws-forecast-detail {
-        -webkit-line-clamp: 2;
+        font-size: 1.02rem;
     }
 }
 
