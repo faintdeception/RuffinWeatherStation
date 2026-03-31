@@ -358,8 +358,14 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.55rem 0.85rem;
-    padding: 0.35rem 0.15rem 0;
+    padding: 0.45rem 0.25rem 0.2rem;
     border-top: 1px dashed rgba(78, 115, 150, 0.22);
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+    background: linear-gradient(180deg, rgba(243, 249, 254, 0.25) 0%, rgba(243, 249, 254, 0.98) 42%);
+    backdrop-filter: blur(1.2px);
+    box-shadow: 0 -6px 10px rgba(31, 55, 79, 0.05);
 }
 
 .nws-forecast-actions-legend-item {
@@ -369,6 +375,13 @@
     font-size: 0.72rem;
     color: rgba(31, 61, 90, 0.84);
     white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .nws-forecast-actions-legend {
+        gap: 0.42rem 0.62rem;
+        padding-top: 0.4rem;
+    }
 }
 
 @media (max-width: 576px) {
