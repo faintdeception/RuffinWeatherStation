@@ -137,8 +137,8 @@
 </div>
 
 @code {
-    private string _data;
-    private string _error;
+    private string? _data;
+    private string? _error;
     private bool _loading;
     private string _requestUrl = "";
     private string _requestMethod = "";
@@ -194,6 +194,12 @@
         try
         {
             var baseUrl = string.IsNullOrEmpty(ApiBaseUrl) ? Http.BaseAddress?.ToString() : ApiBaseUrl;
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                _error = "API base URL is empty. Set an API Base URL before testing.";
+                return;
+            }
+
             var endpoint = "health";
             _requestUrl = $"{baseUrl.TrimEnd('/')}/{endpoint}";
             _requestMethod = "GET (JS Fetch)";
@@ -237,20 +243,27 @@
             
             if (resultObj.TryGetProperty("error", out var isError) && isError.GetBoolean())
             {
-                _error = resultObj.GetProperty("message").GetString();
+                _error = resultObj.GetProperty("message").GetString() ?? "Unknown fetch error.";
             }
             else
             {
-                _responseStatus = resultObj.GetProperty("status").GetString();
+                _responseStatus = resultObj.GetProperty("status").GetString() ?? string.Empty;
                 _responseTime = resultObj.GetProperty("time").GetInt64();
                 
                 var body = resultObj.GetProperty("body").GetString();
-                try {
+                if (string.IsNullOrWhiteSpace(body))
+                {
+                    _data = string.Empty;
+                }
+                else
+                {
+                    try {
                     var jsonDoc = JsonDocument.Parse(body);
                     _data = JsonSerializer.Serialize(jsonDoc, new JsonSerializerOptions { WriteIndented = true });
                 }
                 catch {
                     _data = body;
+                }
                 }
             }
         }
@@ -285,6 +298,12 @@
             }
 
             var url = endpoint;
+            if (Http.BaseAddress == null)
+            {
+                _error = "HttpClient BaseAddress is not configured.";
+                return;
+            }
+
             _requestUrl = new Uri(Http.BaseAddress, url).ToString();
             _requestMethod = method;
 

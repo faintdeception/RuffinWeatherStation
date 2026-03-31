@@ -7,26 +7,26 @@ namespace RuffinWeatherStation.Models
     public class WeatherPrediction
     {
         [JsonPropertyName("_id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         [JsonPropertyName("date")]
-        public string Date { get; set; }
+        public string Date { get; set; } = string.Empty;
 
         [JsonPropertyName("location")]
-        public string Location { get; set; }
+        public string Location { get; set; } = string.Empty;
 
         [JsonPropertyName("createdAt")]
         [JsonConverter(typeof(DateTimeConverter))]
         public DateTime CreatedAt { get; set; }
 
         [JsonPropertyName("prediction_12h")]
-        public PredictionData Prediction12h { get; set; }
+        public PredictionData Prediction12h { get; set; } = new();
 
         [JsonPropertyName("prediction_24h")]
-        public PredictionData Prediction24h { get; set; }
+        public PredictionData Prediction24h { get; set; } = new();
 
         [JsonPropertyName("reasoning")]
-        public string Reasoning { get; set; }
+        public string Reasoning { get; set; } = string.Empty;
 
         [JsonPropertyName("confidence")]
         public double Confidence { get; set; }
@@ -51,16 +51,16 @@ namespace RuffinWeatherStation.Models
     public class PredictionData
     {
         [JsonPropertyName("temperature")]
-        public MinMaxValue Temperature { get; set; }
+        public MinMaxValue Temperature { get; set; } = new();
 
         [JsonPropertyName("humidity")]
-        public MinMaxValue Humidity { get; set; }
+        public MinMaxValue Humidity { get; set; } = new();
 
         [JsonPropertyName("pressure")]
-        public MinMaxValue Pressure { get; set; }
+        public MinMaxValue Pressure { get; set; } = new();
 
         [JsonPropertyName("wind_speed")]
-        public MinMaxValue WindSpeed { get; set; }
+        public MinMaxValue WindSpeed { get; set; } = new();
     }
 
     public class MinMaxValue

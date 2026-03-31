@@ -378,6 +378,11 @@
         {
             if (isEditing)
             {
+                if (selectedNote == null)
+                {
+                    throw new InvalidOperationException("Cannot update a note when no note is selected.");
+                }
+
                 // Update existing note
                 await NoteService.UpdateNote(selectedNote.Id, noteRequest);
             }
@@ -433,7 +438,7 @@
         }
     }
 
-    private void SelectDate(DateTime date)
+    private async Task SelectDate(DateTime date)
     {
         selectedDate = date;
         
@@ -441,8 +446,8 @@
         selectedNote = null;
         
         // Load note and weather for the selected date
-        LoadNoteForSelectedDate();
-        LoadWeatherForSelectedDate();
+        await LoadNoteForSelectedDate();
+        await LoadWeatherForSelectedDate();
     }
 
     private async Task LoadWeatherForSelectedDate()
@@ -473,19 +478,19 @@
         }
     }
 
-    private void PreviousMonth()
+    private async Task PreviousMonth()
     {
         currentMonth = currentMonth.AddMonths(-1);
-        RefreshData();
+        await RefreshData();
     }
 
-    private void NextMonth()
+    private async Task NextMonth()
     {
         currentMonth = currentMonth.AddMonths(1);
-        RefreshData();
+        await RefreshData();
     }
 
-    private async void RefreshData()
+    private async Task RefreshData()
     {
         isLoading = true;
         
@@ -511,9 +516,9 @@
         }
     }
 
-    private void Logout()
+    private async Task Logout()
     {
-        AuthService.Logout();
+        await AuthService.Logout();
         isAuthenticated = false;
         
         // Clear notes and selected date on logout
