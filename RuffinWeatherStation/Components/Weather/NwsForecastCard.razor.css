@@ -110,6 +110,26 @@
     overflow: hidden;
 }
 
+.nws-forecast-flip-hint {
+    position: absolute;
+    top: 0.36rem;
+    right: 0.42rem;
+    font-size: 0.62rem;
+    line-height: 1;
+    color: rgba(20, 62, 96, 0.74);
+    background: rgba(234, 246, 255, 0.84);
+    border: 1px solid rgba(98, 145, 181, 0.35);
+    border-radius: 999px;
+    padding: 0.16rem 0.36rem;
+    letter-spacing: 0.02em;
+    transition: opacity 180ms ease;
+}
+
+.nws-forecast-period.has-preview:hover .nws-forecast-flip-hint,
+.nws-forecast-period.has-preview:focus-within .nws-forecast-flip-hint {
+    opacity: 0;
+}
+
 .nws-forecast-face-back {
     transform: rotateY(180deg);
     display: grid;
