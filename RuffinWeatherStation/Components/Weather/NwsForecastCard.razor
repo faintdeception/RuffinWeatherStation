@@ -27,35 +27,12 @@
                 .Take(Math.Max(1, MaxItems))
                 .ToList();
 
-            @if (GroupByLocalDay)
-            {
-                var dayGroups = periodsForDisplay
-                    .GroupBy(p => (p.StartTimeUtc ?? DateTime.UtcNow).ToLocalTime().Date)
-                    .OrderBy(g => g.Key)
-                    .ToList();
-
-                @foreach (var dayGroup in dayGroups)
+            <div class="nws-forecast-strip" aria-label="Forecast periods">
+                @foreach (var period in periodsForDisplay)
                 {
-                    <div class="nws-forecast-day-group">
-                        <h5 class="nws-forecast-day-heading">@FormatDayHeading(dayGroup.Key)</h5>
-                        <div class="nws-forecast-grid">
-                            @foreach (var period in dayGroup)
-                            {
-                                @RenderPeriodCard(period)
-                            }
-                        </div>
-                    </div>
+                    @RenderPeriodCard(period, GroupByLocalDay)
                 }
-            }
-            else
-            {
-                <div class="nws-forecast-grid">
-                    @foreach (var period in periodsForDisplay)
-                    {
-                        @RenderPeriodCard(period)
-                    }
-                </div>
-            }
+            </div>
 
             @if (ShowSnapshotMeta)
             {
@@ -96,7 +73,7 @@
 
     private List<NwsForecastPeriodData> periodsForDisplay = new();
 
-    private RenderFragment RenderPeriodCard(NwsForecastPeriodData period) => @<article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night")">
+    private RenderFragment RenderPeriodCard(NwsForecastPeriodData period, bool showDayChip = false) => @<article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night")">
         <header class="nws-forecast-period-header">
             <div class="nws-forecast-period-title-wrap">
                 @if (!string.IsNullOrWhiteSpace(period.IconUrl))
@@ -110,7 +87,13 @@
                 {
                     <span class="nws-forecast-icon @GetForecastIconToneClass(period)" aria-hidden="true">@GetForecastIconGlyph(period)</span>
                 }
-                <div class="nws-forecast-period-name">@period.Name</div>
+                <div class="nws-forecast-period-title-stack">
+                    @if (showDayChip)
+                    {
+                        <div class="nws-forecast-day-chip">@GetPeriodDayLabel(period)</div>
+                    }
+                    <div class="nws-forecast-period-name">@period.Name</div>
+                </div>
             </div>
             <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
         </header>
@@ -218,6 +201,12 @@
         }
 
         return localDate.ToString("dddd, MMM d");
+    }
+
+    private static string GetPeriodDayLabel(NwsForecastPeriodData period)
+    {
+        var localDate = (period.StartTimeUtc ?? DateTime.UtcNow).ToLocalTime().Date;
+        return FormatDayHeading(localDate);
     }
 
     private static string FormatSnapshotAge(DateTime? snapshotUtc)
