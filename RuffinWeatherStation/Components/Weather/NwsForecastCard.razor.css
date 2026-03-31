@@ -311,16 +311,64 @@
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
-.nws-forecast-actions {
+.nws-forecast-actions-dotline {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
+    flex-wrap: nowrap;
+    gap: 0.28rem;
     margin-top: auto;
+    min-height: 0.8rem;
+    align-items: center;
 }
 
-.nws-forecast-actions .badge {
+.nws-forecast-action-dot {
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 999px;
+    border: 1px solid rgba(26, 42, 60, 0.2);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+    cursor: help;
+    flex: 0 0 auto;
+}
+
+.nws-forecast-action-dot.action-frost {
+    background: #cf3e3e;
+}
+
+.nws-forecast-action-dot.action-delay {
+    background: #2a6fe3;
+}
+
+.nws-forecast-action-dot.action-spray {
+    background: #d59a1c;
+}
+
+.nws-forecast-action-dot.action-mow {
+    background: #0f8d6a;
+}
+
+.nws-forecast-action-dot.action-plant {
+    background: #238f52;
+}
+
+.nws-forecast-action-dot.action-monitor {
+    background: #7b8794;
+}
+
+.nws-forecast-actions-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.85rem;
+    padding: 0.35rem 0.15rem 0;
+    border-top: 1px dashed rgba(78, 115, 150, 0.22);
+}
+
+.nws-forecast-actions-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     font-size: 0.72rem;
-    letter-spacing: 0.01em;
+    color: rgba(31, 61, 90, 0.84);
+    white-space: nowrap;
 }
 
 @media (max-width: 576px) {

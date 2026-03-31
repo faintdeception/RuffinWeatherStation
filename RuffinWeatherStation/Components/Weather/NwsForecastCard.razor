@@ -80,6 +80,23 @@
                 </div>
             }
 
+            @if (ShowGardenActions)
+            {
+                var legendItems = GetGardenLegendItems(periodsForDisplay);
+                if (legendItems.Any())
+                {
+                    <div class="nws-forecast-actions-legend mt-2" aria-label="Garden alert legend">
+                        @foreach (var item in legendItems)
+                        {
+                            <span class="nws-forecast-actions-legend-item" title="@item.Label">
+                                <span class="nws-forecast-action-dot @item.CssClass" aria-hidden="true"></span>
+                                <span>@item.Label</span>
+                            </span>
+                        }
+                    </div>
+                }
+            }
+
             @if (ShowSnapshotMeta)
             {
                 <div class="nws-forecast-meta mt-2">
@@ -219,10 +236,13 @@
             var actionTags = GetGardenActions(period);
             if (actionTags.Any())
             {
-                <div class="nws-forecast-actions mt-2">
+                <div class="nws-forecast-actions-dotline mt-2" role="list" aria-label="Garden planning alerts">
                     @foreach (var action in actionTags)
                     {
-                        <span class="badge @action.CssClass">@action.Label</span>
+                        <span class="nws-forecast-action-dot @action.CssClass"
+                              role="listitem"
+                              title="@action.Label"
+                              aria-label="@action.Label"></span>
                     }
                 </div>
             }
@@ -523,37 +543,61 @@
 
         if ((!period.IsDaytime || tempF <= 36) && (text.Contains("frost") || text.Contains("freeze") || tempF <= 33))
         {
-            actions.Add(new GardenActionTag("Frost caution", "text-bg-danger"));
+            actions.Add(new GardenActionTag("Frost caution", "action-frost"));
         }
 
         if (rainChance >= 45 || text.Contains("rain") || text.Contains("showers") || text.Contains("thunder"))
         {
-            actions.Add(new GardenActionTag("Delay watering", "text-bg-primary"));
+            actions.Add(new GardenActionTag("Delay watering", "action-delay"));
         }
 
         if (windMax >= 18 || text.Contains("gust") || text.Contains("thunder"))
         {
-            actions.Add(new GardenActionTag("Skip foliar spray", "text-bg-warning"));
+            actions.Add(new GardenActionTag("Skip foliar spray", "action-spray"));
         }
 
         if (period.IsDaytime && rainChance < 30 && windMax > 0 && windMax <= 12)
         {
-            actions.Add(new GardenActionTag("Good mowing window", "text-bg-success"));
+            actions.Add(new GardenActionTag("Good mowing window", "action-mow"));
         }
 
         if (period.IsDaytime && tempF >= 50 && tempF <= 86 && rainChance < 40 && windMax <= 15)
         {
-            actions.Add(new GardenActionTag("Good planting window", "text-bg-success"));
+            actions.Add(new GardenActionTag("Good planting window", "action-plant"));
         }
 
         if (actions.Count == 0)
         {
-            actions.Add(new GardenActionTag("Monitor conditions", "text-bg-secondary"));
+            actions.Add(new GardenActionTag("Monitor conditions", "action-monitor"));
         }
 
         return actions
             .DistinctBy(a => a.Label)
             .Take(3)
+            .ToList();
+    }
+
+    private static IReadOnlyList<GardenActionTag> GetGardenLegendItems(IReadOnlyList<NwsForecastPeriodData> periods)
+    {
+        if (periods.Count == 0)
+        {
+            return Array.Empty<GardenActionTag>();
+        }
+
+        var sortOrder = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            ["Frost caution"] = 0,
+            ["Delay watering"] = 1,
+            ["Skip foliar spray"] = 2,
+            ["Good planting window"] = 3,
+            ["Good mowing window"] = 4,
+            ["Monitor conditions"] = 5
+        };
+
+        return periods
+            .SelectMany(GetGardenActions)
+            .DistinctBy(a => a.Label)
+            .OrderBy(a => sortOrder.GetValueOrDefault(a.Label, int.MaxValue))
             .ToList();
     }
 
