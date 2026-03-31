@@ -150,7 +150,7 @@
         bool showDayChip,
         string? dayLabelOverride,
         string? nameOverride,
-        bool compactContent) => @<>
+        bool compactContent) => @<text>
         <header class="nws-forecast-period-header">
             <div class="nws-forecast-period-title-wrap">
                 <span class="nws-forecast-icon @GetForecastIconToneClass(period)" aria-hidden="true">@GetForecastIconGlyph(period)</span>
@@ -210,7 +210,7 @@
         {
             <p class="nws-forecast-detail mb-0">@period.ShortForecast</p>
         }
-    </>;
+    </text>;
 
     private static string FormatTemperature(NwsForecastPeriodData period)
     {
