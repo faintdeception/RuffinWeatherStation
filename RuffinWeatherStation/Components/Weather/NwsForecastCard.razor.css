@@ -84,23 +84,60 @@
     background: linear-gradient(165deg, rgba(234, 242, 250, 0.98) 0%, rgba(219, 231, 245, 0.95) 100%);
 }
 
-.nws-forecast-period.has-forecast-bg {
-    background-image:
-        linear-gradient(165deg, rgba(235, 244, 251, 0.38) 0%, rgba(219, 234, 246, 0.5) 100%),
-        var(--forecast-bg-image);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+
+.nws-forecast-period.has-preview {
+    cursor: pointer;
+    perspective: 900px;
+}
+
+.nws-forecast-card-flip {
+    position: relative;
+    min-height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 320ms ease;
+}
+
+.nws-forecast-period.has-preview:hover .nws-forecast-card-flip,
+.nws-forecast-period.has-preview:focus-within .nws-forecast-card-flip {
+    transform: rotateY(180deg);
+}
+
+.nws-forecast-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 0.72rem;
+    overflow: hidden;
+}
+
+.nws-forecast-face-back {
+    transform: rotateY(180deg);
+    display: grid;
+    grid-template-rows: 1fr auto;
+    background: linear-gradient(180deg, rgba(9, 27, 45, 0.96), rgba(16, 40, 64, 0.96));
+}
+
+.nws-forecast-face-back img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: rgba(8, 24, 40, 0.86);
+}
+
+.nws-forecast-face-back-caption {
+    font-size: 0.72rem;
+    line-height: 1.25;
+    color: rgba(238, 246, 255, 0.95);
+    padding: 0.38rem 0.45rem 0.45rem;
+    border-top: 1px solid rgba(194, 217, 239, 0.25);
 }
 
 .nws-forecast-period-content {
-    background: linear-gradient(160deg, rgba(248, 252, 255, 0.76) 0%, rgba(238, 247, 253, 0.82) 100%);
+    background: linear-gradient(160deg, rgba(248, 252, 255, 0.94) 0%, rgba(238, 247, 253, 0.95) 100%);
     border: 1px solid rgba(255, 255, 255, 0.45);
     border-radius: 0.72rem;
     padding: 0.5rem 0.55rem;
     min-height: 100%;
-    backdrop-filter: blur(3px) saturate(120%);
-    -webkit-backdrop-filter: blur(3px) saturate(120%);
 }
 
 .nws-forecast-period:hover {

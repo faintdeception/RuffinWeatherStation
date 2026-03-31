@@ -118,70 +118,98 @@
         bool showDayChip = false,
         string? dayLabelOverride = null,
         string? nameOverride = null,
-        bool compactContent = false) => @<article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night") @(HasForecastBackground(period) ? "has-forecast-bg" : string.Empty)"
-                                                 style="@GetForecastBackgroundStyle(period)">
-        <div class="nws-forecast-period-content">
-            <header class="nws-forecast-period-header">
-                <div class="nws-forecast-period-title-wrap">
-                    <span class="nws-forecast-icon @GetForecastIconToneClass(period)" aria-hidden="true">@GetForecastIconGlyph(period)</span>
-                    <div class="nws-forecast-period-title-stack">
-                        @if (showDayChip)
-                        {
-                            <div class="nws-forecast-day-chip">@(dayLabelOverride ?? GetPeriodDayLabel(period))</div>
-                        }
-                        <div class="nws-forecast-period-name">@(nameOverride ?? period.Name)</div>
-                    </div>
+        bool compactContent = false) => @<article class="nws-forecast-period @(period.IsDaytime ? "is-day" : "is-night") @(ShowFlipPreview(period, compactContent) ? "has-preview" : string.Empty)"
+                                                 tabindex="@(ShowFlipPreview(period, compactContent) ? "0" : null)"
+                                                 title="@(ShowFlipPreview(period, compactContent) ? "Hover or tap to preview icon detail" : null)">
+        @if (ShowFlipPreview(period, compactContent))
+        {
+            <div class="nws-forecast-card-flip">
+                <div class="nws-forecast-period-content nws-forecast-face nws-forecast-face-front">
+                    @RenderPeriodContent(period, showDayChip, dayLabelOverride, nameOverride, compactContent)
                 </div>
-                @if (!compactContent)
-                {
-                    <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
-                }
-            </header>
 
-            <div class="nws-forecast-keyline">
-                <span class="nws-forecast-temp">@FormatTemperature(period)</span>
-                <span class="nws-forecast-pop"
-                      aria-label="@GetPrecipitationLabel(period.PrecipitationChancePercent)"
-                      title="@GetPrecipitationLabel(period.PrecipitationChancePercent)">
-                    @GetPrecipitationEmoji(period.PrecipitationChancePercent) @FormatPercent(period.PrecipitationChancePercent)
-                </span>
+                <div class="nws-forecast-face nws-forecast-face-back" aria-hidden="true">
+                    <img src="@ResolveIconUrl(period.IconUrl)"
+                         alt="@GetForecastIconAltText(period)"
+                         loading="lazy" />
+                    <div class="nws-forecast-face-back-caption">@GetForecastIconAltText(period)</div>
+                </div>
             </div>
+        }
+        else
+        {
+            <div class="nws-forecast-period-content">
+                @RenderPeriodContent(period, showDayChip, dayLabelOverride, nameOverride, compactContent)
+            </div>
+        }
+    </article>;
 
+    private RenderFragment RenderPeriodContent(
+        NwsForecastPeriodData period,
+        bool showDayChip,
+        string? dayLabelOverride,
+        string? nameOverride,
+        bool compactContent) => @<>
+        <header class="nws-forecast-period-header">
+            <div class="nws-forecast-period-title-wrap">
+                <span class="nws-forecast-icon @GetForecastIconToneClass(period)" aria-hidden="true">@GetForecastIconGlyph(period)</span>
+                <div class="nws-forecast-period-title-stack">
+                    @if (showDayChip)
+                    {
+                        <div class="nws-forecast-day-chip">@(dayLabelOverride ?? GetPeriodDayLabel(period))</div>
+                    }
+                    <div class="nws-forecast-period-name">@(nameOverride ?? period.Name)</div>
+                </div>
+            </div>
             @if (!compactContent)
             {
-                <div class="nws-forecast-keyline subtle">
-                    <span>Wind @FormatWind(period)</span>
-                    @if (!string.IsNullOrWhiteSpace(period.WindDirection))
+                <div class="nws-forecast-period-time">@FormatPeriodStart(period.StartTimeUtc)</div>
+            }
+        </header>
+
+        <div class="nws-forecast-keyline">
+            <span class="nws-forecast-temp">@FormatTemperature(period)</span>
+            <span class="nws-forecast-pop"
+                  aria-label="@GetPrecipitationLabel(period.PrecipitationChancePercent)"
+                  title="@GetPrecipitationLabel(period.PrecipitationChancePercent)">
+                @GetPrecipitationEmoji(period.PrecipitationChancePercent) @FormatPercent(period.PrecipitationChancePercent)
+            </span>
+        </div>
+
+        @if (!compactContent)
+        {
+            <div class="nws-forecast-keyline subtle">
+                <span>Wind @FormatWind(period)</span>
+                @if (!string.IsNullOrWhiteSpace(period.WindDirection))
+                {
+                    <span>@period.WindDirection</span>
+                }
+            </div>
+        }
+
+        @if (ShowGardenActions)
+        {
+            var actionTags = GetGardenActions(period);
+            if (actionTags.Any())
+            {
+                <div class="nws-forecast-actions mt-2">
+                    @foreach (var action in actionTags)
                     {
-                        <span>@period.WindDirection</span>
+                        <span class="badge @action.CssClass">@action.Label</span>
                     }
                 </div>
             }
+        }
 
-            @if (ShowGardenActions)
-            {
-                var actionTags = GetGardenActions(period);
-                if (actionTags.Any())
-                {
-                    <div class="nws-forecast-actions mt-2">
-                        @foreach (var action in actionTags)
-                        {
-                            <span class="badge @action.CssClass">@action.Label</span>
-                        }
-                    </div>
-                }
-            }
-
-            @if (ShowDetailed && !compactContent && !string.IsNullOrWhiteSpace(period.DetailedForecast))
-            {
-                <p class="nws-forecast-detail mb-0">@period.DetailedForecast</p>
-            }
-            else if (!string.IsNullOrWhiteSpace(period.ShortForecast))
-            {
-                <p class="nws-forecast-detail mb-0">@period.ShortForecast</p>
-            }
-        </div>
-    </article>;
+        @if (ShowDetailed && !compactContent && !string.IsNullOrWhiteSpace(period.DetailedForecast))
+        {
+            <p class="nws-forecast-detail mb-0">@period.DetailedForecast</p>
+        }
+        else if (!string.IsNullOrWhiteSpace(period.ShortForecast))
+        {
+            <p class="nws-forecast-detail mb-0">@period.ShortForecast</p>
+        }
+    </>;
 
     private static string FormatTemperature(NwsForecastPeriodData period)
     {
@@ -337,17 +365,9 @@
             .ToList();
     }
 
-    private bool HasForecastBackground(NwsForecastPeriodData period) => !string.IsNullOrWhiteSpace(period.IconUrl);
-
-    private string GetForecastBackgroundStyle(NwsForecastPeriodData period)
+    private static bool ShowFlipPreview(NwsForecastPeriodData period, bool compactContent)
     {
-        if (string.IsNullOrWhiteSpace(period.IconUrl))
-        {
-            return string.Empty;
-        }
-
-        var iconUrl = ResolveIconUrl(period.IconUrl).Replace("'", "%27");
-        return $"--forecast-bg-image: url('{iconUrl}');";
+        return compactContent && !string.IsNullOrWhiteSpace(period.IconUrl);
     }
 
     private sealed class ForecastRowItem
@@ -590,6 +610,16 @@
         }
 
         return "tone-night";
+    }
+
+    private static string GetForecastIconAltText(NwsForecastPeriodData period)
+    {
+        if (!string.IsNullOrWhiteSpace(period.ShortForecast))
+        {
+            return $"{period.Name}: {period.ShortForecast}";
+        }
+
+        return $"{period.Name} forecast icon";
     }
 
     private string ResolveIconUrl(string iconUrl)
