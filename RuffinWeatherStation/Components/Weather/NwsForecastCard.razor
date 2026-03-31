@@ -150,7 +150,11 @@
 
         <div class="nws-forecast-keyline">
             <span class="nws-forecast-temp">@FormatTemperature(period)</span>
-            <span class="nws-forecast-pop">Rain @FormatPercent(period.PrecipitationChancePercent)</span>
+            <span class="nws-forecast-pop"
+                  aria-label="@GetPrecipitationLabel(period.PrecipitationChancePercent)"
+                  title="@GetPrecipitationLabel(period.PrecipitationChancePercent)">
+                @GetPrecipitationEmoji(period.PrecipitationChancePercent) @FormatPercent(period.PrecipitationChancePercent)
+            </span>
         </div>
 
         @if (!compactContent)
@@ -228,6 +232,46 @@
         }
 
         return $"{Math.Round(value.Value)}%";
+    }
+
+    private static string GetPrecipitationEmoji(double? value)
+    {
+        if (!value.HasValue)
+        {
+            return "🌦️";
+        }
+
+        if (value.Value < 15)
+        {
+            return "🌤️";
+        }
+
+        if (value.Value < 35)
+        {
+            return "⛅";
+        }
+
+        if (value.Value < 60)
+        {
+            return "🌦️";
+        }
+
+        if (value.Value < 80)
+        {
+            return "🌧️";
+        }
+
+        return "⛈️";
+    }
+
+    private static string GetPrecipitationLabel(double? value)
+    {
+        if (!value.HasValue)
+        {
+            return "Precipitation chance unavailable";
+        }
+
+        return $"Precipitation chance {Math.Round(value.Value)} percent";
     }
 
     private static string FormatWind(NwsForecastPeriodData period)
