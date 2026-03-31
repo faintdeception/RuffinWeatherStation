@@ -29,27 +29,41 @@
                 var pmItems = BuildDayPartRowItems(periodsForDisplay, isDaytime: false, "PM");
 
                 <div class="nws-forecast-matrix" aria-label="Forecast by day and daypart">
-                    @if (amItems.Any())
+                    @if (amItems.Any(i => i.Period != null))
                     {
                         <section class="nws-forecast-row-block" aria-label="AM forecast">
                             <div class="nws-forecast-row-title">AM</div>
                             <div class="nws-forecast-row-grid" style="--forecast-day-columns:@amItems.Count;">
                                 @foreach (var item in amItems)
                                 {
-                                    @RenderPeriodCard(item.Period, true, item.DayLabel, item.DayPartName, compactContent: true)
+                                    if (item.Period != null)
+                                    {
+                                        @RenderPeriodCard(item.Period, true, item.DayLabel, item.DayPartName, compactContent: true)
+                                    }
+                                    else
+                                    {
+                                        @RenderEmptyPeriodCard(item.DayLabel, item.DayPartName)
+                                    }
                                 }
                             </div>
                         </section>
                     }
 
-                    @if (pmItems.Any())
+                    @if (pmItems.Any(i => i.Period != null))
                     {
                         <section class="nws-forecast-row-block" aria-label="PM forecast">
                             <div class="nws-forecast-row-title">PM</div>
                             <div class="nws-forecast-row-grid" style="--forecast-day-columns:@pmItems.Count;">
                                 @foreach (var item in pmItems)
                                 {
-                                    @RenderPeriodCard(item.Period, true, item.DayLabel, item.DayPartName, compactContent: true)
+                                    if (item.Period != null)
+                                    {
+                                        @RenderPeriodCard(item.Period, true, item.DayLabel, item.DayPartName, compactContent: true)
+                                    }
+                                    else
+                                    {
+                                        @RenderEmptyPeriodCard(item.DayLabel, item.DayPartName)
+                                    }
                                 }
                             </div>
                         </section>
@@ -143,6 +157,18 @@
                 @RenderPeriodContent(period, showDayChip, dayLabelOverride, nameOverride, compactContent)
             </div>
         }
+    </article>;
+
+    private static RenderFragment RenderEmptyPeriodCard(string dayLabel, string dayPartName) => @<article class="nws-forecast-period nws-forecast-period-empty" aria-label="No @dayPartName forecast for @dayLabel">
+        <div class="nws-forecast-period-content">
+            <header class="nws-forecast-period-header">
+                <div class="nws-forecast-period-title-stack">
+                    <div class="nws-forecast-day-chip">@dayLabel</div>
+                    <div class="nws-forecast-period-name">@dayPartName</div>
+                </div>
+            </header>
+            <p class="nws-forecast-detail mb-0">No period available</p>
+        </div>
     </article>;
 
     private RenderFragment RenderPeriodContent(
@@ -350,18 +376,11 @@
         return periods
             .GroupBy(p => (p.StartTimeUtc ?? DateTime.UtcNow).ToLocalTime().Date)
             .OrderBy(g => g.Key)
-            .Select(g => new
+            .Select(g => new ForecastRowItem
             {
                 DayLabel = FormatCompactDayLabel(g.Key),
                 DayPartName = dayPartName,
                 Period = g.FirstOrDefault(p => p.IsDaytime == isDaytime)
-            })
-            .Where(i => i.Period != null)
-            .Select(i => new ForecastRowItem
-            {
-                DayLabel = i.DayLabel,
-                DayPartName = i.DayPartName,
-                Period = i.Period!
             })
             .ToList();
     }
@@ -377,7 +396,7 @@
 
         public string DayPartName { get; set; } = string.Empty;
 
-        public NwsForecastPeriodData Period { get; set; } = new();
+        public NwsForecastPeriodData? Period { get; set; }
     }
 
     private static string FormatSnapshotAge(DateTime? snapshotUtc)
