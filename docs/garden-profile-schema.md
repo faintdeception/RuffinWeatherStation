@@ -37,6 +37,12 @@ This document defines the expected shape and semantics for entries in:
 - Window fields define *when* sowing is in season.
 - `supportsSuccessionPlanting` defines whether repeated sowings are encouraged during active window(s).
 
+## Night-Streak Logic Semantics
+
+- Most planting profiles use warming logic: nights should be at or above `minNightTempC`.
+- Cooling logic (nights at or below threshold) is reserved for fall-planted bulb workflows.
+- Do not assume all `Perennial` profiles use cooling logic; warm/cool seasonal tags still follow warming logic.
+
 ## Data Entry Rules
 
 - Month-day fields must use `MM-dd`.

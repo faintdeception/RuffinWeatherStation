@@ -86,7 +86,7 @@
     "displayName": "Butterfly Weed",
     "categories": ["Warm Season", "Perennial"],
     "actionType": "plant",
-    "windowStartMonthDay": "04-15",
+    "windowStartMonthDay": "03-31",
     "windowEndMonthDay": "06-30",
     "secondaryWindowStartMonthDay": "08-01",
     "secondaryWindowEndMonthDay": "09-15",

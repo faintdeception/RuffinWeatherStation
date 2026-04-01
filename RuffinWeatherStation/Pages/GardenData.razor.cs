@@ -440,9 +440,7 @@ public partial class GardenData
                 : (DateOnly?)null;
 
             var nightThresholdC = profile.MinNightTempC ?? 10.00;
-            var useCoolingLogic = profile.Categories?.Any(c =>
-                c.Contains("bulb", StringComparison.OrdinalIgnoreCase) ||
-                c.Contains("perennial", StringComparison.OrdinalIgnoreCase)) == true;
+            var useCoolingLogic = ShouldUseCoolingLogic(profile);
 
             var nightStreak = CalculateNightStreak(nightThresholdC, useCoolingLogic);
             var requiredNights = Math.Max(0, profile.RequiredConsecutiveNights);
@@ -585,7 +583,7 @@ public partial class GardenData
             ? "plant"
             : actionType.Trim().ToLowerInvariant();
 
-        // For bulbs/perennials, pre-window reminders are usually buying actions.
+        // For cooling/fall-planting profiles, pre-window reminders are usually buying actions.
         if (normalizedAction == "plant" && useCoolingLogic && hasWindow && isWindowSoon && !isInWindow)
         {
             return "Buy";
@@ -674,6 +672,17 @@ public partial class GardenData
     private static bool ContainsCategory(List<string>? categories, string value)
     {
         return categories?.Any(c => c.Contains(value, StringComparison.OrdinalIgnoreCase)) == true;
+    }
+
+    private static bool ShouldUseCoolingLogic(GardenPlantProfile profile)
+    {
+        // Cooling logic is for fall-planted bulb workflows, not all perennials.
+        if (ContainsCategory(profile.Categories, "warm season") || ContainsCategory(profile.Categories, "cool season"))
+        {
+            return false;
+        }
+
+        return ContainsCategory(profile.Categories, "bulb");
     }
 
     private int CalculateNightStreak(double thresholdC, bool useCoolingLogic)
