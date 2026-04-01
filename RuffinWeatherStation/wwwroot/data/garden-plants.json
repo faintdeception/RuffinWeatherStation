@@ -82,6 +82,24 @@
     "notes": "Needs warmth to germinate. Slow starter outdoors."
   },
   {
+    "plantId": "cilantro",
+    "displayName": "Cilantro",
+    "categories": ["Cool Season", "Annual"],
+    "actionType": "plant",
+    "windowStartMonthDay": "03-01",
+    "windowEndMonthDay": "05-15",
+    "secondaryWindowStartMonthDay": "08-15",
+    "secondaryWindowEndMonthDay": "10-15",
+    "leadDays": 7,
+    "latestPlantMonthDay": "05-15",
+    "supportsSuccessionPlanting": true,
+    "minNightTempC": 4.44,
+    "requiredConsecutiveNights": 2,
+    "daysAfterLastFrostToTransplant": -14,
+    "daysBeforeLastFrostToStartIndoors": null,
+    "notes": "Sow in spring or fall after frost risk. Plant 1/4 inch deep, spacing 4-6 inches apart. Full sun to partial shade. Keep soil moderately rich and moist. Harvest leaves at 50-60 days; harvest seeds at ~70 days."
+  },
+  {
     "plantId": "dill",
     "displayName": "Dill",
     "categories": ["Cool Season", "Annual"],
