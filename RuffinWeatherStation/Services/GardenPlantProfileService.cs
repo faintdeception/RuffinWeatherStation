@@ -97,11 +97,6 @@ public class GardenPlantProfileService
                 warnings.Add($"{prefix} has invalid latestPlantMonthDay '{profile.LatestPlantMonthDay}'. Expected MM-dd.");
             }
 
-            if (profile.SupportsSuccessionPlanting && !string.IsNullOrWhiteSpace(profile.WindowStartMonthDay) && !string.IsNullOrWhiteSpace(profile.WindowEndMonthDay))
-            {
-                warnings.Add($"{prefix} is marked supportsSuccessionPlanting=true but also has a fixed primary window. Verify this intent.");
-            }
-
             var action = profile.ActionType?.Trim().ToLowerInvariant() ?? "plant";
             if (action is not ("plant" or "buy" or "harvest" or "prep"))
             {

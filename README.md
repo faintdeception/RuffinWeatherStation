@@ -70,11 +70,24 @@ Each profile supports plant-decision guidance fields, including:
 - `categories`
 - `actionType` (`plant`, `buy`, `harvest`, `prep`)
 - `windowStartMonthDay`, `windowEndMonthDay`, `leadDays`
+- `secondaryWindowStartMonthDay`, `secondaryWindowEndMonthDay`
 - `harvestWindowStartMonthDay`, `harvestWindowEndMonthDay`, `harvestLeadDays`
+- `latestPlantMonthDay`, `supportsSuccessionPlanting`
 - `minNightTempF`, `requiredConsecutiveNights`
 - frost-offset helpers: `daysAfterLastFrostToTransplant`, `daysBeforeLastFrostToStartIndoors`
 
+Notes on planting semantics:
+
+- Seasonal windows (`windowStartMonthDay`/`windowEndMonthDay` and optional secondary window) define when planting is in-season.
+- `supportsSuccessionPlanting` is independent of seasonal windows and can be used together with fixed windows.
+- Use `supportsSuccessionPlanting=true` when repeated sowings are valid during active window(s).
+- Use `latestPlantMonthDay` as a hard cutoff only for profiles that do not rely entirely on explicit window fields.
+
 Current card logic uses recent daily station lows for night-streak checks and supports season-aware transitions like pre-window `Buy` reminders for bulb/perennial paths.
+
+For complete field definitions and data-entry conventions, see:
+
+- `docs/garden-profile-schema.md`
 
 ### Plant Profile Validation
 
