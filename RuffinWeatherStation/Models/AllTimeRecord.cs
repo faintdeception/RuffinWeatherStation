@@ -15,6 +15,51 @@ namespace RuffinWeatherStation.Models
 
         [JsonPropertyName("timestamp")]
         public long Timestamp { get; set; }
+
+        [JsonPropertyName("context")]
+        public AllTimeRecordContext? Context { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("sensor_type")]
+        public string? SensorType { get; set; }
+    }
+
+    public class AllTimeRecordContext
+    {
+        [JsonPropertyName("day")]
+        public AllTimeRecordDayContext? Day { get; set; }
+
+        [JsonPropertyName("conditions")]
+        public AllTimeRecordConditionsContext? Conditions { get; set; }
+    }
+
+    public class AllTimeRecordDayContext
+    {
+        [JsonPropertyName("date")]
+        public string? Date { get; set; }
+
+        [JsonPropertyName("avg")]
+        public double? Avg { get; set; }
+
+        [JsonPropertyName("min")]
+        public double? Min { get; set; }
+
+        [JsonPropertyName("max")]
+        public double? Max { get; set; }
+    }
+
+    public class AllTimeRecordConditionsContext
+    {
+        [JsonPropertyName("humidity")]
+        public double? Humidity { get; set; }
+
+        [JsonPropertyName("wind_speed")]
+        public double? WindSpeed { get; set; }
+
+        [JsonPropertyName("lux")]
+        public double? Lux { get; set; }
     }
 
     public class AllTimeRecordsResponse

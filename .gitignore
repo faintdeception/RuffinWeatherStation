@@ -81,6 +81,9 @@ appsettings.Production.json
 appsettings.Staging.json
 !appsettings.template.json
 !**/wwwroot/appsettings.json
+.env
+*.env
+**/.env
 
 # JetBrains Rider
 .idea/

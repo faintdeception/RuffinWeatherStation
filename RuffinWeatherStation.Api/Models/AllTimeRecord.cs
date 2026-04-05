@@ -29,6 +29,63 @@ namespace RuffinWeatherStation.Api.Models
         [BsonElement("date")]
         [JsonPropertyName("date")]
         public string Date { get; set; } = string.Empty;
+
+        [BsonElement("context")]
+        [JsonPropertyName("context")]
+        public AllTimeRecordContext? Context { get; set; }
+
+        [BsonElement("source")]
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [BsonElement("sensor_type")]
+        [JsonPropertyName("sensor_type")]
+        public string? SensorType { get; set; }
+    }
+
+    public class AllTimeRecordContext
+    {
+        [BsonElement("day")]
+        [JsonPropertyName("day")]
+        public AllTimeRecordDayContext? Day { get; set; }
+
+        [BsonElement("conditions")]
+        [JsonPropertyName("conditions")]
+        public AllTimeRecordConditionsContext? Conditions { get; set; }
+    }
+
+    public class AllTimeRecordDayContext
+    {
+        [BsonElement("date")]
+        [JsonPropertyName("date")]
+        public string? Date { get; set; }
+
+        [BsonElement("avg")]
+        [JsonPropertyName("avg")]
+        public double? Avg { get; set; }
+
+        [BsonElement("min")]
+        [JsonPropertyName("min")]
+        public double? Min { get; set; }
+
+        [BsonElement("max")]
+        [JsonPropertyName("max")]
+        public double? Max { get; set; }
+    }
+
+    public class AllTimeRecordConditionsContext
+    {
+        [BsonElement("humidity")]
+        [JsonPropertyName("humidity")]
+        public double? Humidity { get; set; }
+
+        [BsonElement("wind_speed")]
+        [JsonPropertyName("wind_speed")]
+        public double? WindSpeed { get; set; }
+
+        [BsonElement("lux")]
+        [JsonPropertyName("lux")]
+        public double? Lux { get; set; }
     }
 
     public class AllTimeRecordEntry
@@ -44,6 +101,15 @@ namespace RuffinWeatherStation.Api.Models
 
         [JsonPropertyName("timestamp")]
         public long Timestamp { get; set; }
+
+        [JsonPropertyName("context")]
+        public AllTimeRecordContext? Context { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("sensor_type")]
+        public string? SensorType { get; set; }
     }
 
     public class AllTimeRecordsResponse

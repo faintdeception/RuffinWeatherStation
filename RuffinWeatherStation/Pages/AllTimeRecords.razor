@@ -63,6 +63,26 @@ else
                         <div class="display-6">@records.Temperature.Value.ToString("F1")C</div>
                         <div class="h5 text-muted">@ToFahrenheit(records.Temperature.Value).ToString("F1")F</div>
                         <p class="mt-2 mb-0">Recorded: @FormatRecordDate(records.Temperature.Date)</p>
+
+                        @if (records.Temperature.Context?.Day != null)
+                        {
+                            <p class="small text-muted mt-2 mb-1">
+                                Day range: @FormatOptionalDouble(records.Temperature.Context.Day.Min, "F1")C to @FormatOptionalDouble(records.Temperature.Context.Day.Max, "F1")C
+                                (@FormatOptionalDouble(ToFahrenheitNullable(records.Temperature.Context.Day.Min), "F1")F to @FormatOptionalDouble(ToFahrenheitNullable(records.Temperature.Context.Day.Max), "F1")F)
+                            </p>
+                        }
+
+                        @if (records.Temperature.Context?.Conditions != null)
+                        {
+                            <p class="small text-muted mb-1">
+                                Conditions: RH @FormatOptionalDouble(records.Temperature.Context.Conditions.Humidity, "F1")%, Wind @FormatOptionalDouble(records.Temperature.Context.Conditions.WindSpeed, "F2") m/s, Lux @FormatOptionalDouble(records.Temperature.Context.Conditions.Lux, "F0")
+                            </p>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(records.Temperature.Source))
+                        {
+                            <small class="text-muted d-block">Source: @records.Temperature.Source</small>
+                        }
                     }
                     else
                     {
@@ -146,6 +166,13 @@ else
     }
 
     private static double ToFahrenheit(double celsius) => (celsius * 9d / 5d) + 32d;
+
+    private static double? ToFahrenheitNullable(double? celsius) => celsius.HasValue ? (celsius.Value * 9d / 5d) + 32d : null;
+
+    private static string FormatOptionalDouble(double? value, string format)
+    {
+        return value.HasValue ? value.Value.ToString(format) : "N/A";
+    }
 
     private static string FormatRecordDate(string? date)
     {

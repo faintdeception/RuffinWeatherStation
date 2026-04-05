@@ -235,7 +235,10 @@ namespace RuffinWeatherStation.Api.Services
                     Field = record.Field,
                     Value = record.Value,
                     Date = record.Date,
-                    Timestamp = record.Timestamp
+                    Timestamp = record.Timestamp,
+                    Context = record.Context,
+                    Source = record.Source,
+                    SensorType = record.SensorType
                 };
             }
 
