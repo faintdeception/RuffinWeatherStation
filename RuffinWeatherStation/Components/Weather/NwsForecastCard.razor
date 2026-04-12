@@ -89,7 +89,16 @@
                         @foreach (var item in legendItems)
                         {
                             <span class="nws-forecast-actions-legend-item" title="@item.Label">
-                                <span class="nws-forecast-action-dot @item.CssClass" aria-hidden="true"></span>
+                                <span class="nws-forecast-action-marker" aria-hidden="true">
+                                    @if (HasGardenActionEmoji(item))
+                                    {
+                                        <span class="nws-forecast-action-emoji" aria-hidden="true">@item.Emoji</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="nws-forecast-action-dot @item.CssClass" aria-hidden="true"></span>
+                                    }
+                                </span>
                                 <span>@item.Label</span>
                             </span>
                         }
@@ -239,10 +248,19 @@
                 <div class="nws-forecast-actions-dotline mt-2" role="list" aria-label="Garden planning alerts">
                     @foreach (var action in actionTags)
                     {
-                        <span class="nws-forecast-action-dot @action.CssClass"
+                        <span class="nws-forecast-action-marker"
                               role="listitem"
                               title="@action.Label"
-                              aria-label="@action.Label"></span>
+                              aria-label="@action.Label">
+                            @if (HasGardenActionEmoji(action))
+                            {
+                                <span class="nws-forecast-action-emoji" aria-hidden="true">@action.Emoji</span>
+                            }
+                            else
+                            {
+                                <span class="nws-forecast-action-dot @action.CssClass" aria-hidden="true"></span>
+                            }
+                        </span>
                     }
                 </div>
             }
@@ -543,27 +561,27 @@
 
         if ((!period.IsDaytime || tempF <= 36) && (text.Contains("frost") || text.Contains("freeze") || tempF <= 33))
         {
-            actions.Add(new GardenActionTag("Frost caution", "action-frost"));
+            actions.Add(new GardenActionTag("Frost caution", "action-frost", "❄️"));
         }
 
         if (rainChance >= 45 || text.Contains("rain") || text.Contains("showers") || text.Contains("thunder"))
         {
-            actions.Add(new GardenActionTag("Delay watering", "action-delay"));
+            actions.Add(new GardenActionTag("Delay watering", "action-delay", "💧"));
         }
 
         if (windMax >= 18 || text.Contains("gust") || text.Contains("thunder"))
         {
-            actions.Add(new GardenActionTag("Skip foliar spray", "action-spray"));
+            actions.Add(new GardenActionTag("Skip foliar spray", "action-spray", "💨"));
         }
 
         if (period.IsDaytime && rainChance < 30 && windMax > 0 && windMax <= 12)
         {
-            actions.Add(new GardenActionTag("Good mowing window", "action-mow"));
+            actions.Add(new GardenActionTag("Good mowing window", "action-mow", "🚜"));
         }
 
         if (period.IsDaytime && tempF >= 50 && tempF <= 86 && rainChance < 40 && windMax <= 15)
         {
-            actions.Add(new GardenActionTag("Good planting window", "action-plant"));
+            actions.Add(new GardenActionTag("Good planting window", "action-plant", "🌱"));
         }
 
         if (actions.Count == 0)
@@ -599,6 +617,11 @@
             .DistinctBy(a => a.Label)
             .OrderBy(a => sortOrder.GetValueOrDefault(a.Label, int.MaxValue))
             .ToList();
+    }
+
+    private static bool HasGardenActionEmoji(GardenActionTag action)
+    {
+        return !string.IsNullOrWhiteSpace(action.Emoji);
     }
 
     private static string GetForecastIconGlyph(NwsForecastPeriodData period)
@@ -752,5 +775,5 @@
         return period.Temperature ?? double.NaN;
     }
 
-    private sealed record GardenActionTag(string Label, string CssClass);
+    private sealed record GardenActionTag(string Label, string CssClass, string? Emoji = null);
 }

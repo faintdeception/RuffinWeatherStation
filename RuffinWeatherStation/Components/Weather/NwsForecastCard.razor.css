@@ -316,8 +316,23 @@
     flex-wrap: nowrap;
     gap: 0.28rem;
     margin-top: auto;
-    min-height: 0.8rem;
+    min-height: 1rem;
     align-items: center;
+}
+
+.nws-forecast-action-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0.9rem;
+    min-height: 0.9rem;
+    flex: 0 0 auto;
+    cursor: help;
+}
+
+.nws-forecast-action-emoji {
+    font-size: 0.9rem;
+    line-height: 1;
 }
 
 .nws-forecast-action-dot {
@@ -326,7 +341,6 @@
     border-radius: 999px;
     border: 1px solid rgba(26, 42, 60, 0.2);
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
-    cursor: help;
     flex: 0 0 auto;
 }
 
