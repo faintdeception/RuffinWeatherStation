@@ -102,3 +102,4 @@ _NCrunch_*
 *.binlog
 *.pid
 .ionide/
+.deslop/

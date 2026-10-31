@@ -180,7 +180,7 @@
             return [];
         }
 
-        const double gustFloorMetersPerSecond = 1.5;
+        const double gustFloorMetersPerSecond = 1.0;
 
         var detectedGusts = new List<TemperatureMeasurement>();
 
@@ -335,11 +335,11 @@
     {
         return
         [
-            new WindLegendEntry { CssClass = "wind-intensity-calm", Label = "Calm: < 2 m/s" },
-            new WindLegendEntry { CssClass = "wind-intensity-breezy", Label = "Breezy: 2 to 4.9 m/s" },
-            new WindLegendEntry { CssClass = "wind-intensity-fresh", Label = "Fresh: 5 to 8.9 m/s" },
-            new WindLegendEntry { CssClass = "wind-intensity-strong", Label = "Strong: 9 to 13.9 m/s" },
-            new WindLegendEntry { CssClass = "wind-intensity-severe", Label = "Severe: 14+ m/s" }
+            new WindLegendEntry { CssClass = "wind-intensity-calm", Label =             "Calm: < 0.5 m/s" },
+                        new WindLegendEntry { CssClass = "wind-intensity-breezy", Label = "Breezy: 0.5 to 0.9 m/s" },
+                        new WindLegendEntry { CssClass = "wind-intensity-fresh", Label = "Fresh: 1 to 1.9 m/s" },
+                        new WindLegendEntry { CssClass = "wind-intensity-strong", Label = "Strong: 2 to 3.4 m/s" },
+                        new WindLegendEntry { CssClass = "wind-intensity-severe", Label = "Severe: 3.5+ m/s" }
         ];
     }
 

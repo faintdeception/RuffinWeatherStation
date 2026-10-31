@@ -89,7 +89,7 @@ public static class WeatherDisplayHelpers
         const double center = 110;
         const double minRadius = 20;
         const double maxRadius = 90;
-        const double referenceSpeed = 25; // m/s cap for petal scaling
+        const double referenceSpeed = 6; // m/s cap (station record is ~5.8) for petal scaling
 
         // Ease-out scaling creates stronger visual separation for light-to-moderate gusts.
         var normalizedSpeed = Math.Clamp(speed / referenceSpeed, 0, 1);
@@ -108,32 +108,32 @@ public static class WeatherDisplayHelpers
     {
         return speed switch
         {
-            < 2 => "wind-intensity-calm",
-            < 5 => "wind-intensity-breezy",
-            < 9 => "wind-intensity-fresh",
-            < 14 => "wind-intensity-strong",
+            < 0.5 => "wind-intensity-calm",
+            < 1 => "wind-intensity-breezy",
+            < 2 => "wind-intensity-fresh",
+            < 3.5 => "wind-intensity-strong",
             _ => "wind-intensity-severe"
         };
     }
 
     public static double GetWindPetalStrokeWidth(double speed)
     {
-        if (speed < 2)
+        if (speed < 0.5)
         {
             return 1.0;
         }
 
-        if (speed < 5)
+        if (speed < 1)
         {
             return 1.3;
         }
 
-        if (speed < 9)
+        if (speed < 2)
         {
             return 1.7;
         }
 
-        if (speed < 14)
+        if (speed < 3.5)
         {
             return 2.1;
         }
