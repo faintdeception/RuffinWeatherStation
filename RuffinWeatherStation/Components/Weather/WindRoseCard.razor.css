@@ -39,28 +39,28 @@
 }
 
 .wind-intensity-calm {
-    fill: rgba(79, 145, 226, 0.62);
-    stroke: rgba(32, 83, 143, 0.7);
+    fill: rgb(200, 210, 220);
+    stroke: rgb(90, 100, 112);
 }
 
 .wind-intensity-breezy {
-    fill: rgba(87, 174, 214, 0.74);
-    stroke: rgba(21, 103, 130, 0.8);
+    fill: rgb(0, 114, 178);
+    stroke: rgb(0, 60, 100);
 }
 
 .wind-intensity-fresh {
-    fill: rgba(88, 173, 104, 0.78);
-    stroke: rgba(39, 112, 53, 0.86);
+    fill: rgb(240, 228, 66);
+    stroke: rgb(130, 120, 0);
 }
 
 .wind-intensity-strong {
-    fill: rgba(235, 183, 57, 0.84);
-    stroke: rgba(158, 104, 8, 0.9);
+    fill: rgb(213, 94, 0);
+    stroke: rgb(110, 45, 0);
 }
 
 .wind-intensity-severe {
-    fill: rgba(219, 83, 65, 0.9);
-    stroke: rgba(146, 36, 28, 0.96);
+    fill: rgb(120, 20, 110);
+    stroke: rgb(60, 0, 55);
 }
 
 .wind-rose-center {
@@ -131,28 +131,28 @@
 }
 
 .wind-distribution-swatch.wind-intensity-calm {
-    background-color: rgba(79, 145, 226, 0.62);
-    border-color: rgba(32, 83, 143, 0.7);
+    background-color: rgb(200, 210, 220);
+    border-color: rgb(90, 100, 112);
 }
 
 .wind-distribution-swatch.wind-intensity-breezy {
-    background-color: rgba(87, 174, 214, 0.74);
-    border-color: rgba(21, 103, 130, 0.8);
+    background-color: rgb(0, 114, 178);
+    border-color: rgb(0, 60, 100);
 }
 
 .wind-distribution-swatch.wind-intensity-fresh {
-    background-color: rgba(88, 173, 104, 0.78);
-    border-color: rgba(39, 112, 53, 0.86);
+    background-color: rgb(240, 228, 66);
+    border-color: rgb(130, 120, 0);
 }
 
 .wind-distribution-swatch.wind-intensity-strong {
-    background-color: rgba(235, 183, 57, 0.84);
-    border-color: rgba(158, 104, 8, 0.9);
+    background-color: rgb(213, 94, 0);
+    border-color: rgb(110, 45, 0);
 }
 
 .wind-distribution-swatch.wind-intensity-severe {
-    background-color: rgba(219, 83, 65, 0.9);
-    border-color: rgba(146, 36, 28, 0.96);
+    background-color: rgb(120, 20, 110);
+    border-color: rgb(60, 0, 55);
 }
 
 .gust-history-title {
